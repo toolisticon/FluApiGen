@@ -1,0 +1,136 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+
+    <artifactId>fluapigen-processor</artifactId>
+    <packaging>jar</packaging>
+
+    <parent>
+        <groupId>io.toolisticon.fluapigen</groupId>
+        <artifactId>fluapigen</artifactId>
+        <version>0.0.1</version>
+    </parent>
+
+    <name>fluapigen-processor</name>
+
+    <dependencies>
+
+        <dependency>
+            <groupId>io.toolisticon.fluapigen</groupId>
+            <artifactId>fluapigen-api</artifactId>
+            <scope>compile</scope>
+        </dependency>
+
+        <dependency>
+            <groupId>io.toolisticon.aptk</groupId>
+            <artifactId>aptk-tools</artifactId>
+        </dependency>
+
+        <!-- annotation processor apis -->
+        <dependency>
+            <groupId>io.toolisticon.aptk</groupId>
+            <artifactId>aptk-annotationwrapper-api</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>io.toolisticon.aptk</groupId>
+            <artifactId>aptk-compilermessages-api</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>io.toolisticon.spiap</groupId>
+            <artifactId>spiap-api</artifactId>
+        </dependency>
+
+        <!-- Test dependencies -->
+        <dependency>
+            <groupId>io.toolisticon.cute</groupId>
+            <artifactId>cute</artifactId>
+        </dependency>
+
+    </dependencies>
+
+
+    <build>
+
+        <plugins>
+
+
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-shade-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <phase>package</phase>
+                        <goals>
+                            <goal>shade</goal>
+                        </goals>
+
+                        <configuration>
+
+
+                            <createDependencyReducedPom>true</createDependencyReducedPom>
+
+                            <!--
+                                usually you should repackage all referenced 3RD party libraries into your annotation processor jar.
+                                    - because the annotation processor should always be linked as provided dependency when it is used.
+                                    - to prevent a version conflict of your annotation processors dependencies and the applications dependencies.
+                            -->
+
+                            <relocations>
+                                <relocation>
+                                    <pattern>io.toolisticon.aptk</pattern>
+                                    <shadedPattern>io.toolisticon.fluapigen._3rdparty.io.toolisticon.aptk
+                                    </shadedPattern>
+                                </relocation>
+                            </relocations>
+
+                        </configuration>
+
+                    </execution>
+                </executions>
+
+            </plugin>
+
+
+            <plugin>
+                <artifactId>maven-compiler-plugin</artifactId>
+                <configuration combine.self="append">
+                    <verbose>true</verbose>
+                    <annotationProcessorPaths>
+                        <path>
+                            <groupId>io.toolisticon.spiap</groupId>
+                            <artifactId>spiap-processor</artifactId>
+                            <version>${spiap.version}</version>
+                        </path>
+                        <path>
+                            <groupId>io.toolisticon.aptk</groupId>
+                            <artifactId>aptk-annotationwrapper-processor</artifactId>
+                            <version>${aptk.version}</version>
+                        </path>
+                        <path>
+                            <groupId>io.toolisticon.aptk</groupId>
+                            <artifactId>aptk-annotationwrapper-api</artifactId>
+                            <version>${aptk.version}</version>
+                        </path>
+                        <path>
+                            <groupId>io.toolisticon.aptk</groupId>
+                            <artifactId>aptk-compilermessages-processor</artifactId>
+                            <version>${aptk.version}</version>
+                        </path>
+                        <path>
+                            <groupId>io.toolisticon.aptk</groupId>
+                            <artifactId>aptk-compilermessages-api</artifactId>
+                            <version>${aptk.version}</version>
+                        </path>
+                    </annotationProcessorPaths>
+                </configuration>
+            </plugin>
+
+        </plugins>
+
+    </build>
+
+
+</project>
