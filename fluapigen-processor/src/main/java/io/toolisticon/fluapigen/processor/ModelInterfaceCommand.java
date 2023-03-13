@@ -1,9 +1,7 @@
 package io.toolisticon.fluapigen.processor;
 
-import io.toolisticon.aptk.tools.TypeMirrorWrapper;
 import io.toolisticon.aptk.tools.wrapper.ExecutableElementWrapper;
 
-import javax.lang.model.element.VariableElement;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -25,7 +23,7 @@ public class ModelInterfaceCommand implements FetchImports {
     }
 
     public String getCommandMethod() {
-        return this.fluentApiCommandWrapper.valueAsTypeMirrorWrapper().getSimpleName().toString() + "." + fluentApiCommandWrapper.getCommandMethodName();
+        return this.fluentApiCommandWrapper.valueAsTypeMirrorWrapper().getSimpleName() + "." + fluentApiCommandWrapper.getCommandMethodName();
     }
 
     public boolean hasReturnType() {

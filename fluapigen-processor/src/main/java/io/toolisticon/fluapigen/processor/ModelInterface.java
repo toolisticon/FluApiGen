@@ -1,10 +1,8 @@
 package io.toolisticon.fluapigen.processor;
 
-import io.toolisticon.aptk.tools.TypeUtils;
 import io.toolisticon.aptk.tools.corematcher.AptkCoreMatchers;
 import io.toolisticon.aptk.tools.fluentfilter.FluentElementFilter;
 import io.toolisticon.aptk.tools.wrapper.ExecutableElementWrapper;
-import io.toolisticon.fluapigen.api.FluentApiBackingBeanMapping;
 import io.toolisticon.fluapigen.api.FluentApiCommand;
 import io.toolisticon.fluapigen.api.FluentApiRoot;
 
@@ -56,6 +54,7 @@ public class ModelInterface implements FetchImports {
     public String interfaceClassSimpleName() {
         return wrapper._annotatedElement().getSimpleName().toString();
     }
+
     public String interfaceClassName() {
         return wrapper._annotatedElement().getEnclosingElement().getSimpleName().toString() + "." + wrapper._annotatedElement().getSimpleName().toString();
     }
@@ -67,8 +66,6 @@ public class ModelInterface implements FetchImports {
     public List<ModelInterfaceCommand> getCommands() {
         return commands;
     }
-
-
 
 
     @Override

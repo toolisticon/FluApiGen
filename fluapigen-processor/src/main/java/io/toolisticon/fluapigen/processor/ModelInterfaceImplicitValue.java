@@ -1,7 +1,5 @@
 package io.toolisticon.fluapigen.processor;
 
-import io.toolisticon.fluapigen.api.FluentApiImplicitValue;
-
 public class ModelInterfaceImplicitValue {
 
 
@@ -26,12 +24,29 @@ public class ModelInterfaceImplicitValue {
 
             switch (backingBeanField.getFieldType().getQualifiedName()) {
                 case "java.lang.String": {
-                    return "\""+annotation.value()+"\"";
+                    return "\"" + annotation.value() + "\"";
                 }
                 case "boolean":
                 case "java.lang.Boolean": {
                     return Boolean.valueOf(annotation.value()).toString();
                 }
+                case "int":
+                case "java.lang.Integer": {
+                    return Integer.valueOf(annotation.value()).toString();
+                }
+                case "long":
+                case "java.lang.Long": {
+                    return Long.valueOf(annotation.value()).toString();
+                }
+                case "float":
+                case "java.lang.Float": {
+                    return Float.valueOf(annotation.value()).toString();
+                }
+                case "double":
+                case "java.lang.Double": {
+                    return Float.valueOf(annotation.value()).toString();
+                }
+
             }
 
             return "";

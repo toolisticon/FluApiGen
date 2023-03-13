@@ -1,9 +1,10 @@
 package io.toolisticon.fluapigen.processor;
 
-import java.util.HashMap;
+import io.toolisticon.aptk.compilermessage.api.DeclareCompilerMessage;
+import io.toolisticon.fluapigen.api.FluentApiRoot;
+
 import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.stream.Collectors;
 
 /**
  * The processing state.
@@ -37,7 +38,6 @@ public class FluentApiState {
     public List<FluentApiCommandWrapper> getFluentApiCommandWrappers() {
         return fluentApiCommandWrappers;
     }
-
 
 
     public boolean validate() {

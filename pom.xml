@@ -9,38 +9,35 @@
     <packaging>pom</packaging>
 
     <name>fluapigen</name>
-    <!-- TODO: UPDATE URLS -->
     <description>Please refer to https://github.com/toolisticon/fluapigen</description>
     <url>https://github.com/holisticon/fluapigen</url>
 
     <!-- TODO: Add Organisation -->
     <organization>
-        <name/>
-        <url/>
+        <name>Holisticon AG</name>
+        <url>http://www.holisticon.de/</url>
     </organization>
-    <!-- TODO:  Add developers-->
     <developers>
-        <!--
         <developer>
-            <name></name>
-            <email></email>
-            <organization></organization>
-            <organizationUrl></organizationUrl>
+            <name>Tobias Stamann</name>
+            <email>tobias.stamann@holisticon.de</email>
+            <organization>Holisticon AG</organization>
+            <organizationUrl>http://holisticon.de/</organizationUrl>
         </developer>
-        -->
     </developers>
 
-    <!-- TODO: Update License -->
     <licenses>
         <license>
             <name>MIT License</name>
-            <url>https://en.wikipedia.org/wiki/MIT_License</url>
+            <url>
+                https://en.wikipedia.org/wiki/MIT_License
+            </url>
             <comments>s. LICENSE file</comments>
             <distribution>repo</distribution>
         </license>
     </licenses>
 
-    <inceptionYear>2021</inceptionYear>
+    <inceptionYear>2023</inceptionYear>
 
     <prerequisites>
         <maven>3.6.0</maven>
@@ -96,7 +93,7 @@
         <maven-gpg-plugin.version>1.4</maven-gpg-plugin.version>    <!-- do not change to 1.6, it fails! -->
         <maven-help-plugin.version>3.3.0</maven-help-plugin.version>
         <maven-install-plugin.version>2.5.2</maven-install-plugin.version>
-        <maven-jacoco-plugin.version>0.8.5</maven-jacoco-plugin.version>
+        <maven-jacoco-plugin.version>0.8.8</maven-jacoco-plugin.version>
         <maven-jar-plugin.version>3.3.0</maven-jar-plugin.version>
         <maven-javadoc-plugin.version>3.0.0</maven-javadoc-plugin.version>
         <maven-processor-plugin.version>2.2.4</maven-processor-plugin.version>
@@ -210,7 +207,6 @@
                 <plugin>
                     <groupId>org.jacoco</groupId>
                     <artifactId>jacoco-maven-plugin</artifactId>
-                    <version>${maven-jacoco-plugin.version}</version>
                     <executions>
                         <execution>
                             <goals>

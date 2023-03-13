@@ -1,5 +1,6 @@
 package io.toolisticon.fluapigen.processor;
 
+import io.toolisticon.aptk.compilermessage.api.DeclareCompilerMessage;
 import io.toolisticon.aptk.compilermessage.api.DeclareCompilerMessageCodePrefix;
 import io.toolisticon.aptk.tools.AbstractAnnotationProcessor;
 import io.toolisticon.aptk.tools.FilerUtils;
@@ -57,6 +58,7 @@ public class FluentApiProcessor extends AbstractAnnotationProcessor {
 
     }
 
+    @DeclareCompilerMessage(code = "021", enumValueName = "ERROR_COULD_NOT_CREATE_CLASS", message = "Could not create class ${0} : ${1}")
     private void createClass(Element element, FluentApiWrapper fluentApiWrapper) {
 
         FluentApiState state = fluentApiWrapper.getState();
@@ -77,7 +79,7 @@ public class FluentApiProcessor extends AbstractAnnotationProcessor {
             javaWriter.writeTemplate("/FluentApi.tpl", model);
             javaWriter.close();
         } catch (IOException e) {
-            MessagerUtils.error(element, FluentApiProcessorMessages2.ERROR_COULD_NOT_CREATE_CLASS, filePath, e.getMessage());
+            MessagerUtils.error(element, FluentApiProcessorCompilerMessages.ERROR_COULD_NOT_CREATE_CLASS, filePath, e.getMessage());
         }
     }
 
