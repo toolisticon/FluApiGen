@@ -27,6 +27,7 @@
             <artifactId>aptk-tools</artifactId>
         </dependency>
 
+
         <!-- annotation processor apis -->
         <dependency>
             <groupId>io.toolisticon.aptk</groupId>
@@ -47,6 +48,11 @@
         <dependency>
             <groupId>io.toolisticon.cute</groupId>
             <artifactId>cute</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>io.toolisticon.aptk</groupId>
+            <artifactId>aptk-cute</artifactId>
         </dependency>
 
     </dependencies>

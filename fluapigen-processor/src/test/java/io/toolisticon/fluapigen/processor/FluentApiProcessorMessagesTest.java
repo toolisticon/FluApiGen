@@ -9,7 +9,7 @@ import org.junit.Test;
  *
  *
  */
-public class FluentApiProcessorMessages2Test {
+public class FluentApiProcessorMessagesTest {
 
     @Test
     public void test_enum() {

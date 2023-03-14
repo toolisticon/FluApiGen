@@ -30,21 +30,39 @@ public class ModelBackingBean implements FetchImports {
         // init render state helper
         RenderStateHelper.addBackingBeanModel(this);
 
-
     }
 
+    /**
+     * Gets the simple name of the backing bean interface
+     * @return the simple name of the backing bean interface
+     */
     public String getBackingBeanInterfaceSimpleName() {
         return wrapper._annotatedElement().getSimpleName().toString();
     }
 
+    /**
+     * Gets the class name used by the implementation of the backing bean.
+     * Corresponds to simple interface name extended by "Impl".
+     * @return the simple class name
+     */
     public String getClassName() {
         return wrapper._annotatedElement().getSimpleName().toString() + "Impl";
     }
 
+    /**
+     * Gets the fluent api class relative name of the backing bean interface.
+     * Corresponds to fluent api class simple name + "." + backing bean interface simple name.
+     * @return  The qualified name of the interface
+     */
     public String interfaceClassName() {
         return wrapper._annotatedElement().getEnclosingElement().getSimpleName().toString() + "." + wrapper._annotatedElement().getSimpleName().toString();
     }
 
+    /**
+     * Gets all fields that belong to the backing bean.
+     * Fields correspond to methods in backing bean interface.
+     * @return A list containing all fields of the backing bean
+     */
     public List<ModelBackingBeanField> getFields() {
         return this.fields;
     }
@@ -66,10 +84,18 @@ public class ModelBackingBean implements FetchImports {
         return Optional.empty();
     }
 
+    /**
+     * Checks whether the backing bean has a parent or not.
+     * @return true if the backing bean has a parent, otherwise false.
+     */
     public boolean hasParent () {
         return RenderStateHelper.getParentBB(this) != null;
     }
 
+    /**
+     * Gets the parent backing bean.
+     * @return The parent backing bean instance, or null if the backing bean has no parent
+     */
     public ModelBackingBean getParent() {
         return RenderStateHelper.getParentBB(this);
     }

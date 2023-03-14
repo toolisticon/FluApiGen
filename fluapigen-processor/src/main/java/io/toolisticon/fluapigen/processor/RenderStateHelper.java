@@ -27,23 +27,38 @@ public class RenderStateHelper implements AutoCloseable {
         renderStateHelperThreadLocal.remove();
     }
 
+    /**
+     * Creates and gets the thread local render state instance.
+     * @return the RenderStateHelper thread local render state instance
+     */
     public static RenderStateHelper create() {
         renderStateHelperThreadLocal.set(new RenderStateHelper());
         return renderStateHelperThreadLocal.get();
     }
 
+    /**
+     * gets the thread local render state instance.
+     * @return the thread local render state instance
+     */
     public static RenderStateHelper get() {
         return renderStateHelperThreadLocal.get();
     }
 
 
-
-
-
+    /**
+     * Adds a backing bean model.
+     * This will be added in backing bean models constructor.
+     * @param backingBeanModel the backing bean to store
+     */
     public static void addBackingBeanModel(ModelBackingBean backingBeanModel) {
         get().backingBeanAccessMap.put(backingBeanModel.getBackingBeanInterfaceSimpleName(), backingBeanModel);
     }
 
+    /**
+     * Adds a fluent interface model.
+     * This will be added in fluent interface  models constructor.
+     * @param interfaceModel the interface model to store
+     */
     public static void addInterfaceModel(ModelInterface interfaceModel) {
         get().modelInterfaceMap.put(interfaceModel.interfaceClassSimpleName(), interfaceModel);
     }
@@ -71,16 +86,29 @@ public class RenderStateHelper implements AutoCloseable {
 
     }
 
+    /**
+     * Gets the backing bean model for its interfaces simple name.
+     * @param name the simple name of the backing bean interface
+     * @return the backing bean or null if it can't be found
+     */
     public static ModelBackingBean getBackingBeanModelForBackingBeanInterfaceSimpleName(String name){
         return get().backingBeanAccessMap.get(name);
     }
 
 
-
+    /**
+     * Gets the interface model for its interfaces simple name.
+     * @param name the simple name of the fluent interfaces interface
+     * @return the interface model or null if it can't be found
+     */
     public static ModelInterface getInterfaceModelForInterfaceSimpleClassName(String name){
         return get().modelInterfaceMap.get(name);
     }
 
+    /**
+     * Gets an Optional that contains the root interface or an empty Optional if it doesn't exist.
+     * @return
+     */
     public static Optional<ModelInterface> getRootInterface() {
         for (ModelInterface interfaceModel : get().modelInterfaceMap.values()) {
             if (interfaceModel.isRootInterface()) {
@@ -90,6 +118,10 @@ public class RenderStateHelper implements AutoCloseable {
         return Optional.empty();
     }
 
+    /**
+     * Gets a map to look up parent child relationships of ModelBackinBeans.
+     * @return
+     */
     private static Map<ModelBackingBean, Set<ModelBackingBean>> getBackingBeanRelationshipMap(){
         Map<ModelBackingBean, Set<ModelBackingBean>> map = new HashMap<>();
 
@@ -130,6 +162,11 @@ public class RenderStateHelper implements AutoCloseable {
     }
 
 
+    /**
+     * Gets the parent BackingBean of a BackingBean.
+     * @param modelBackingBean The parent BackingBean or null if passed BackingBean has no parent
+     * @return
+     */
     public static ModelBackingBean getParentBB(ModelBackingBean modelBackingBean) {
         return get().backingBeanParents.get(modelBackingBean);
     }

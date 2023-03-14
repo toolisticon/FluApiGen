@@ -25,6 +25,40 @@ Then this annotation processor will generate an implementation for you - by doin
 A release will be done in the next couple of days.
 A description about how to bind dependencies will be added afterwards
 
+The api lib must be bound as a dependency - for example in maven:
+```xml
+<dependencies>
+
+    <dependency>
+        <groupId>io.toolisticon.fluapigen</groupId>
+        <artifactId>fluapigen-api</artifactId>
+        <version>0.1.0</version>
+    </dependency>
+
+</dependencies>
+```
+
+Additionally, you need to declare the annotation processor path in your compiler plugin:
+
+```xml
+<plugin>
+    <artifactId>maven-compiler-plugin</artifactId>
+
+    <configuration>
+        
+        <annotationProcessorPaths>
+            <path>
+                <groupId>io.toolisticon.fluapigen</groupId>
+                <artifactId>fluapigen-processor</artifactId>
+                <version>0.1.0</version>
+            </path>
+        </annotationProcessorPaths>
+        
+    </configuration>
+
+</plugin>
+```
+
 ## Documentation
 Basically you have to create a class annotated with the _FluentApi_ annotation which has the fluent apis base class name as attribute.
 
@@ -65,7 +99,8 @@ Child backing beans can be included as single value or List or Set.
 
 ### Defining Closing Commands
 Closing commands can be defined by defining static inner classes annotated with the _FluentApiCommand_ annotation.
-A command class must contain exactly one static method which takes the backing bean as a parameter.
+A command class must contain exactly one static method which takes the backing bean as the only parameter.
+
 
 It's later possible to link a fluent api method to a closing command.
 The fluent api method call will then be forwarded to the closing command.
@@ -78,6 +113,8 @@ public static class ExecuteTestCommand {
     }
 }
 ```
+
+Commands may have a return value.
 
 ### Defining The Fluent Api
 
@@ -102,7 +139,6 @@ In this example checks for compiler outcome and for specific compiler messages c
 
 ```java
 package io.toolisticon.fluapigen;
-
 
 import io.toolisticon.fluapigen.api.FluentApi;
 import io.toolisticon.fluapigen.api.FluentApiBackingBean;
@@ -148,8 +184,7 @@ public class CuteFluentApi {
         Integer atLine();
 
     }
-
-
+    
     public enum TestType {
         UNIT,
         BLACK_BOX
@@ -177,14 +212,12 @@ public class CuteFluentApi {
 
         @FluentApiImplicitValue(id = "testType", value = "BLACK_BOX")
         CompilerTestInterface blackBoxTest();
-
-
+        
     }
 
     @FluentApiInterface(CompilerTest.class)
     public interface CompilerTestInterface {
-
-
+        
         @FluentApiImplicitValue(id = "compilationSucceeded", value = "true")
         CompilerTestInterface compilationShouldSucceed();
 
@@ -226,8 +259,7 @@ public class CuteFluentApi {
         @FluentApiImplicitValue(id = "compilerMessageComparisonType", value = "EQUALS")
         @FluentApiBackingBeanMapping(value = "compileMessageChecks")
         CompilerTestInterface thatEquals(@FluentApiBackingBeanMapping(value = "searchString") String text);
-
-
+        
         CompilerMessageCheckComparisonType atLine(@FluentApiBackingBeanMapping(value = "atLine")Integer line);
     }
 
@@ -235,7 +267,8 @@ public class CuteFluentApi {
     @FluentApiCommand
     public static class ExecuteTestCommand {
         static void myCommand(CompilerTest backingBean) {
-            System.out.println("DONE");
+            // Do something by using the backing bean
+            // ...
         }
     }
 
@@ -259,8 +292,8 @@ We welcome any kind of suggestions and pull requests.
 
 ## Building and developing the ${rootArtifactId} annotation processor
 
-The ${rootArtifactId} is built using Maven.
-A simple import of the pom in your IDE should get you up and running. To build the ${rootArtifactId} on the commandline, just run `mvn` or `mvn clean install`
+This project is built using Maven.
+A simple import of the pom in your IDE should get you up and running. To build the project on the commandline, just run `./mvnw` or `./mvnw clean install`
 
 ## Requirements
 
