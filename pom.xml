@@ -82,7 +82,7 @@
 
         <!-- plugin versions -->
         <animal-sniffer-maven-plugin.version>1.18</animal-sniffer-maven-plugin.version>
-        <maven-assembly-plugin.version>2.4</maven-assembly-plugin.version>
+        <maven-assembly-plugin.version>3.5.0</maven-assembly-plugin.version>
         <maven-build-helper-plugin.version>3.0.0</maven-build-helper-plugin.version>
         <maven-clean-plugin.version>3.0.0</maven-clean-plugin.version>
         <maven-compiler-plugin.version>3.11.0</maven-compiler-plugin.version>
