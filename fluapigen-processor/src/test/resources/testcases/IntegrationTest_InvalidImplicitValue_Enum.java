@@ -13,7 +13,7 @@ import io.toolisticon.fluapigen.api.TargetBackingBean;
 import java.util.List;
 
 @FluentApi("IntegrationTestStarter")
-public class IntegrationTest {
+public class IntegrationTest_InvalidImplicitValue_Enum {
 
     // Backing Bean Interface
     @FluentApiBackingBean
@@ -176,7 +176,7 @@ public class IntegrationTest {
         @FluentApiImplicitValue(id = "floatValue", value = "2.0")
         @FluentApiImplicitValue(id = "primitiveDoubleValue", value = "3.0")
         @FluentApiImplicitValue(id = "doubleValue", value = "4.0")
-        @FluentApiImplicitValue(id = "enumValue", value = "TWO")
+        @FluentApiImplicitValue(id = "enumValue", value = "TWO_XXXX")
         MyLowLevelInterface setImplicit();
 
 

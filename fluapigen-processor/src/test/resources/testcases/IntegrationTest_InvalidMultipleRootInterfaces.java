@@ -13,7 +13,7 @@ import io.toolisticon.fluapigen.api.TargetBackingBean;
 import java.util.List;
 
 @FluentApi("IntegrationTestStarter")
-public class IntegrationTest {
+public class IntegrationTest_InvalidMultipleRootInterfaces {
 
     // Backing Bean Interface
     @FluentApiBackingBean
@@ -106,6 +106,7 @@ public class IntegrationTest {
     }
 
     @FluentApiInterface(MyRootLevelBackingBean.class)
+    @FluentApiRoot
     public interface AlternativeRootLevelInterface {
 
         @FluentApiCommand(MyCommand.class)

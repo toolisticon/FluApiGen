@@ -53,24 +53,7 @@ public class ModelBackingBeanField implements FetchImports, Validatable {
     }
 
     public String getFieldId() {
-        return annotation.value();
-    }
-
-    public String getGetterName() {
-        // this is equal to the function name
-        return field.getSimpleName();
-    }
-
-    public String getSetterName() {
-        return "set" + getCapitalizedFieldName();
-    }
-
-    public String getAddName() {
-        return "add" + getCapitalizedFieldName();
-    }
-
-    public String getClearName() {
-        return "clear" + getCapitalizedFieldName();
+        return annotation != null ? annotation.value() : null;
     }
 
     public String getGetterMethodSignature() {
@@ -110,16 +93,6 @@ public class ModelBackingBeanField implements FetchImports, Validatable {
                 Optional.empty();
     }
 
-
-    /**
-     * Returns the capitalized field name.
-     *
-     * @return the capitalized field name
-     */
-    private String getCapitalizedFieldName() {
-        String fieldName = getFieldName();
-        return fieldName.substring(0, 1).toUpperCase() + fieldName.substring(1);
-    }
 
     @Override
     public Set<String> fetchImports() {

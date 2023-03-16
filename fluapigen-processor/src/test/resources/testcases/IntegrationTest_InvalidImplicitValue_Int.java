@@ -13,7 +13,7 @@ import io.toolisticon.fluapigen.api.TargetBackingBean;
 import java.util.List;
 
 @FluentApi("IntegrationTestStarter")
-public class IntegrationTest {
+public class IntegrationTest_InvalidImplicitValue_Int {
 
     // Backing Bean Interface
     @FluentApiBackingBean
@@ -169,7 +169,7 @@ public class IntegrationTest {
         @FluentApiImplicitValue(id = "primitiveBooleanValue", value = "true")
         @FluentApiImplicitValue(id = "booleanValue", value = "true")
         @FluentApiImplicitValue(id = "primitiveIntValue", value = "1")
-        @FluentApiImplicitValue(id = "intValue", value = "2")
+        @FluentApiImplicitValue(id = "intValue", value = "A")
         @FluentApiImplicitValue(id = "primitiveLongValue", value = "3")
         @FluentApiImplicitValue(id = "longValue", value = "4")
         @FluentApiImplicitValue(id = "primitiveFloatValue", value = "1.0")

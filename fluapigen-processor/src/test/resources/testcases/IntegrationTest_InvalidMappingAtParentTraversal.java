@@ -13,7 +13,7 @@ import io.toolisticon.fluapigen.api.TargetBackingBean;
 import java.util.List;
 
 @FluentApi("IntegrationTestStarter")
-public class IntegrationTest {
+public class IntegrationTest_InvalidMappingAtParentTraversal {
 
     // Backing Bean Interface
     @FluentApiBackingBean
@@ -123,7 +123,7 @@ public class IntegrationTest {
         @FluentApiImplicitValue(id = "stringValue", value = "IMPLICIT_PASSED", target = TargetBackingBean.NEXT)
         MyLowLevelInterface addConfigWithImplicitStringValue();
 
-        @FluentApiBackingBeanMapping(value="midLevelBB")
+        @FluentApiBackingBeanMapping(value="midLevelBBXXX")
         MyRootInterface gotoParent();
 
     }

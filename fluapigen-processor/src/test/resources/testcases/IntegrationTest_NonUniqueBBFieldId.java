@@ -13,13 +13,13 @@ import io.toolisticon.fluapigen.api.TargetBackingBean;
 import java.util.List;
 
 @FluentApi("IntegrationTestStarter")
-public class IntegrationTest {
+public class IntegrationTest_NonUniqueBBFieldId {
 
     // Backing Bean Interface
     @FluentApiBackingBean
     interface MyRootLevelBackingBean {
 
-        @FluentApiBackingBeanField("name")
+        @FluentApiBackingBeanField("midLevelBB")
         String getName();
 
         @FluentApiBackingBeanField("midLevelBB")

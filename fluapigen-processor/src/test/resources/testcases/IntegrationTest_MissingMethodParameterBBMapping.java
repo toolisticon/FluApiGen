@@ -13,7 +13,7 @@ import io.toolisticon.fluapigen.api.TargetBackingBean;
 import java.util.List;
 
 @FluentApi("IntegrationTestStarter")
-public class IntegrationTest {
+public class IntegrationTest_MissingMethodParameterBBMapping {
 
     // Backing Bean Interface
     @FluentApiBackingBean
@@ -132,7 +132,7 @@ public class IntegrationTest {
     public interface MyLowLevelInterface {
 
 
-        MyLowLevelInterface getStringValue(@FluentApiBackingBeanMapping("stringValue") String stringValue);
+        MyLowLevelInterface getStringValue( String stringValue);
 
         MyLowLevelInterface setPrimitiveBooleanValue(@FluentApiBackingBeanMapping("primitiveBooleanValue") boolean booleanValue);
 

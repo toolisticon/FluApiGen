@@ -54,10 +54,6 @@ public class ModelInterfaceMethodParameter {
         return returnValue;
     }
 
-    public ModelBackingBeanField getUnpackedBackingBeanField() {
-        return getBackingBeanField().get();
-    }
-
     public FluentApiBackingBeanMapping getFluentApiBackingBeanMapping() {
         return fluentApiBackingBeanMapping;
     }

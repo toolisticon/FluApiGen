@@ -36,10 +36,6 @@ public class ModelInterfaceCommand implements FetchImports, Validatable {
         return method;
     }
 
-    public String getCommandClassSimpleName() {
-        return fluentApiCommandWrapper.valueAsTypeMirrorWrapper().getSimpleName();
-    }
-
 
     @Override
     public Set<String> fetchImports() {

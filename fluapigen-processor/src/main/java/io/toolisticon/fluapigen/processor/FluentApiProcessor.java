@@ -63,6 +63,12 @@ public class FluentApiProcessor extends AbstractAnnotationProcessor {
 
         FluentApiState state = fluentApiWrapper.getState();
 
+        // validate state
+        if(!state.validate()){
+            // skip
+            return;
+        }
+
         ModelRoot modelRoot = new ModelRoot(state);
 
         if(modelRoot.validate()) {

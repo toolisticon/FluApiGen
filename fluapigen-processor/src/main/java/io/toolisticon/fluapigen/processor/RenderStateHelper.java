@@ -65,16 +65,6 @@ public class RenderStateHelper implements AutoCloseable {
         get().modelInterfaceMap.put(interfaceModel.interfaceClassSimpleName(), interfaceModel);
     }
 
-    /**
-     * Adds a fluent interface command model.
-     * This will be added in fluent interface command models constructor.
-     * @param interfaceModelCommand the interface command model to store
-     */
-    public static void addInterfaceCommandModel(ModelInterfaceCommand interfaceModelCommand) {
-        get().modelInterfaceCommandMap.put(interfaceModelCommand.getCommandClassSimpleName(), interfaceModelCommand);
-    }
-
-
     @DeclareCompilerMessage(code = "020", enumValueName = "FOUND_MULTIPLE_PARENTS_OF_BB", message = "Backing Bean ${} has multiple parent backing beans!", processorClass = FluentApiProcessor.class)
     public static void init () {
         // create backing bean relationship map (children)

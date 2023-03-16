@@ -1,16 +1,12 @@
 package io.toolisticon.fluapigen.processor;
 
 import io.toolisticon.aptk.compilermessage.api.DeclareCompilerMessage;
-import io.toolisticon.aptk.tools.MessagerUtils;
 import io.toolisticon.aptk.tools.wrapper.ExecutableElementWrapper;
 import io.toolisticon.aptk.tools.wrapper.VariableElementWrapper;
 import io.toolisticon.fluapigen.api.FluentApiBackingBeanMapping;
 import io.toolisticon.fluapigen.api.FluentApiCommand;
 import io.toolisticon.fluapigen.api.TargetBackingBean;
 
-import javax.lang.model.element.AnnotationMirror;
-import javax.lang.model.element.AnnotationValue;
-import javax.lang.model.element.Element;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
@@ -64,7 +60,11 @@ public class ModelInterfaceMethod implements FetchImports, Validatable {
     }
 
     public boolean getHasSameTargetBackingBean() {
-        return backingBeanModel.getClassName().equals(getNextModelInterface().getBackingBeanModel().getClassName());
+
+        // need to catch wrong configuration - like broken bb mapping
+        ModelInterface nextModelInterface = getNextModelInterface();
+        return nextModelInterface != null ? backingBeanModel.getClassName().equals(getNextModelInterface().getBackingBeanModel().getClassName()) : false;
+
     }
 
     public boolean isParentCall() {
@@ -123,7 +123,7 @@ public class ModelInterfaceMethod implements FetchImports, Validatable {
         Optional<ModelBackingBeanField> field = getNextBackingBean().getFieldById(bbFieldName);
 
         if (!field.isPresent()) {
-            throw new BBFieldNotFoundException(bbFieldName,getNextBackingBean().interfaceClassName(), FluentApiBackingBeanMappingWrapper.wrap(executableElement.unwrap()));
+            throw new BBFieldNotFoundException(bbFieldName, getNextBackingBean().interfaceClassName(), FluentApiBackingBeanMappingWrapper.wrap(executableElement.unwrap()));
         }
 
         return field.get();
@@ -177,7 +177,7 @@ public class ModelInterfaceMethod implements FetchImports, Validatable {
         if (!executableElement.hasAnnotation(FluentApiCommand.class)) {
 
             if (RenderStateHelper.getInterfaceModelForInterfaceSimpleClassName(executableElement.getReturnType().getSimpleName()) == null) {
-                executableElement.compilerMessage().asError().write(FluentApiProcessorCompilerMessages.ERROR_RETURN_TYPE_MUST_BE_FLUENT_INTERFACE, executableElement.getReturnType().isVoidType()? "void" : executableElement.getReturnType().getSimpleName());
+                executableElement.compilerMessage().asError().write(FluentApiProcessorCompilerMessages.ERROR_RETURN_TYPE_MUST_BE_FLUENT_INTERFACE, executableElement.getReturnType().isVoidType() ? "void" : executableElement.getReturnType().getSimpleName());
                 outcome = false;
             }
 

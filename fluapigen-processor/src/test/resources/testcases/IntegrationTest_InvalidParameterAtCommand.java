@@ -13,7 +13,7 @@ import io.toolisticon.fluapigen.api.TargetBackingBean;
 import java.util.List;
 
 @FluentApi("IntegrationTestStarter")
-public class IntegrationTest {
+public class IntegrationTest_InvalidParameterAtCommand {
 
     // Backing Bean Interface
     @FluentApiBackingBean
@@ -219,7 +219,7 @@ public class IntegrationTest {
     // Commands
     @FluentApiCommand
     static class MyCommand {
-        static void myCommand(MyRootLevelBackingBean backingBean) {
+        static void myCommand(String backingBean) {
             System.out.println(backingBean.getName());
         }
     }

@@ -13,7 +13,7 @@ import io.toolisticon.fluapigen.api.TargetBackingBean;
 import java.util.List;
 
 @FluentApi("IntegrationTestStarter")
-public class IntegrationTest {
+public class IntegrationTest_InvalidReturnTypeInFluentInterface {
 
     // Backing Bean Interface
     @FluentApiBackingBean
@@ -88,8 +88,7 @@ public class IntegrationTest {
     @FluentApiRoot
     public interface MyRootInterface {
 
-
-        MyRootInterface setName(@FluentApiBackingBeanMapping(value = "name") String name);
+        String setName(@FluentApiBackingBeanMapping(value = "name") String name);
 
         AlternativeRootLevelInterface gotoAlternativeInterface();
 

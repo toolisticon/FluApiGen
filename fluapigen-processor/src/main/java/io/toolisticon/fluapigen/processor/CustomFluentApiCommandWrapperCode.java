@@ -83,7 +83,7 @@ public class CustomFluentApiCommandWrapperCode {
                 // First parameter must be a BackingBean type from same class as annotated element
                 if (result) {
                     VariableElementWrapper firstParameter = ExecutableElementWrapper.wrap(methods.get(0)).getParameters().get(0);
-                    if (firstParameter.hasAnnotation(FluentApiBackingBean.class)) {
+                    if (firstParameter.asType().isPrimitive() || !firstParameter.asType().getTypeElement().get().hasAnnotation(FluentApiBackingBean.class)) {
                         //FluentApiProcessorCompilerMessages.
                         FluentApiProcessorCompilerMessages.ERROR_PARAMETER_OF_COMMAND_METHOD_MUST_BE_INTERFACE_ANNOTATED_AS_BACKING_BEAN.error(firstParameter.unwrap(), FluentApiBackingBean.class.getSimpleName());
                         result = false;

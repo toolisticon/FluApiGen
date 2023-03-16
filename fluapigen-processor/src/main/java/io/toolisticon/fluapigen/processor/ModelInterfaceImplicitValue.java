@@ -71,7 +71,7 @@ public class ModelInterfaceImplicitValue implements Validatable {
     }
 
     @Override
-    @DeclareCompilerMessage(code = "400", enumValueName = "ERROR_CANNOT_CONVERT_VALUE_STRING_TO_TARGET_TYPE", message = "Cannot convert value string '${0}' to target type '${1}'", processorClass = FluentApiProcessor.class)
+    @DeclareCompilerMessage(code = "400", enumValueName = "ERROR_IMPLICIT_VALUE_CANNOT_CONVERT_VALUE_STRING_TO_TARGET_TYPE", message = "Cannot convert value string '${0}' to target type '${1}'", processorClass = FluentApiProcessor.class)
     @DeclareCompilerMessage(code = "401", enumValueName = "ERROR_IMPLICIT_VALUE_UNSUPPORTED_TYPE", message = "Target type '${0}' is not supported", processorClass = FluentApiProcessor.class)
     @DeclareCompilerMessage(code = "402", enumValueName = "ERROR_IMPLICIT_VALUE_INVALID_ENUM_VALUE", message = "Enum '${0}' has no value '${1}'. Must be one of ${2}", processorClass = FluentApiProcessor.class)
     public boolean validate() {
@@ -80,7 +80,7 @@ public class ModelInterfaceImplicitValue implements Validatable {
             getValueAssignmentString();
             return true;
         } catch (NumberFormatException e) {
-            annotation.valueAsAttributeWrapper().compilerMessage().asError().write(FluentApiProcessorCompilerMessages.ERROR_CANNOT_CONVERT_VALUE_STRING_TO_TARGET_TYPE, annotation.value(), backingBeanField.getFieldType().getSimpleName());
+            annotation.valueAsAttributeWrapper().compilerMessage().asError().write(FluentApiProcessorCompilerMessages.ERROR_IMPLICIT_VALUE_CANNOT_CONVERT_VALUE_STRING_TO_TARGET_TYPE, annotation.value(), backingBeanField.getFieldType().getSimpleName());
         } catch (UnsupportedTypeException e) {
             annotation.idAsAttributeWrapper().compilerMessage().asError().write(FluentApiProcessorCompilerMessages.ERROR_IMPLICIT_VALUE_UNSUPPORTED_TYPE, e.unsupportedType);
         } catch (InvalidEnumConstantException e) {

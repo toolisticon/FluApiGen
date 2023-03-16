@@ -108,7 +108,6 @@ public class IntegrationTest {
     }
 
     @FluentApiInterface(MyRootLevelBackingBean.class)
-    @FluentApiRoot
     public interface AlternativeRootLevelInterface {
 
         @FluentApiCommand(MyCommand.class)

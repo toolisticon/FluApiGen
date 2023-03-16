@@ -10,10 +10,11 @@ import io.toolisticon.fluapigen.api.FluentApiInterface;
 import io.toolisticon.fluapigen.api.FluentApiRoot;
 import io.toolisticon.fluapigen.api.TargetBackingBean;
 
+import java.math.BigDecimal;
 import java.util.List;
 
 @FluentApi("IntegrationTestStarter")
-public class IntegrationTest {
+public class IntegrationTest_UnsupportedImplicitValueType {
 
     // Backing Bean Interface
     @FluentApiBackingBean
@@ -74,6 +75,9 @@ public class IntegrationTest {
         @FluentApiBackingBeanField("enumValue")
         TestEnum getEnum();
 
+        @FluentApiBackingBeanField("bigDecimal")
+        BigDecimal getBigDecimal();
+
     }
 
 
@@ -123,7 +127,7 @@ public class IntegrationTest {
         @FluentApiImplicitValue(id = "stringValue", value = "IMPLICIT_PASSED", target = TargetBackingBean.NEXT)
         MyLowLevelInterface addConfigWithImplicitStringValue();
 
-        @FluentApiBackingBeanMapping(value="midLevelBB")
+        @FluentApiBackingBeanMapping(value = "midLevelBB")
         MyRootInterface gotoParent();
 
     }
@@ -177,6 +181,7 @@ public class IntegrationTest {
         @FluentApiImplicitValue(id = "primitiveDoubleValue", value = "3.0")
         @FluentApiImplicitValue(id = "doubleValue", value = "4.0")
         @FluentApiImplicitValue(id = "enumValue", value = "TWO")
+        @FluentApiImplicitValue(id = "bigDecimal", value = "1")
         MyLowLevelInterface setImplicit();
 
 
