@@ -57,6 +57,19 @@
         <tag>HEAD</tag>
     </scm>
 
+    <distributionManagement>
+        <snapshotRepository>
+            <id>sonatype-nexus-snapshots</id>
+            <name>Sonatype Nexus Snapshots</name>
+            <url>${sonatype-oss-dist-mgmt-snapshots-url}</url>
+        </snapshotRepository>
+        <repository>
+            <id>sonatype-nexus-staging</id>
+            <name>Nexus Release Repository</name>
+            <url>https://s01.oss.sonatype.org/service/local/staging/deploy/maven2/</url>
+        </repository>
+    </distributionManagement>
+
     <properties>
         <!-- Common build settings -->
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
@@ -79,6 +92,8 @@
         <hamcrest.version>2.2</hamcrest.version>
         <mockito.version>5.2.0</mockito.version>
 
+        <sonatype-oss-dist-mgmt-snapshots-url>https://s01.oss.sonatype.org/content/repositories/snapshots</sonatype-oss-dist-mgmt-snapshots-url>
+
 
         <!-- plugin versions -->
         <animal-sniffer-maven-plugin.version>1.18</animal-sniffer-maven-plugin.version>
@@ -90,7 +105,7 @@
         <maven-deploy-plugin.version>3.1.0</maven-deploy-plugin.version>
         <maven-enforcer-plugin.version>3.2.1</maven-enforcer-plugin.version>
         <maven-failsafe-plugin.version>3.0.0</maven-failsafe-plugin.version>
-        <maven-gpg-plugin.version>3.0.1</maven-gpg-plugin.version>
+        <maven-gpg-plugin.version>1.6.0</maven-gpg-plugin.version>
         <maven-help-plugin.version>3.3.0</maven-help-plugin.version>
         <maven-install-plugin.version>3.1.0</maven-install-plugin.version>
         <maven-jacoco-plugin.version>0.8.8</maven-jacoco-plugin.version>
