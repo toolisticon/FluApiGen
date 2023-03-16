@@ -81,7 +81,7 @@
         <hamcrest.version>2.2</hamcrest.version>
         <mockito.version>5.2.0</mockito.version>
 
-        <sonatype-oss-dist-mgmt-snapshots-url>https://s01.oss.sonatype.org/content/repositories/snapshots</sonatype-oss-dist-mgmt-snapshots-url>
+        <sonatype-oss-dist-mgmt-snapshots-url>https://oss.sonatype.org/content/repositories/snapshots/</sonatype-oss-dist-mgmt-snapshots-url>
 
 
         <!-- plugin versions -->
@@ -618,7 +618,7 @@
         <repository>
             <id>sonatype-nexus-staging</id>
             <name>Nexus Release Repository</name>
-            <url>https://s01.oss.sonatype.org/service/local/staging/deploy/maven2/</url>
+            <url>https://oss.sonatype.org/service/local/staging/deploy/maven2/</url>
         </repository>
     </distributionManagement>
 
