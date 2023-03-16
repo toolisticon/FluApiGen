@@ -2,8 +2,7 @@
 
 [![Maven Central](https://maven-badges.herokuapp.com/maven-central/io.toolisticon.fluapigen/fluapigen/badge.svg)](https://maven-badges.herokuapp.com/maven-central/io.toolisticon.fluapigen/fluapigen)
 [![Build Status](https://travis-ci.org/toolisticon/fluapigen.svg?branch=master)](https://travis-ci.org/toolisticon/fluapigen)
-[![codecov](https://codecov.io/gh/toolisticon/fluapigen/branch/master/graph/badge.svg)](https://codecov.io/gh/toolisticon/fluapigen)
-
+[![codecov](https://codecov.io/gh/toolisticon/FluApiGen/branch/develop/graph/badge.svg?token=FlcugFxC64)](https://codecov.io/gh/toolisticon/FluApiGen)
 Implementing and maintaining of fluent, immutable apis is one of a most annoying and difficult task in java developing.
 
 This project helps you to create fluent apis just by defining some interfaces and annotating them.
