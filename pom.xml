@@ -9,8 +9,8 @@
     <packaging>pom</packaging>
 
     <name>fluapigen</name>
-    <description>Please refer to https://github.com/toolisticon/fluapigen</description>
-    <url>https://github.com/holisticon/fluapigen</url>
+    <description>Please refer to https://github.com/toolisticon/FluApiGen</description>
+    <url>https://github.com/toolisticon/FluApiGen</url>
 
     <!-- TODO: Add Organisation -->
     <organization>
@@ -45,17 +45,23 @@
 
     <!-- TODO: Update issue management -->
     <issueManagement>
-        <url>https://github.com/toolisticon/fluapigen/issues</url>
+        <url>https://github.com/toolisticon/FluApiGen/issues</url>
         <system>GitHub Issues</system>
     </issueManagement>
 
     <!-- TODO: Configure SCM -->
     <scm>
-        <connection>scm:git:git@github.com:toolisticon/fluapigen.git</connection>
-        <developerConnection>scm:git:git@github.com:toolisticon/fluapigen.git</developerConnection>
-        <url>git@github.com:toolisticon/fluapigen.git</url>
+        <connection>scm:git:git@github.com:toolisticon/FluApiGen.git</connection>
+        <developerConnection>scm:git:git@github.com:toolisticon/FluApiGen.git</developerConnection>
+        <url>git@github.com:toolisticon/FluApiGen.git</url>
         <tag>HEAD</tag>
     </scm>
+
+    <parent>
+        <groupId>io.toolisticon.maven</groupId>
+        <artifactId>maven-oss-parent-for-github</artifactId>
+        <version>0.0.2</version>
+    </parent>
 
     <properties>
         <!-- Common build settings -->
