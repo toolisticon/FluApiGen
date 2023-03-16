@@ -37,8 +37,6 @@ public class CustomFluentApiCommandWrapperCode {
     @DeclareCompilerMessage(code="065", enumValueName = "ERROR_COMMAND_CLASS_MUST_BE_DEFINED_IN_CLASS_ANNOTATED_WITH_FLUENT_API_ANNOTATION",message = "Static command class annotated with ${0} must be nested inside a class annotated with ${1}", processorClass = FluentApiProcessor.class)
     @DeclareCompilerMessage(code="066", enumValueName = "ERROR_COMMAND_CLASS_MUST_DECLARE_EXACTLY_ONE_STATIC_METHOD",message = "Class must contain exactly one static method", processorClass = FluentApiProcessor.class)
     @DeclareCompilerMessage(code="067", enumValueName = "ERROR_PARAMETER_OF_COMMAND_METHOD_MUST_BE_INTERFACE_ANNOTATED_AS_BACKING_BEAN",message = "The parameter must reference an interface annotated with ${0} annotation", processorClass = FluentApiProcessor.class)
-
-
     @CustomCodeMethod(FluentApiCommand.class)
     static boolean validate(FluentApiCommandWrapper wrapper) {
 

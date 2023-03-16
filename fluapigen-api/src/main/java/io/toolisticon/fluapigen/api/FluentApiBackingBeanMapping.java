@@ -16,10 +16,9 @@ public @interface FluentApiBackingBeanMapping {
     /**
      * The name of the corresponding backing bean value.
      *
-     * If passed value is empty it will be tried to find the name via getter naming convention.
-     * @return The name of the corresponding backing bean value, defaults to "".
+     * @return The name of the corresponding backing bean value
      */
-    String value() default "";
+    String value();
 
     /**
      * Defines the target backing bean to set the value for.

@@ -2,6 +2,7 @@ package io.toolisticon.fluapigen.processor;
 
 import io.toolisticon.aptk.compilermessage.api.DeclareCompilerMessage;
 import io.toolisticon.aptk.compilermessage.api.DeclareCompilerMessageCodePrefix;
+import io.toolisticon.aptk.templating.exceptions.InvalidPathException;
 import io.toolisticon.aptk.tools.AbstractAnnotationProcessor;
 import io.toolisticon.aptk.tools.FilerUtils;
 import io.toolisticon.aptk.tools.MessagerUtils;
@@ -44,7 +45,6 @@ public class FluentApiProcessor extends AbstractAnnotationProcessor {
             // validate Fluent api element
             FluentApiWrapper fluentApiWrapper = FluentApiWrapper.wrap(element);
 
-
             // Now get all attributes
             try (RenderStateHelper renderStateHelper = RenderStateHelper.create()) {
                 createClass(element, fluentApiWrapper);
@@ -65,21 +65,25 @@ public class FluentApiProcessor extends AbstractAnnotationProcessor {
 
         ModelRoot modelRoot = new ModelRoot(state);
 
-        // Now create class
+        if(modelRoot.validate()) {
+            // Now create class
 
 
-        // Fill Model
-        Map<String, Object> model = new HashMap<String, Object>();
-        model.put("model", modelRoot);
+            // Fill Model
+            Map<String, Object> model = new HashMap<String, Object>();
+            model.put("model", modelRoot);
 
-        // create the class
-        String filePath = modelRoot.getPackageName() + "." + modelRoot.getClassName();
-        try {
-            SimpleJavaWriter javaWriter = FilerUtils.createSourceFile(filePath, element);
-            javaWriter.writeTemplate("/FluentApi.tpl", model);
-            javaWriter.close();
-        } catch (IOException e) {
-            MessagerUtils.error(element, FluentApiProcessorCompilerMessages.ERROR_COULD_NOT_CREATE_CLASS, filePath, e.getMessage());
+            // create the class
+            String filePath = modelRoot.getPackageName() + "." + modelRoot.getClassName();
+            try {
+                SimpleJavaWriter javaWriter = FilerUtils.createSourceFile(filePath, element);
+                javaWriter.writeTemplate("/FluentApi.tpl", model);
+                javaWriter.close();
+            } catch (IOException e) {
+                MessagerUtils.error(element, FluentApiProcessorCompilerMessages.ERROR_COULD_NOT_CREATE_CLASS, filePath, e.getMessage());
+            }
+
+
         }
     }
 

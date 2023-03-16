@@ -1,8 +1,10 @@
 package io.toolisticon.fluapigen.processor;
 
+import io.toolisticon.aptk.compilermessage.api.DeclareCompilerMessage;
 import io.toolisticon.aptk.tools.corematcher.AptkCoreMatchers;
 import io.toolisticon.aptk.tools.fluentfilter.FluentElementFilter;
 import io.toolisticon.aptk.tools.wrapper.ExecutableElementWrapper;
+import io.toolisticon.fluapigen.api.FluentApiBackingBeanMapping;
 import io.toolisticon.fluapigen.api.FluentApiCommand;
 import io.toolisticon.fluapigen.api.FluentApiRoot;
 
@@ -12,7 +14,7 @@ import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-public class ModelInterface implements FetchImports {
+public class ModelInterface implements FetchImports, Validatable {
 
     private final FluentApiInterfaceWrapper wrapper;
 
@@ -31,7 +33,7 @@ public class ModelInterface implements FetchImports {
             if (!executableElement.getAnnotation(FluentApiCommand.class).isPresent()) {
                 methods.add(new ModelInterfaceMethod(executableElement, backingBeanModel));
             } else {
-                commands.add(new ModelInterfaceCommand(executableElement));
+                commands.add(new ModelInterfaceCommand(executableElement, new ModelInterfaceMethod(executableElement, backingBeanModel)));
             }
         }
 
@@ -81,5 +83,43 @@ public class ModelInterface implements FetchImports {
         }
 
         return imports;
+    }
+
+    @DeclareCompilerMessage(code = "432", enumValueName = "BB_MAPPING_ANNOTATION_MUST_BE_PRESENT_ADD_TO_PARENT_TRAVERSALS", message = "The method is a parent traversal. You must add the ${0} annotation to bind the backing bean to a parent backing bean field.", processorClass = FluentApiProcessor.class)
+
+    @Override
+    public boolean validate() {
+        boolean outcome = true;
+
+        for (ModelInterfaceMethod method : methods) {
+            outcome = outcome & method.validate();
+
+            if (!method.getHasSameTargetBackingBean()
+                    && getBackingBeanModel().hasParent()
+                    && getBackingBeanModel().getParent().equals(method.getNextBackingBean())){
+
+                    // check if annotation is present
+                    if ( !method.getBBMappingAnnotation().isPresent()) {
+                        method.getExecutableElement().compilerMessage().asError().write(FluentApiProcessorCompilerMessages.BB_MAPPING_ANNOTATION_MUST_BE_PRESENT_ADD_TO_PARENT_TRAVERSALS, FluentApiBackingBeanMapping.class.getSimpleName());
+                        outcome = false;
+                    } else {
+
+                        try {
+                            // must check if field can be mapped
+                            method.getParentsBackingBeanField();
+                        } catch (BBFieldNotFoundException e) {
+                            e.writeErrorCompilerMessage();
+                            outcome = false;
+                        }
+
+                    }
+            }
+        }
+
+        for (ModelInterfaceCommand command : commands) {
+            outcome = outcome & command.validate();
+        }
+
+        return outcome;
     }
 }

@@ -31,22 +31,27 @@ public class ModelInterfaceMethodParameter {
         type = variableElement.asType();
     }
 
+
     public Optional<ModelBackingBeanField> getBackingBeanField() {
+
+        Optional<ModelBackingBeanField> returnValue = Optional.empty();
 
         if (fluentApiBackingBeanMapping != null) {
 
             switch (fluentApiBackingBeanMapping.target()) {
                 case THIS: {
-                    return backingBeanModel.getFieldById(fluentApiBackingBeanMapping.value());
+                    returnValue =  backingBeanModel.getFieldById(fluentApiBackingBeanMapping.value());
+                    break;
                 }
                 case NEXT: {
-                    return modelInterfaceMethod.getNextBackingBean().getFieldById(fluentApiBackingBeanMapping.value());
+                    returnValue = modelInterfaceMethod.getNextBackingBean().getFieldById(fluentApiBackingBeanMapping.value());
+                    break;
                 }
             }
 
         }
 
-        return Optional.empty();
+        return returnValue;
     }
 
     public ModelBackingBeanField getUnpackedBackingBeanField() {
@@ -83,6 +88,7 @@ public class ModelInterfaceMethodParameter {
                     fluentApiBackingBeanMapping.value(),
                     fluentApiBackingBeanMapping.target() == TargetBackingBean.THIS ? backingBeanModel.getBackingBeanInterfaceSimpleName() : modelInterfaceMethod.getNextBackingBean().getBackingBeanInterfaceSimpleName()
             );
+            return false;
         }
 
         return result;

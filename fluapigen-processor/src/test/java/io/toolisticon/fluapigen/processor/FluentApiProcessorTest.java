@@ -64,5 +64,15 @@ public class FluentApiProcessorTest {
                 .executeTest();
     }
 
+    @Test
+    public void test_valid_usage4() {
+
+        compileTestBuilder
+                .addSources(JavaFileObjectUtils.readFromResource("testcases/IntegrationTest.java"))
+                //.compilationShouldFail()
+                .compilationShouldSucceed()
+                .expectThatGeneratedSourceFileExists("io.toolisticon.fluapigen.testcases.IntegrationTestStarter")
+                .executeTest();
+    }
 
 }

@@ -1,17 +1,24 @@
 package io.toolisticon.fluapigen.processor;
 
+import io.toolisticon.aptk.compilermessage.api.DeclareCompilerMessage;
+import io.toolisticon.aptk.tools.MessagerUtils;
 import io.toolisticon.aptk.tools.wrapper.ExecutableElementWrapper;
 import io.toolisticon.aptk.tools.wrapper.VariableElementWrapper;
 import io.toolisticon.fluapigen.api.FluentApiBackingBeanMapping;
+import io.toolisticon.fluapigen.api.FluentApiCommand;
 import io.toolisticon.fluapigen.api.TargetBackingBean;
 
+import javax.lang.model.element.AnnotationMirror;
+import javax.lang.model.element.AnnotationValue;
+import javax.lang.model.element.Element;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-public class ModelInterfaceMethod implements FetchImports {
+public class ModelInterfaceMethod implements FetchImports, Validatable {
 
     private final ExecutableElementWrapper executableElement;
 
@@ -34,6 +41,10 @@ public class ModelInterfaceMethod implements FetchImports {
             parameters.add(new ModelInterfaceMethodParameter(variableElementWrapper, this.backingBeanModel, this));
         }
 
+    }
+
+    public ExecutableElementWrapper getExecutableElement() {
+        return executableElement;
     }
 
     public String getMethodSignature() {
@@ -79,19 +90,43 @@ public class ModelInterfaceMethod implements FetchImports {
     public List<ModelInterfaceImplicitValue> getImplicitValuesBoundToCurrentBB() {
         return FluentApiImplicitValueWrapper.wrap(executableElement.unwrap()).stream()
                 .filter(e -> e.target() == TargetBackingBean.THIS)
-                .map(e -> new ModelInterfaceImplicitValue(backingBeanModel.getFieldById(e.id()).get(), e))
+                .map(e -> {
+                    Optional<ModelBackingBeanField> bbField = backingBeanModel.getFieldById(e.id());
+                    if (bbField.isPresent()) {
+                        return new ModelInterfaceImplicitValue(bbField.get(), e);
+                    } else {
+                        throw new BBFieldNotFoundException(e.id(), backingBeanModel.getBackingBeanInterfaceSimpleName(), e);
+                    }
+                })
                 .collect(Collectors.toList());
     }
+
 
     public List<ModelInterfaceImplicitValue> getImplicitValuesBoundToNextBB() {
         return FluentApiImplicitValueWrapper.wrap(executableElement.unwrap()).stream()
                 .filter(e -> e.target() == TargetBackingBean.NEXT)
-                .map(e -> new ModelInterfaceImplicitValue(getNextBackingBean().getFieldById(e.id()).get(), e))
+                .map(e -> {
+                    Optional<ModelBackingBeanField> bbField = getNextBackingBean().getFieldById(e.id());
+                    if (bbField.isPresent()) {
+                        return new ModelInterfaceImplicitValue(bbField.get(), e);
+                    } else {
+                        throw new BBFieldNotFoundException(e.id(), getNextBackingBean().getBackingBeanInterfaceSimpleName(), e);
+                    }
+                })
                 .collect(Collectors.toList());
     }
 
+
     public ModelBackingBeanField getParentsBackingBeanField() {
-        return getNextBackingBean().getFieldById(executableElement.getAnnotation(FluentApiBackingBeanMapping.class).get().value()).get();
+
+        String bbFieldName = executableElement.getAnnotation(FluentApiBackingBeanMapping.class).get().value();
+        Optional<ModelBackingBeanField> field = getNextBackingBean().getFieldById(bbFieldName);
+
+        if (!field.isPresent()) {
+            throw new BBFieldNotFoundException(bbFieldName,getNextBackingBean().interfaceClassName(), FluentApiBackingBeanMappingWrapper.wrap(executableElement.unwrap()));
+        }
+
+        return field.get();
     }
 
     public String getParentsBackingBeanFieldCollectionImplType() {
@@ -107,22 +142,51 @@ public class ModelInterfaceMethod implements FetchImports {
         return null;
     }
 
+    public Optional<FluentApiBackingBeanMapping> getBBMappingAnnotation() {
+        return this.executableElement.getAnnotation(FluentApiBackingBeanMapping.class);
+    }
+
+    @DeclareCompilerMessage(code = "190", enumValueName = "ERROR_RETURN_TYPE_MUST_BE_FLUENT_INTERFACE", message = "Return type '${0}' must be a fluent interface!", processorClass = FluentApiProcessor.class)
     public boolean validate() {
 
+        boolean outcome = true;
         // check parameters
         // -> names must match an existing target field
 
         for (ModelInterfaceMethodParameter parameter : parameters) {
-            parameter.validate();
+            outcome = outcome & parameter.validate();
         }
 
-        // -> implicit values must be valid and convertable to target type
+        try {
 
+            // -> implicit values must be valid and convertable to target type
+            for (ModelInterfaceImplicitValue implicitValue : getImplicitValuesBoundToCurrentBB()) {
+                outcome = outcome & implicitValue.validate();
+            }
+
+            for (ModelInterfaceImplicitValue implicitValue : getImplicitValuesBoundToNextBB()) {
+                outcome = outcome & implicitValue.validate();
+            }
+
+        } catch (BBFieldNotFoundException e) {
+            e.writeErrorCompilerMessage();
+            outcome = false;
+        }
 
         // check return value -> must be Api Interface
+        if (!executableElement.hasAnnotation(FluentApiCommand.class)) {
 
-        return true;
+            if (RenderStateHelper.getInterfaceModelForInterfaceSimpleClassName(executableElement.getReturnType().getSimpleName()) == null) {
+                executableElement.compilerMessage().asError().write(FluentApiProcessorCompilerMessages.ERROR_RETURN_TYPE_MUST_BE_FLUENT_INTERFACE, executableElement.getReturnType().isVoidType()? "void" : executableElement.getReturnType().getSimpleName());
+                outcome = false;
+            }
+
+        }
+
+
+        return outcome;
     }
+
 
     public ModelBackingBean getNextBackingBean() {
         ModelBackingBean nextBackingBean;
@@ -149,4 +213,6 @@ public class ModelInterfaceMethod implements FetchImports {
         return imports;
 
     }
+
+
 }

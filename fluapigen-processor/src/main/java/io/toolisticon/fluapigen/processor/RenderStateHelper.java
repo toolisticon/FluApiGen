@@ -16,6 +16,8 @@ public class RenderStateHelper implements AutoCloseable {
 
     private Map<String, ModelInterface> modelInterfaceMap = new HashMap<>();
 
+    private Map<String, ModelInterfaceCommand> modelInterfaceCommandMap = new HashMap<>();
+
     private Map<ModelBackingBean, Set<ModelBackingBean>> backingBeanRelationMap;
 
     private Map<ModelBackingBean, ModelBackingBean> backingBeanParents = new HashMap<>();
@@ -61,6 +63,15 @@ public class RenderStateHelper implements AutoCloseable {
      */
     public static void addInterfaceModel(ModelInterface interfaceModel) {
         get().modelInterfaceMap.put(interfaceModel.interfaceClassSimpleName(), interfaceModel);
+    }
+
+    /**
+     * Adds a fluent interface command model.
+     * This will be added in fluent interface command models constructor.
+     * @param interfaceModelCommand the interface command model to store
+     */
+    public static void addInterfaceCommandModel(ModelInterfaceCommand interfaceModelCommand) {
+        get().modelInterfaceCommandMap.put(interfaceModelCommand.getCommandClassSimpleName(), interfaceModelCommand);
     }
 
 
