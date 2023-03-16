@@ -9,7 +9,7 @@
     <parent>
         <groupId>io.toolisticon.fluapigen</groupId>
         <artifactId>fluapigen</artifactId>
-        <version>0.0.2</version>
+        <version>0.0.3-SNAPSHOT</version>
     </parent>
 
     <name>fluapigen-api</name>
