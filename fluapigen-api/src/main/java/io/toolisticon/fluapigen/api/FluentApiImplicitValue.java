@@ -17,8 +17,8 @@ import java.lang.annotation.Target;
 public @interface FluentApiImplicitValue {
 
     /**
-     * The name of the backing bean field to set.
-     * @return the name of the backing bean field
+     * The id of the backing bean field to set.
+     * @return the id of the backing bean field
      */
     String id();
 

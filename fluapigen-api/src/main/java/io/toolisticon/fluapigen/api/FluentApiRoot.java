@@ -8,6 +8,7 @@ import java.lang.annotation.Target;
 
 /**
  * Marks an interface as root interface.
+ * Exactly one interface in a fluent api must be annotated as root.
  */
 @Retention(RetentionPolicy.RUNTIME)
 @Target(value = {ElementType.TYPE})

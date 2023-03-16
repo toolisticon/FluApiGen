@@ -14,15 +14,10 @@ import java.lang.annotation.Target;
 @Documented
 public @interface FluentApiInterface {
     /**
-     * The backing bean class to fill
+     * The backing bean class to use by the fluent api interface.
      *
-     * @return the backing bean class that is filled by the interface
+     * @return the backing bean class to use by the fluent api interface
      */
     Class<?> value();
 
-    /**
-     *
-     * @return
-     */
-    Class<?> parent() default Void.class;
 }
