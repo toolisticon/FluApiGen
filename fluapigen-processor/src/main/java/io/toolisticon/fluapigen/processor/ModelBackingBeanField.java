@@ -1,5 +1,6 @@
 package io.toolisticon.fluapigen.processor;
 
+import io.toolisticon.aptk.compilermessage.api.DeclareCompilerMessage;
 import io.toolisticon.aptk.tools.TypeMirrorWrapper;
 import io.toolisticon.aptk.tools.wrapper.ExecutableElementWrapper;
 import io.toolisticon.fluapigen.api.FluentApiBackingBean;
@@ -9,18 +10,22 @@ import java.util.Optional;
 import java.util.Set;
 
 
-public class ModelBackingBeanField implements FetchImports {
+public class ModelBackingBeanField implements FetchImports, Validatable {
 
     /**
      * field is represented by an interface function.
      */
     private final ExecutableElementWrapper field;
 
-    private final FluentApiBackingBeanField annotation;
+    private final FluentApiBackingBeanFieldWrapper annotation;
 
     ModelBackingBeanField(ExecutableElementWrapper field) {
         this.field = field;
-        this.annotation = field.getAnnotation(FluentApiBackingBeanField.class).get();
+        this.annotation = FluentApiBackingBeanFieldWrapper.wrap(field.unwrap());
+    }
+
+    public FluentApiBackingBeanFieldWrapper getAnnotation() {
+        return annotation;
     }
 
     /**
@@ -35,6 +40,7 @@ public class ModelBackingBeanField implements FetchImports {
     /**
      * Gets the concrete type of the field.
      * This is the component type for collections or otherwise the field type.
+     *
      * @return the component type for collections or otherwise the field type
      */
 
@@ -47,24 +53,7 @@ public class ModelBackingBeanField implements FetchImports {
     }
 
     public String getFieldId() {
-        return annotation.value();
-    }
-
-    public String getGetterName() {
-        // this is equal to the function name
-        return field.getSimpleName();
-    }
-
-    public String getSetterName() {
-        return "set" + getCapitalizedFieldName();
-    }
-
-    public String getAddName() {
-        return "add" + getCapitalizedFieldName();
-    }
-
-    public String getClearName() {
-        return "clear" + getCapitalizedFieldName();
+        return annotation != null ? annotation.value() : null;
     }
 
     public String getGetterMethodSignature() {
@@ -83,7 +72,7 @@ public class ModelBackingBeanField implements FetchImports {
     public boolean isBackingBeanReference() {
 
         return isCollection() ? this.getFieldType().getWrappedComponentType().getTypeElement().isPresent()
-                && this.getFieldType().getWrappedComponentType().getTypeElement().get().hasAnnotation(FluentApiBackingBean.class):
+                && this.getFieldType().getWrappedComponentType().getTypeElement().get().hasAnnotation(FluentApiBackingBean.class) :
                 this.getFieldType().getTypeElement().isPresent()
                         && this.getFieldType().getTypeElement().get().hasAnnotation(FluentApiBackingBean.class);
 
@@ -91,32 +80,49 @@ public class ModelBackingBeanField implements FetchImports {
 
     /**
      * Returns the fields Backing Bean reference if field is related to other backing bean type.
+     *
      * @return The interface name of the referenced backing bean or an empty Optional
      */
     public Optional<String> getBackingBeanReference() {
         return isBackingBeanReference() ?
                 Optional.of(
                         isCollection() ?
-                                this.getFieldType().getWrappedComponentType().getTypeElement().get().getSimpleName():
+                                this.getFieldType().getWrappedComponentType().getTypeElement().get().getSimpleName() :
                                 this.getFieldType().getTypeElement().get().getSimpleName()
-                ):
+                ) :
                 Optional.empty();
     }
 
-
-    /**
-     * Returns the capitalized field name.
-     *
-     * @return the capitalized field name
-     */
-    private String getCapitalizedFieldName() {
-        String fieldName = getFieldName();
-        return fieldName.substring(0, 1).toUpperCase() + fieldName.substring(1);
-    }
 
     @Override
     public Set<String> fetchImports() {
         return this.getFieldType().getImports();
     }
 
+    @Override
+    @DeclareCompilerMessage(code = "200", enumValueName = "ERROR_BACKING_BEAN_FIELD_MUST_BE_ANNOTATED_WITH_BB_FIELD_ANNOTATION", message = "Backing bean field method must be annotated with ${0} annotation", processorClass = FluentApiProcessor.class)
+    @DeclareCompilerMessage(code = "201", enumValueName = "ERROR_BACKING_BEAN_FIELD_ID_MUST_NOT_BE_EMPTY", message = "Backing bean field id must not be an empty string", processorClass = FluentApiProcessor.class)
+
+    public boolean validate() {
+        boolean outcome = true;
+
+        if (annotation == null) {
+            // must be annotated with FluentApiBackingBeanField annotation
+            FluentApiProcessorCompilerMessages.ERROR_BACKING_BEAN_FIELD_MUST_BE_ANNOTATED_WITH_BB_FIELD_ANNOTATION.error(field.unwrap(), FluentApiBackingBeanField.class.getSimpleName());
+            outcome = false;
+        } else {
+
+            // id must be not empty
+            if ("".equals(annotation.value())) {
+                annotation.compilerMessage()
+                        .asError()
+                        .write(FluentApiProcessorCompilerMessages.ERROR_BACKING_BEAN_FIELD_ID_MUST_NOT_BE_EMPTY);
+                outcome = false;
+            }
+
+
+        }
+
+        return outcome;
+    }
 }

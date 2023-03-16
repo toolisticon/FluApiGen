@@ -38,4 +38,4 @@ jobs:
         uses: codecov/codecov-action@v3
         with:
           token: ${{secrets.CODECOV_TOKEN}}
-          files: target/site/jacoco-aggregate/jacoco.xml
+          files: fluapigen-processor/target/site/jacoco/jacoco.xml

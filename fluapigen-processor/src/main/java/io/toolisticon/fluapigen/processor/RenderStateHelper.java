@@ -16,6 +16,8 @@ public class RenderStateHelper implements AutoCloseable {
 
     private Map<String, ModelInterface> modelInterfaceMap = new HashMap<>();
 
+    private Map<String, ModelInterfaceCommand> modelInterfaceCommandMap = new HashMap<>();
+
     private Map<ModelBackingBean, Set<ModelBackingBean>> backingBeanRelationMap;
 
     private Map<ModelBackingBean, ModelBackingBean> backingBeanParents = new HashMap<>();
@@ -62,7 +64,6 @@ public class RenderStateHelper implements AutoCloseable {
     public static void addInterfaceModel(ModelInterface interfaceModel) {
         get().modelInterfaceMap.put(interfaceModel.interfaceClassSimpleName(), interfaceModel);
     }
-
 
     @DeclareCompilerMessage(code = "020", enumValueName = "FOUND_MULTIPLE_PARENTS_OF_BB", message = "Backing Bean ${} has multiple parent backing beans!", processorClass = FluentApiProcessor.class)
     public static void init () {

@@ -1,4 +1,4 @@
-package io.toolisticon.fluapigen;
+package io.toolisticon.fluapigen.integrationtest;
 
 
 import io.toolisticon.fluapigen.api.FluentApi;

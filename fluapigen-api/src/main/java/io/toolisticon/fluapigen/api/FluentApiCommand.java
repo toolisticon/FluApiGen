@@ -15,5 +15,10 @@ import java.lang.annotation.Target;
 @Target(value = {ElementType.TYPE, ElementType.METHOD})
 @Documented
 public @interface FluentApiCommand {
+    /**
+     * Defines the command class to link with method.
+     * This must only be set as an attribute if placed on a fluent api interface method.
+     * @return
+     */
     Class<?> value() default Void.class;
 }

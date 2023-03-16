@@ -11,7 +11,9 @@ import java.util.Deque;
  */
 public class ${ model.className } {
 
+    // ----------------------------------------------------------------------
     // Backing Beans
+    // ----------------------------------------------------------------------
 !{for backingBean : model.backingBeans}
 
     private static class ${backingBean.className} implements ${backingBean.interfaceClassName} {
@@ -41,8 +43,10 @@ public class ${ model.className } {
 
 !{/for}
 
-
+    // ----------------------------------------------------------------------
     // Fluent Interfaces
+    // ----------------------------------------------------------------------
+
 !{for interface : model.fluentInterfaces}
     private static class ${interface.className} implements ${interface.interfaceClassName} {
 
@@ -64,8 +68,10 @@ public class ${ model.className } {
             this.parentStack = new ArrayDeque(parentStack);
         }
 
-
+        // ----------------------------------------------------------------------
         // Methods
+        // ----------------------------------------------------------------------
+
 !{for method : interface.methods}
         @Override
         public ${method.methodSignature} {
@@ -157,20 +163,25 @@ public class ${ model.className } {
 
         }
 !{/for}
-
+        // ----------------------------------------------------------------------
         // Commands
+        // ----------------------------------------------------------------------
+
 !{for command : interface.commands}
         @Override
         public ${command.methodSignature} {
 
             ${interface.backingBeanModel.className} nextBackingBean = this.backingBean.cloneBackingBean();
 
-            // Might also set implicit values
-
-            // Might set explicit values passed as parameters
+!{for parameter : command.method.getAllParameters}
+            nextBackingBean.${parameter.backingBeanField.get.fieldName} = ${parameter.parameterName};
+!{/for}
+!{for implicitValue : command.method.implicitValuesBoundToCurrentBB}
+            nextBackingBean.${implicitValue.backingBeanFieldName} = ${implicitValue.valueAssignmentString};
+!{/for}
 
             // call command
-            !{if command.hasReturnType}return !{/if}${command.commandMethod}(nextBackingBean);
+            !{if command.hasReturnType}return !{/if} ${command.commandMethod}(nextBackingBean);
         }
 !{/for}
 

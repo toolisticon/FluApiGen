@@ -5,15 +5,17 @@ import io.toolisticon.aptk.tools.wrapper.ExecutableElementWrapper;
 import java.util.HashSet;
 import java.util.Set;
 
-public class ModelInterfaceCommand implements FetchImports {
+public class ModelInterfaceCommand implements FetchImports, Validatable {
 
     private final ExecutableElementWrapper executableElement;
     private final FluentApiCommandWrapper fluentApiCommandWrapper;
 
+    private final ModelInterfaceMethod method;
     private final String methodSignature;
 
-    ModelInterfaceCommand(ExecutableElementWrapper executableElement) {
+    ModelInterfaceCommand(ExecutableElementWrapper executableElement, ModelInterfaceMethod method) {
         this.executableElement = executableElement;
+        this.method = method;
         this.fluentApiCommandWrapper = FluentApiCommandWrapper.wrap(executableElement.unwrap());
         this.methodSignature = executableElement.getMethodSignature();
     }
@@ -28,6 +30,10 @@ public class ModelInterfaceCommand implements FetchImports {
 
     public boolean hasReturnType() {
         return !executableElement.getReturnType().isVoidType();
+    }
+
+    public ModelInterfaceMethod getMethod(){
+        return method;
     }
 
 
@@ -46,4 +52,14 @@ public class ModelInterfaceCommand implements FetchImports {
 
     }
 
+    @Override
+    public boolean validate() {
+
+        boolean outcome = true;
+
+        outcome = outcome & method.validate();
+
+        return outcome;
+
+    }
 }

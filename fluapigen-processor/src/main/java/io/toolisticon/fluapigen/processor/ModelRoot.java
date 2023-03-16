@@ -10,7 +10,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-public class ModelRoot {
+public class ModelRoot implements Validatable{
 
     private final String packageName;
     private final String className;
@@ -79,5 +79,20 @@ public class ModelRoot {
         List<String> sortedImports = new ArrayList<>(imports);
         Collections.sort(sortedImports);
         return sortedImports;
+    }
+
+    @Override
+    public boolean validate() {
+        boolean outcome = true;
+
+        for (ModelBackingBean backingBean: fluentBackingBeanInterfaces) {
+            outcome = outcome & backingBean.validate();
+        }
+
+        for (ModelInterface interfaceModel: fluentInterfaces) {
+            outcome = outcome & interfaceModel.validate();
+        }
+
+        return outcome;
     }
 }

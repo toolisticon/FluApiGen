@@ -5,12 +5,12 @@
 
     <groupId>io.toolisticon.fluapigen</groupId>
     <artifactId>fluapigen</artifactId>
-    <version>0.0.1</version>
+    <version>0.0.2-SNAPSHOT</version>
     <packaging>pom</packaging>
 
     <name>fluapigen</name>
-    <description>Please refer to https://github.com/toolisticon/fluapigen</description>
-    <url>https://github.com/holisticon/fluapigen</url>
+    <description>Please refer to https://github.com/toolisticon/FluApiGen</description>
+    <url>https://github.com/toolisticon/FluApiGen</url>
 
     <!-- TODO: Add Organisation -->
     <organization>
@@ -45,17 +45,23 @@
 
     <!-- TODO: Update issue management -->
     <issueManagement>
-        <url>https://github.com/toolisticon/fluapigen/issues</url>
+        <url>https://github.com/toolisticon/FluApiGen/issues</url>
         <system>GitHub Issues</system>
     </issueManagement>
 
     <!-- TODO: Configure SCM -->
     <scm>
-        <connection>scm:git:git@github.com:toolisticon/fluapigen.git</connection>
-        <developerConnection>scm:git:git@github.com:toolisticon/fluapigen.git</developerConnection>
-        <url>git@github.com:toolisticon/fluapigen.git</url>
+        <connection>scm:git:git@github.com:toolisticon/FluApiGen.git</connection>
+        <developerConnection>scm:git:git@github.com:toolisticon/FluApiGen.git</developerConnection>
+        <url>git@github.com:toolisticon/FluApiGen.git</url>
         <tag>HEAD</tag>
     </scm>
+
+    <parent>
+        <groupId>io.toolisticon.maven</groupId>
+        <artifactId>maven-oss-parent-for-github</artifactId>
+        <version>0.0.2</version>
+    </parent>
 
     <properties>
         <!-- Common build settings -->
@@ -70,7 +76,7 @@
 
 
         <!-- project dependency versions -->
-        <cute.version>0.12.0</cute.version>
+        <cute.version>0.12.1</cute.version>
         <spiap.version>0.11.0</spiap.version>
         <aptk.version>0.21.0</aptk.version>
 
@@ -82,27 +88,27 @@
 
         <!-- plugin versions -->
         <animal-sniffer-maven-plugin.version>1.18</animal-sniffer-maven-plugin.version>
-        <maven-assembly-plugin.version>2.4</maven-assembly-plugin.version>
+        <maven-assembly-plugin.version>3.5.0</maven-assembly-plugin.version>
         <maven-build-helper-plugin.version>3.0.0</maven-build-helper-plugin.version>
-        <maven-clean-plugin.version>3.0.0</maven-clean-plugin.version>
+        <maven-clean-plugin.version>3.2.0</maven-clean-plugin.version>
         <maven-compiler-plugin.version>3.11.0</maven-compiler-plugin.version>
         <maven-dependency-plugin.version>3.5.0</maven-dependency-plugin.version>
         <maven-deploy-plugin.version>3.1.0</maven-deploy-plugin.version>
-        <maven-enforcer-plugin.version>3.0.0-M1</maven-enforcer-plugin.version>
+        <maven-enforcer-plugin.version>3.2.1</maven-enforcer-plugin.version>
         <maven-failsafe-plugin.version>3.0.0</maven-failsafe-plugin.version>
-        <maven-gpg-plugin.version>1.4</maven-gpg-plugin.version>    <!-- do not change to 1.6, it fails! -->
+        <maven-gpg-plugin.version>3.0.1</maven-gpg-plugin.version>    <!-- do not change to 1.6, it fails! -->
         <maven-help-plugin.version>3.3.0</maven-help-plugin.version>
-        <maven-install-plugin.version>2.5.2</maven-install-plugin.version>
+        <maven-install-plugin.version>3.1.0</maven-install-plugin.version>
         <maven-jacoco-plugin.version>0.8.8</maven-jacoco-plugin.version>
         <maven-jar-plugin.version>3.3.0</maven-jar-plugin.version>
-        <maven-javadoc-plugin.version>3.0.0</maven-javadoc-plugin.version>
+        <maven-javadoc-plugin.version>3.5.0</maven-javadoc-plugin.version>
         <maven-processor-plugin.version>2.2.4</maven-processor-plugin.version>
         <maven-release-plugin.version>2.5.3</maven-release-plugin.version>
         <maven-resources-plugin.version>3.3.0</maven-resources-plugin.version>
         <maven-shade-plugin.version>3.4.1</maven-shade-plugin.version>
-        <maven-source-plugin.version>3.0.1</maven-source-plugin.version>
+        <maven-source-plugin.version>3.2.1</maven-source-plugin.version>
         <maven-site-plugin.version>3.12.1</maven-site-plugin.version>
-        <maven-surefire-plugin.version>2.18.1</maven-surefire-plugin.version>
+        <maven-surefire-plugin.version>3.0.0</maven-surefire-plugin.version>
         <maven-versions-plugin.version>2.5</maven-versions-plugin.version>
 
     </properties>
@@ -347,6 +353,10 @@
                         </goals>
                     </execution>
                 </executions>
+            </plugin>
+            <plugin>
+                <groupId>org.jacoco</groupId>
+                <artifactId>jacoco-maven-plugin</artifactId>
             </plugin>
 
         </plugins>

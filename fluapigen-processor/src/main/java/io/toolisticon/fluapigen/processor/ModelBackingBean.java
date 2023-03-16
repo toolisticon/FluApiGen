@@ -1,17 +1,21 @@
 package io.toolisticon.fluapigen.processor;
 
+import io.toolisticon.aptk.compilermessage.api.DeclareCompilerMessage;
 import io.toolisticon.aptk.tools.corematcher.AptkCoreMatchers;
 import io.toolisticon.aptk.tools.wrapper.ElementWrapper;
 import io.toolisticon.aptk.tools.wrapper.ExecutableElementWrapper;
 
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-public class ModelBackingBean implements FetchImports {
+public class ModelBackingBean implements FetchImports, Validatable{
 
     final FluentApiBackingBeanWrapper wrapper;
     final List<ModelBackingBeanField> fields;
@@ -120,5 +124,33 @@ public class ModelBackingBean implements FetchImports {
     @Override
     public int hashCode() {
         return  getBackingBeanInterfaceSimpleName() != null ? getBackingBeanInterfaceSimpleName().hashCode() : 0;
+    }
+
+    @Override
+    @DeclareCompilerMessage(code = "22", enumValueName = "ERROR_BACKING_BEAN_FIELD_ID_MUST_NOT_UNIQUE_IN_BB", message = "Backing bean field id '${0}' must be unique in backing bean ${1}", processorClass = FluentApiProcessor.class)
+    public boolean validate() {
+        boolean outcome = true;
+
+        Map<String, List<ModelBackingBeanField>> existingBBFieldIds = new HashMap<>();
+        for (ModelBackingBeanField field : fields) {
+            outcome = outcome & field.validate();
+
+            // collect fields by id
+            existingBBFieldIds.computeIfAbsent(field.getFieldId(),e-> new ArrayList<>()).add(field);
+
+        }
+
+        // Must check if field ids are unique
+        Set<Map.Entry<String, List<ModelBackingBeanField>>> idDoublets = existingBBFieldIds.entrySet().stream().filter(e -> e.getValue().size() != 1).collect(Collectors.toSet());
+        if (idDoublets.size() > 0) {
+            idDoublets.forEach(
+                    e -> e.getValue().stream().forEach(
+                            f -> f.getAnnotation().compilerMessage().asError().write(FluentApiProcessorCompilerMessages.ERROR_BACKING_BEAN_FIELD_ID_MUST_NOT_UNIQUE_IN_BB, e.getKey(), interfaceClassName())
+                    )
+            );
+            outcome = false;
+        }
+
+        return outcome;
     }
 }

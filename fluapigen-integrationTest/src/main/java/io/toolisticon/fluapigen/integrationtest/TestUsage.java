@@ -1,14 +1,15 @@
-package io.toolisticon.fluapigen;
+package io.toolisticon.fluapigen.integrationtest;
+
 
 public class TestUsage {
 
-    public static void main (String[] args) {
+    public static void main(String[] args) {
         CuteFluentApi.CompilerTestInterface tst = CuteFluentApiStarter.unitTest()
                 .compilationShouldSucceed()
                 .expectCompilerMessage().asError().atLine(10).thatContains("WTF")
-                .expectCompilerMessage().asError().atLine(11).thatContains("WTF2")
-                ;
+                .expectCompilerMessage().asError().atLine(11).thatContains("WTF2");
         System.out.println("");
+
     }
 
 }
