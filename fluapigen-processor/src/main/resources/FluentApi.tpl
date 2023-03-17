@@ -5,6 +5,7 @@ import ${import};
 
 import java.util.ArrayDeque;
 import java.util.Deque;
+import java.util.stream.Collectors;
 
 /**
  * An empty class.
@@ -25,15 +26,23 @@ public class ${ model.className } {
 
         private ${backingBean.className} cloneBackingBean() {
             ${backingBean.className} thisClone = new ${backingBean.className}();
-            // Cloning must depend on type, for Set/List it must clone the set/list and all values, the current solution works just for primitive types
 !{for backingBeanField : backingBean.fields}
+!{if backingBeanField.isBackingBeanReference}!{if backingBeanField.isCollection}
+            thisClone.${backingBeanField.fieldName} = this.${backingBeanField.fieldName} != null ? this.${backingBeanField.fieldName}.stream().map(e -> ((${backingBeanField.backingBeanReference.get})((${backingBeanField.backingBeanReferenceBackingBeanModel.className}) e).cloneBackingBean())).collect(Collectors.to${backingBeanField.fieldType.simpleName}()) : null;
+!{else}
+            thisClone.${backingBeanField.fieldName} = this.${backingBeanField.fieldName} != null ? this.${backingBeanField.fieldName}.cloneBackingBean() : null;
+!{/if}!{elseif backingBeanField.isCloneable}
+!{if backingBeanField.isCollection}
+            thisClone.${backingBeanField.fieldName} = this.${backingBeanField.fieldName} != null ? this.${backingBeanField.fieldName}.stream().map(e -> ((${backingBeanField.backingBeanReference.get})((${backingBeanField.backingBeanReferenceBackingBeanModel.className}) e).clone())).collect(Collectors.to${backingBeanField.fieldType.simpleName}()) : null;
+!{else}
+            thisClone.${backingBeanField.fieldName} = this.${backingBeanField.fieldName} != null ? this.${backingBeanField.fieldName}.clone() : null;
+!{/if}!{else}
             thisClone.${backingBeanField.fieldName} = this.${backingBeanField.fieldName};
-!{/for}
+!{/if}!{/for}
             return thisClone;
         }
 
-
-        //  add fields getters/setters
+        //  add fields getters
 !{for backingBeanField : backingBean.fields}
         public ${backingBeanField.getGetterMethodSignature} {
             return ${backingBeanField.fieldName};
@@ -123,7 +132,6 @@ public class ${ model.className } {
 !{else}
             nextBackingBean.${method.getParentsBackingBeanField.fieldName} = currentBackingBean;
 !{/if}
-
             return new ${method.nextModelInterface.className}(nextBackingBean, newStack);
 
 !{elseif method.isCreatingChildConfigCall}
@@ -153,14 +161,11 @@ public class ${ model.className } {
 !{for implicitValue : method.implicitValuesBoundToNextBB}
             nextBackingBean.${implicitValue.backingBeanFieldName} = ${implicitValue.valueAssignmentString};
 !{/for}
-
-
             return new ${method.nextModelInterface.className}(nextBackingBean, newStack);
 !{else}
             // THIS SHOULDN'T HAPPEN
             return null;
 !{/if}
-
         }
 !{/for}
         // ----------------------------------------------------------------------
@@ -179,15 +184,12 @@ public class ${ model.className } {
 !{for implicitValue : command.method.implicitValuesBoundToCurrentBB}
             nextBackingBean.${implicitValue.backingBeanFieldName} = ${implicitValue.valueAssignmentString};
 !{/for}
-
             // call command
             !{if command.hasReturnType}return !{/if} ${command.commandMethod}(nextBackingBean);
         }
 !{/for}
-
     }
 !{/for}
-
 
     // static root functions
 !{for method : model.rootInterface.methods}
