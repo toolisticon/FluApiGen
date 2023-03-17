@@ -7,9 +7,11 @@ import io.toolisticon.aptk.tools.wrapper.TypeElementWrapper;
 import io.toolisticon.fluapigen.api.FluentApiBackingBean;
 import io.toolisticon.fluapigen.api.FluentApiBackingBeanField;
 
+import javax.lang.model.element.ElementKind;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 
 public class ModelBackingBeanField implements FetchImports, Validatable {
@@ -119,6 +121,82 @@ public class ModelBackingBeanField implements FetchImports, Validatable {
         return this.getFieldType().getImports();
     }
 
+    public String getInitValueString() {
+        return !this.getAnnotation().initValueIsDefaultValue() ? " = " + getValueAssignmentString(annotation.initValue()) : "";
+    }
+
+    public String getValueAssignmentString(String valueStr) {
+        if (this.getFieldType().isEnum()) {
+            // handle enum
+            return handleEnum(valueStr);
+        } else {
+
+            switch (this.getFieldType().getQualifiedName()) {
+                case "java.lang.String": {
+                    return "\"" +valueStr + "\"";
+                }
+                case "boolean":
+                case "java.lang.Boolean": {
+                    return Boolean.valueOf(valueStr).toString();
+                }
+                case "int":
+                case "java.lang.Integer": {
+                    return Integer.valueOf(valueStr).toString();
+                }
+                case "long":
+                case "java.lang.Long": {
+                    return Long.valueOf(valueStr).toString() + "L";
+                }
+                case "float":
+                case "java.lang.Float": {
+                    return Float.valueOf(valueStr).toString() + "f";
+                }
+                case "double":
+                case "java.lang.Double": {
+                    return Float.valueOf(valueStr).toString();
+                }
+                default: {
+                    throw new UnsupportedTypeException(this.getFieldType().getQualifiedName());
+                }
+
+            }
+
+        }
+    }
+
+    private String handleEnum(String valueStr) {
+        Set<String> enumValues = this.getFieldType().getTypeElement().get().getEnclosedElements().stream().filter(e -> e.unwrap().getKind() == ElementKind.ENUM_CONSTANT).map(e -> e.getSimpleName()).collect(Collectors.toSet());
+        if (!enumValues.contains(valueStr)) {
+            throw new InvalidEnumConstantException(this.getFieldType().getSimpleName(), valueStr, enumValues);
+        }
+
+        return this.getFieldType().getSimpleName() + "." + valueStr;
+    }
+
+
+    static class InvalidEnumConstantException extends RuntimeException {
+
+        final String enumValue;
+        final String enumType;
+        final Set<String> validEnumValues;
+
+        public InvalidEnumConstantException(String enumType, String enumValue, Set<String> validEnumValues) {
+            this.enumValue = enumValue;
+            this.enumType = enumType;
+            this.validEnumValues = validEnumValues;
+        }
+    }
+
+    static class UnsupportedTypeException extends RuntimeException{
+
+        final String unsupportedType;
+
+        public UnsupportedTypeException(String unsupportedType) {
+            this.unsupportedType = unsupportedType;
+        }
+    }
+
+
     @Override
     @DeclareCompilerMessage(code = "200", enumValueName = "ERROR_BACKING_BEAN_FIELD_MUST_BE_ANNOTATED_WITH_BB_FIELD_ANNOTATION", message = "Backing bean field method must be annotated with ${0} annotation", processorClass = FluentApiProcessor.class)
     @DeclareCompilerMessage(code = "201", enumValueName = "ERROR_BACKING_BEAN_FIELD_ID_MUST_NOT_BE_EMPTY", message = "Backing bean field id must not be an empty string", processorClass = FluentApiProcessor.class)
@@ -140,6 +218,20 @@ public class ModelBackingBeanField implements FetchImports, Validatable {
                 outcome = false;
             }
 
+
+            try {
+                getInitValueString();
+
+            } catch (NumberFormatException e) {
+                annotation.valueAsAttributeWrapper().compilerMessage().asError().write(FluentApiProcessorCompilerMessages.ERROR_IMPLICIT_VALUE_CANNOT_CONVERT_VALUE_STRING_TO_TARGET_TYPE, annotation.initValue(), this.getFieldType().getSimpleName());
+                outcome = false;
+            } catch (ModelBackingBeanField.UnsupportedTypeException e) {
+                annotation.valueAsAttributeWrapper().compilerMessage().asError().write(FluentApiProcessorCompilerMessages.ERROR_IMPLICIT_VALUE_UNSUPPORTED_TYPE, e.unsupportedType);
+                outcome = false;
+            } catch (ModelBackingBeanField.InvalidEnumConstantException e) {
+                annotation.valueAsAttributeWrapper().compilerMessage().asError().write(FluentApiProcessorCompilerMessages.ERROR_IMPLICIT_VALUE_INVALID_ENUM_VALUE, e.enumType, e.enumValue, e.validEnumValues);
+                outcome = false;
+            }
 
         }
 

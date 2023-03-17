@@ -21,7 +21,7 @@ public class ${ model.className } {
 
         // fields
 !{for backingBeanField : backingBean.fields}
-        ${backingBeanField.fieldType.typeDeclaration} ${backingBeanField.fieldName};
+        ${backingBeanField.fieldType.typeDeclaration} ${backingBeanField.fieldName}${backingBeanField.initValueString};
 !{/for}
 
         private ${backingBean.className} cloneBackingBean() {

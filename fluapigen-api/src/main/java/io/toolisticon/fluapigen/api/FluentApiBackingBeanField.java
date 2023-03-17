@@ -19,4 +19,10 @@ public @interface FluentApiBackingBeanField {
      * @return the id
      */
     String value();
+
+    /**
+     * The initial value to be set
+     * @return the initial value to be set
+     */
+    String initValue() default "";
 }

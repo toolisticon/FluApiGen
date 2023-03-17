@@ -19,7 +19,7 @@ public class IntegrationTest {
     @FluentApiBackingBean
     interface MyRootLevelBackingBean {
 
-        @FluentApiBackingBeanField("name")
+        @FluentApiBackingBeanField(value = "name", initValue = "INIT_VAL")
         String getName();
 
         @FluentApiBackingBeanField("midLevelBB")
