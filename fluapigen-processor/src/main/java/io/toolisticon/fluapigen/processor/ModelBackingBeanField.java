@@ -3,9 +3,11 @@ package io.toolisticon.fluapigen.processor;
 import io.toolisticon.aptk.compilermessage.api.DeclareCompilerMessage;
 import io.toolisticon.aptk.tools.TypeMirrorWrapper;
 import io.toolisticon.aptk.tools.wrapper.ExecutableElementWrapper;
+import io.toolisticon.aptk.tools.wrapper.TypeElementWrapper;
 import io.toolisticon.fluapigen.api.FluentApiBackingBean;
 import io.toolisticon.fluapigen.api.FluentApiBackingBeanField;
 
+import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 
@@ -69,6 +71,16 @@ public class ModelBackingBeanField implements FetchImports, Validatable {
         return this.getFieldType().isCollection();
     }
 
+    public boolean isCloneable() {
+
+        if (isCollection()) {
+            return this.getFieldType().getWrappedComponentType().isAssignableTo(Cloneable.class);
+        } else {
+            return this.getFieldType().isAssignableTo(Cloneable.class);
+        }
+
+    }
+
     public boolean isBackingBeanReference() {
 
         return isCollection() ? this.getFieldType().getWrappedComponentType().getTypeElement().isPresent()
@@ -93,6 +105,14 @@ public class ModelBackingBeanField implements FetchImports, Validatable {
                 Optional.empty();
     }
 
+    /**
+     * Gets the Backing Bean Model if the field is a backing bean.
+     * @return
+     */
+    public ModelBackingBean getBackingBeanReferenceBackingBeanModel() {
+        Optional<String> backingBeanReferenceSimpleName = getBackingBeanReference();
+        return backingBeanReferenceSimpleName.isPresent() ? RenderStateHelper.getBackingBeanModelForBackingBeanInterfaceSimpleName(backingBeanReferenceSimpleName.get()) : null;
+    }
 
     @Override
     public Set<String> fetchImports() {
