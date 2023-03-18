@@ -11,6 +11,7 @@ import io.toolisticon.fluapigen.api.FluentApiRoot;
 import io.toolisticon.fluapigen.api.TargetBackingBean;
 
 import java.util.List;
+import java.util.Set;
 
 @FluentApi("IntegrationTestStarter")
 public class IntegrationTest {
@@ -32,6 +33,15 @@ public class IntegrationTest {
 
         @FluentApiBackingBeanField("lowLevelBBs")
         List<MyLowLevelBackingBean> getLowLevelBB();
+
+        @FluentApiBackingBeanField(value = "stringList", initValue = {})
+        List<String> stringList();
+
+        @FluentApiBackingBeanField(value = "stringSet", initValue = {"abc", "DEF", "abc"})
+        Set<String> stringSet();
+
+        @FluentApiBackingBeanField(value = "stringArray", initValue = {"abc", "DEF"})
+        String[] stringArray();
 
     }
 
@@ -127,6 +137,18 @@ public class IntegrationTest {
 
         @FluentApiBackingBeanMapping(value = "midLevelBB")
         MyRootInterface gotoParent();
+
+        MyMidLevelInterface setStringArray(@FluentApiBackingBeanMapping(value = "stringArray") String ... strings);
+
+        @FluentApiImplicitValue(id = "stringArray", value = {"XYZ","123"})
+        MyMidLevelInterface setStringArrayImplicitly();
+
+
+        MyMidLevelInterface setStringList(@FluentApiBackingBeanMapping(value = "stringList") String ... strings);
+
+
+        @FluentApiImplicitValue(id = "stringList", value = {"XYZ","123"})
+        MyMidLevelInterface setStringListImplicitly();
 
     }
 

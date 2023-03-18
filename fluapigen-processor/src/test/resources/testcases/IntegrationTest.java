@@ -33,6 +33,11 @@ public class IntegrationTest {
         @FluentApiBackingBeanField("lowLevelBBs")
         List<MyLowLevelBackingBean> getLowLevelBB();
 
+        @FluentApiBackingBeanField(value = "stringList", initValue = {})
+        List<String> stringList();
+
+        @FluentApiBackingBeanField(value = "stringSet", initValue = {"abc", "DEF", "abc"})
+        List<String> stringSet();
     }
 
     @FluentApiBackingBean

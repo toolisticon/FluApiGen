@@ -3,8 +3,11 @@ package ${ model.packageName };
 import ${import};
 !{/for}
 
+import java.util.Arrays;
+import java.util.ArrayList;
 import java.util.ArrayDeque;
 import java.util.Deque;
+import java.util.HashSet;
 import java.util.stream.Collectors;
 
 /**
@@ -37,8 +40,11 @@ public class ${ model.className } {
 !{else}
             thisClone.${backingBeanField.fieldName} = this.${backingBeanField.fieldName} != null ? this.${backingBeanField.fieldName}.clone() : null;
 !{/if}!{else}
+!{if backingBeanField.isCollection}
+            thisClone.${backingBeanField.fieldName} = this.${backingBeanField.fieldName} != null ? new ${backingBeanField.collectionImplType}(this.${backingBeanField.fieldName}) : null;
+!{else}
             thisClone.${backingBeanField.fieldName} = this.${backingBeanField.fieldName};
-!{/if}!{/for}
+!{/if}!{/if}!{/for}
             return thisClone;
         }
 
@@ -91,7 +97,7 @@ public class ${ model.className } {
 
             // set values (both implicit and explicit) - parent stack stays untouched
 !{for parameter : method.getAllParameters}
-            nextBackingBean.${parameter.backingBeanField.get.fieldName} = ${parameter.parameterName};
+            nextBackingBean.${parameter.backingBeanField.get.fieldName} = ${parameter.assignmentString};
 !{/for}
 !{for implicitValue : method.implicitValuesBoundToCurrentBB}
             nextBackingBean.${implicitValue.backingBeanFieldName} = ${implicitValue.valueAssignmentString};

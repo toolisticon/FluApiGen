@@ -21,8 +21,10 @@ public @interface FluentApiBackingBeanField {
     String value();
 
     /**
-     * The initial value to be set
+     * The initial value to be set.
+     * The array must contain only one value for all collection and array related types.
+     * If set the corresponding field will be initialized, even if passed array is just empty.
      * @return the initial value to be set
      */
-    String initValue() default "";
+    String[] initValue() default {};
 }
