@@ -26,7 +26,7 @@ public @interface FluentApiImplicitValue {
      * The value to set. This will be converted from string according to it's backing field type.
      * @return the value as a string to set
      */
-    String value();
+    String[] value();
 
     /**
      * The target to set the value for. Might be either current backing bean or next one.

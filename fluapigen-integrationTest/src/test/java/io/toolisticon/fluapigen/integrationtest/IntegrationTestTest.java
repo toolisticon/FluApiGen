@@ -242,4 +242,87 @@ public class IntegrationTestTest {
 
     }
 
+    @Test
+    public void test_fluentApi_gotoMidLevel_setStringArrayViaVarargs() {
+
+        IntegrationTest.MyRootLevelBackingBean backingBean = IntegrationTestStarter
+                .setName("NAME")
+                .gotoMidLevel()
+                .setStringArray("XXX")
+                .setStringArray("ABC", "DEF","GHI")
+                .gotoParent()
+                .myCommand();
+
+        MatcherAssert.assertThat(backingBean.getName(), Matchers.is("NAME"));
+        MatcherAssert.assertThat(backingBean.midLevelBB(), Matchers.notNullValue());
+        MatcherAssert.assertThat(backingBean.midLevelBB(), Matchers.hasSize(1));
+        MatcherAssert.assertThat(backingBean.midLevelBB().get(0).stringArray(), Matchers.arrayContaining("ABC", "DEF","GHI"));
+
+
+    }
+
+    @Test
+    public void test_fluentApi_gotoMidLevel_setStringArrayInDifferentWaysAndCheckImmutability() {
+
+        IntegrationTest.MyMidLevelInterface midLevel1 = IntegrationTestStarter
+                .setName("NAME")
+                .gotoMidLevel();
+
+        MatcherAssert.assertThat(midLevel1.gotoParent().myCommand().midLevelBB().get(0).stringArray(), Matchers.arrayContaining("abc", "DEF"));
+
+        IntegrationTest.MyMidLevelInterface midLevel2 = midLevel1.setStringArrayImplicitly();
+
+        MatcherAssert.assertThat(midLevel1.gotoParent().myCommand().midLevelBB().get(0).stringArray(), Matchers.arrayContaining("abc", "DEF"));
+        MatcherAssert.assertThat(midLevel2.gotoParent().myCommand().midLevelBB().get(0).stringArray(), Matchers.arrayContaining("XYZ","123"));
+
+
+        IntegrationTest.MyMidLevelInterface midLevel3 = midLevel2.setStringArray("ABC", "DEF","GHI");
+
+        MatcherAssert.assertThat(midLevel1.gotoParent().myCommand().midLevelBB().get(0).stringArray(), Matchers.arrayContaining("abc", "DEF"));
+        MatcherAssert.assertThat(midLevel2.gotoParent().myCommand().midLevelBB().get(0).stringArray(), Matchers.arrayContaining("XYZ","123"));
+        MatcherAssert.assertThat(midLevel3.gotoParent().myCommand().midLevelBB().get(0).stringArray(), Matchers.arrayContaining("ABC", "DEF","GHI"));
+
+    }
+
+    @Test
+    public void test_fluentApi_gotoMidLevel_setStringListViaVarargs() {
+
+        IntegrationTest.MyRootLevelBackingBean backingBean = IntegrationTestStarter
+                .setName("NAME")
+                .gotoMidLevel()
+                .setStringList("XXX")
+                .setStringList("ABC", "DEF","GHI")
+                .gotoParent()
+                .myCommand();
+
+        MatcherAssert.assertThat(backingBean.getName(), Matchers.is("NAME"));
+        MatcherAssert.assertThat(backingBean.midLevelBB(), Matchers.notNullValue());
+        MatcherAssert.assertThat(backingBean.midLevelBB(), Matchers.hasSize(1));
+        MatcherAssert.assertThat(backingBean.midLevelBB().get(0).stringList(), Matchers.contains("ABC", "DEF","GHI"));
+
+
+    }
+
+    @Test
+    public void test_fluentApi_gotoMidLevel_setStringListInDifferentWaysAndCheckImmutability() {
+
+        IntegrationTest.MyMidLevelInterface midLevel1 = IntegrationTestStarter
+                .setName("NAME")
+                .gotoMidLevel();
+
+        MatcherAssert.assertThat(midLevel1.gotoParent().myCommand().midLevelBB().get(0).stringList(), Matchers.empty());
+
+        IntegrationTest.MyMidLevelInterface midLevel2 = midLevel1.setStringListImplicitly();
+
+        MatcherAssert.assertThat(midLevel1.gotoParent().myCommand().midLevelBB().get(0).stringList(), Matchers.empty());
+        MatcherAssert.assertThat(midLevel2.gotoParent().myCommand().midLevelBB().get(0).stringList(), Matchers.contains("XYZ","123"));
+
+        IntegrationTest.MyMidLevelInterface midLevel3 = midLevel2.setStringList("ABC", "DEF","GHI");
+
+        MatcherAssert.assertThat(midLevel1.gotoParent().myCommand().midLevelBB().get(0).stringList(), Matchers.empty());
+        MatcherAssert.assertThat(midLevel2.gotoParent().myCommand().midLevelBB().get(0).stringList(), Matchers.contains("XYZ","123"));
+        MatcherAssert.assertThat(midLevel3.gotoParent().myCommand().midLevelBB().get(0).stringList(), Matchers.contains("ABC", "DEF","GHI"));
+
+    }
+
 }

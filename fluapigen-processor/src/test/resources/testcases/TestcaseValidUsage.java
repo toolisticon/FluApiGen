@@ -9,7 +9,6 @@ import io.toolisticon.fluapigen.api.FluentApiRoot;
 import javax.annotation.Generated;
 
 @FluentApi("Xyz")
-@Generated(x)
 public class TestcaseValidUsage {
 
     // Backing Bean Interface
