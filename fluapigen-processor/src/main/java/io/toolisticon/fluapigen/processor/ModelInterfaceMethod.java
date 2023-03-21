@@ -48,10 +48,10 @@ public class ModelInterfaceMethod implements FetchImports, Validatable {
     }
 
     public String getMethodCall() {
-        return this.executableElement.getSimpleName().toString() + "("
-                + String.join(", ", this.executableElement.getParameters().stream().map(e -> {
-            return e.getSimpleName().toString();
-        }).collect(Collectors.toList())) + ")";
+        return this.executableElement.getSimpleName() + "("
+                + this.executableElement.getParameters().stream().map(e -> {
+            return e.getSimpleName();
+        }).collect(Collectors.joining(", ")) + ")";
     }
 
 
@@ -63,7 +63,7 @@ public class ModelInterfaceMethod implements FetchImports, Validatable {
 
         // need to catch wrong configuration - like broken bb mapping
         ModelInterface nextModelInterface = getNextModelInterface();
-        return nextModelInterface != null ? backingBeanModel.getClassName().equals(getNextModelInterface().getBackingBeanModel().getClassName()) : false;
+        return nextModelInterface != null && backingBeanModel.getClassName().equals(getNextModelInterface().getBackingBeanModel().getClassName());
 
     }
 

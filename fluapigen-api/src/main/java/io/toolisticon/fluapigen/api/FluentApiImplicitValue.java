@@ -35,4 +35,7 @@ public @interface FluentApiImplicitValue {
      */
     TargetBackingBean target() default TargetBackingBean.THIS;
 
+
+    MappingAction action() default MappingAction.SET;
+
 }

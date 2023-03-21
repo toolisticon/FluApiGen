@@ -2,14 +2,14 @@ package io.toolisticon.fluapigen.processor;
 
 import io.toolisticon.aptk.compilermessage.api.DeclareCompilerMessage;
 import io.toolisticon.aptk.tools.TypeMirrorWrapper;
+import io.toolisticon.aptk.tools.wrapper.ElementWrapper;
 import io.toolisticon.aptk.tools.wrapper.ExecutableElementWrapper;
 import io.toolisticon.fluapigen.api.FluentApiBackingBean;
 import io.toolisticon.fluapigen.api.FluentApiBackingBeanField;
+import io.toolisticon.fluapigen.api.MappingAction;
 
 import javax.lang.model.element.ElementKind;
-import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
@@ -125,7 +125,7 @@ public class ModelBackingBeanField implements FetchImports, Validatable {
      */
     public ModelBackingBean getBackingBeanReferenceBackingBeanModel() {
         Optional<String> backingBeanReferenceSimpleName = getBackingBeanReference();
-        return backingBeanReferenceSimpleName.isPresent() ? RenderStateHelper.getBackingBeanModelForBackingBeanInterfaceSimpleName(backingBeanReferenceSimpleName.get()) : null;
+        return backingBeanReferenceSimpleName.map(RenderStateHelper::getBackingBeanModelForBackingBeanInterfaceSimpleName).orElse(null);
     }
 
     @Override
@@ -135,50 +135,81 @@ public class ModelBackingBeanField implements FetchImports, Validatable {
 
     public String getInitValueString() {
 
-        // return empty string for default value
+        // always init Collections...
+        if (getFieldType().isCollection() && this.getAnnotation().initValueIsDefaultValue()) {
+            return " = new " + getCollectionImplType() + "()";
+        }
+
+
+        // no init value defined for non collections
         if (this.getAnnotation().initValueIsDefaultValue()) {
             return "";
         }
 
-        String valueAssignementString = getValueAssignmentString(getFieldType(), getAnnotation().initValue(), false);
-        return valueAssignementString.isEmpty() ? "" : " = " + valueAssignementString;
+        //String valueAssignementString = getValueAssignmentString(getFieldType(), getAnnotation().initValue(), false);
+        String valueAssignementString = getAssignmentString(getFieldType(), getAnnotation().initValue(), MappingAction.SET);
+        return valueAssignementString.isEmpty() ? "" : valueAssignementString;
     }
 
-    public static String getValueAssignmentString(TypeMirrorWrapper fieldTMW, String[] values, boolean isAssignment) {
+    public static String getAssignmentString(TypeMirrorWrapper fieldTMW, String[] values, MappingAction mappingAction) {
+
+        // must distinct two cases
+        // 1. Collections - May have ADD or SET action
+        // 2. Single Value - only set is allowed per default
+        // Might also think about handling Arrays like Collections
 
         if (fieldTMW.isCollection()) {
 
-            String ImplementationType = getCollectionImplType(fieldTMW);
-            if (values.length == 0) {
-                return "new " + ImplementationType + "()";
-            } else {
-                String valueString = String.join(", ", Arrays.stream(values).map(e -> getValueAssignmentStringForSingleValue(fieldTMW.getWrappedComponentType(), e)).collect(Collectors.toList()));
-                return "new " + ImplementationType + "(Arrays.asList(" + valueString + "))";
+            String collectionImplementationType = getCollectionImplType(fieldTMW);
+            switch (mappingAction) {
+
+                case SET: {
+
+                    if (values.length == 0) {
+                        return " = new " + collectionImplementationType + "()";
+                    } else {
+                        String valueString = Arrays.stream(values).map(e -> getValueAssignmentStringForSingleValue(fieldTMW.getWrappedComponentType(), e)).collect(Collectors.joining(", "));
+                        return " = new " + collectionImplementationType + "(Arrays.asList(" + valueString + "))";
+                    }
+
+                }
+                case ADD: {
+
+                    if (values.length == 0) {
+                        return ".addAll(Arrays.asList(Collections.EMPTY_LIST))";
+                    } else {
+                        String valueString = Arrays.stream(values).map(e -> getValueAssignmentStringForSingleValue(fieldTMW.getWrappedComponentType(), e)).collect(Collectors.joining(", "));
+                        return ".addAll(Arrays.asList(" + valueString + "))";
+                    }
+
+                }
             }
+        } else if (fieldTMW.isArray()) {
+
+            String valueString = Arrays.stream(values).map(e -> getValueAssignmentStringForSingleValue(fieldTMW.getWrappedComponentType(), e)).collect(Collectors.joining(", "));
+            return " = new " + fieldTMW.getWrappedComponentType().getSimpleName() + "[]" + "{ " + valueString + " }";
+
+        } else {
+
+            // ignore mapping type - use always SET
+
+            if (values.length != 1) {
+                throw new IllegalNumberOfValuesException();
+            }
+
+            return " = " + getValueAssignmentStringForSingleValue(fieldTMW, values[0]);
         }
 
-        if(fieldTMW.isArray()) {
-                String valueString = String.join(", ", Arrays.stream(values).map(e -> getValueAssignmentStringForSingleValue(fieldTMW.getWrappedComponentType(), e)).collect(Collectors.toList()));
-                return (isAssignment ? "new " + fieldTMW.getWrappedComponentType().getSimpleName() + "[]" : "") + "{ " + valueString +  " }";
-
-        }
-
-        // expect single value here
-        if (values.length != 1) {
-            throw new IllegalNumberOfValuesException();
-        }
-
-        return getValueAssignmentStringForSingleValue(fieldTMW, values[0]);
-
+        return "";
     }
-    
+
     public String getCollectionImplType() {
         return getCollectionImplType(getFieldType());
     }
 
-    static String getCollectionImplType(TypeMirrorWrapper tmw){
+    static String getCollectionImplType(TypeMirrorWrapper tmw) {
         // TODO: must check if types are really the same :  Types.isSameType(TypeMirror, TypeMirror)
-        if (tmw.erasure().isAssignableTo(List.class)){
+        if (tmw.erasure().isAssignableTo(List.class)) {
             return "ArrayList";
         } else if (tmw.erasure().isAssignableTo(Set.class)) {
             return "HashSet";
@@ -207,11 +238,11 @@ public class ModelBackingBeanField implements FetchImports, Validatable {
                 }
                 case "long":
                 case "java.lang.Long": {
-                    return Long.valueOf(valueStr).toString() + "L";
+                    return Long.valueOf(valueStr) + "L";
                 }
                 case "float":
                 case "java.lang.Float": {
-                    return Float.valueOf(valueStr).toString() + "f";
+                    return Float.valueOf(valueStr) + "f";
                 }
                 case "double":
                 case "java.lang.Double": {
@@ -227,12 +258,42 @@ public class ModelBackingBeanField implements FetchImports, Validatable {
     }
 
     private static String handleEnum(TypeMirrorWrapper fieldTMW, String valueStr) {
-        Set<String> enumValues = fieldTMW.getTypeElement().get().getEnclosedElements().stream().filter(e -> e.unwrap().getKind() == ElementKind.ENUM_CONSTANT).map(e -> e.getSimpleName()).collect(Collectors.toSet());
+        Set<String> enumValues = fieldTMW.getTypeElement().get().getEnclosedElements().stream().filter(e -> e.unwrap().getKind() == ElementKind.ENUM_CONSTANT).map(ElementWrapper::getSimpleName).collect(Collectors.toSet());
         if (!enumValues.contains(valueStr)) {
             throw new InvalidEnumConstantException(fieldTMW.getSimpleName(), valueStr, enumValues);
         }
 
         return fieldTMW.getSimpleName() + "." + valueStr;
+    }
+
+    public String getBackingBeanCloneValueAssignmentString() {
+
+        String fieldName = this.getFieldName();
+        if (isBackingBeanReference()) {
+
+            if (isCollection()) {
+                return "this." + fieldName + "!= null ? this." + fieldName + ".stream().map(e -> ((" + getBackingBeanReference().get() + ")((" + getBackingBeanReferenceBackingBeanModel().getClassName() + ") e).cloneBackingBean())).collect(Collectors.toCollection(" + getCollectionImplType() + "::new)) : null;";
+            } else {
+                return "this." + fieldName + " != null ? this." + fieldName + ".cloneBackingBean() : null;";
+            }
+        } else if (isCloneable()) {
+
+            if (isCollection()) {
+                return "this." + fieldName + " != null ? this." + fieldName + ".stream().map(e -> ((" + getBackingBeanReference().get() + ")((" + getBackingBeanReferenceBackingBeanModel().getClassName() + ") e).clone())).collect(Collectors.toCollection(" + getCollectionImplType() + "::new)) : null;";
+            } else {
+                return "this." + fieldName + " != null ? this." + fieldName + ".clone() : null;";
+            }
+
+        } else {
+
+            if (isCollection()) {
+                return "this." + fieldName + " != null ? new " + getCollectionImplType() + "(this." + fieldName + ") : null;";
+            } else {
+                return "this." + fieldName + ";";
+            }
+
+        }
+
     }
 
 
@@ -307,13 +368,4 @@ public class ModelBackingBeanField implements FetchImports, Validatable {
         return outcome;
     }
 
-
-    public static void main(String[] args) {
-        String[] wtf = {"a", "b", "C"};
-
-        List<String> wtfList = new ArrayList<>(Arrays.asList("a", "b", "c"));
-        wtfList.add("d");
-        System.out.println(wtfList);
-
-    }
 }

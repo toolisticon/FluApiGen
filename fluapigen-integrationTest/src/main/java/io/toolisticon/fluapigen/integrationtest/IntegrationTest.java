@@ -8,6 +8,7 @@ import io.toolisticon.fluapigen.api.FluentApiCommand;
 import io.toolisticon.fluapigen.api.FluentApiImplicitValue;
 import io.toolisticon.fluapigen.api.FluentApiInterface;
 import io.toolisticon.fluapigen.api.FluentApiRoot;
+import io.toolisticon.fluapigen.api.MappingAction;
 import io.toolisticon.fluapigen.api.TargetBackingBean;
 
 import java.util.List;
@@ -145,6 +146,10 @@ public class IntegrationTest {
 
 
         MyMidLevelInterface setStringList(@FluentApiBackingBeanMapping(value = "stringList") String ... strings);
+
+        MyMidLevelInterface addStringListValue(@FluentApiBackingBeanMapping(value = "stringList", action = MappingAction.ADD) String singleString);
+
+        MyMidLevelInterface addStringListValues(@FluentApiBackingBeanMapping(value = "stringList", action = MappingAction.ADD) String ... singleString);
 
 
         @FluentApiImplicitValue(id = "stringList", value = {"XYZ","123"})

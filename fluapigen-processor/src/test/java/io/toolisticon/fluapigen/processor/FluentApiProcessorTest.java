@@ -5,11 +5,16 @@ import io.toolisticon.aptk.tools.corematcher.AptkCoreMatchers;
 import io.toolisticon.aptk.tools.corematcher.CoreMatcherValidationMessages;
 import io.toolisticon.cute.CompileTestBuilder;
 import io.toolisticon.cute.JavaFileObjectUtils;
+import io.toolisticon.cute.PassIn;
+import io.toolisticon.cute.UnitTestForTestingAnnotationProcessors;
 import org.junit.Before;
 import org.junit.Test;
 
+import javax.annotation.processing.ProcessingEnvironment;
+import javax.tools.FileObject;
 import javax.tools.JavaFileObject;
 import javax.tools.StandardLocation;
+import java.io.FileWriter;
 
 
 /**
@@ -229,6 +234,8 @@ public class FluentApiProcessorTest {
                 .expectErrorMessage().thatContains(FluentApiProcessorCompilerMessages.ERROR_IMPLICIT_VALUE_INVALID_ENUM_VALUE.getCode())
                 .executeTest();
 
+
     }
+
 
 }

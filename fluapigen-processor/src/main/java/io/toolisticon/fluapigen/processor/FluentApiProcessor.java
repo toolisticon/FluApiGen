@@ -2,7 +2,6 @@ package io.toolisticon.fluapigen.processor;
 
 import io.toolisticon.aptk.compilermessage.api.DeclareCompilerMessage;
 import io.toolisticon.aptk.compilermessage.api.DeclareCompilerMessageCodePrefix;
-import io.toolisticon.aptk.templating.exceptions.InvalidPathException;
 import io.toolisticon.aptk.tools.AbstractAnnotationProcessor;
 import io.toolisticon.aptk.tools.FilerUtils;
 import io.toolisticon.aptk.tools.MessagerUtils;
@@ -64,19 +63,19 @@ public class FluentApiProcessor extends AbstractAnnotationProcessor {
         FluentApiState state = fluentApiWrapper.getState();
 
         // validate state
-        if(!state.validate()){
+        if (!state.validate()) {
             // skip
             return;
         }
 
         ModelRoot modelRoot = new ModelRoot(state);
 
-        if(modelRoot.validate()) {
+        if (modelRoot.validate()) {
             // Now create class
 
 
             // Fill Model
-            Map<String, Object> model = new HashMap<String, Object>();
+            Map<String, Object> model = new HashMap<>();
             model.put("model", modelRoot);
 
             // create the class
