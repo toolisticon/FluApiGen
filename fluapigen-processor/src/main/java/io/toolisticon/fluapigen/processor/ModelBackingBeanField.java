@@ -51,7 +51,7 @@ public class ModelBackingBeanField implements FetchImports, Validatable {
      */
 
     public TypeMirrorWrapper getConcreteType() {
-        return getFieldType().isCollection() ? getFieldType().getWrappedComponentType() : getFieldType();
+        return getFieldType().isCollection() || getFieldType().isArray() ? getFieldType().getWrappedComponentType() : getFieldType();
     }
 
     public String getFieldName() {
@@ -96,7 +96,7 @@ public class ModelBackingBeanField implements FetchImports, Validatable {
 
     public boolean isBackingBeanReference() {
 
-        return isCollection() ? this.getFieldType().getWrappedComponentType().getTypeElement().isPresent()
+        return isCollection() || isArray() ? this.getFieldType().getWrappedComponentType().getTypeElement().isPresent()
                 && this.getFieldType().getWrappedComponentType().getTypeElement().get().hasAnnotation(FluentApiBackingBean.class) :
                 this.getFieldType().getTypeElement().isPresent()
                         && this.getFieldType().getTypeElement().get().hasAnnotation(FluentApiBackingBean.class);
@@ -111,7 +111,7 @@ public class ModelBackingBeanField implements FetchImports, Validatable {
     public Optional<String> getBackingBeanReference() {
         return isBackingBeanReference() ?
                 Optional.of(
-                        isCollection() ?
+                        isCollection() || isArray() ?
                                 this.getFieldType().getWrappedComponentType().getTypeElement().get().getSimpleName() :
                                 this.getFieldType().getTypeElement().get().getSimpleName()
                 ) :

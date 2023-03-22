@@ -5,6 +5,7 @@ import io.toolisticon.aptk.tools.wrapper.ExecutableElementWrapper;
 import io.toolisticon.aptk.tools.wrapper.VariableElementWrapper;
 import io.toolisticon.fluapigen.api.FluentApiBackingBeanMapping;
 import io.toolisticon.fluapigen.api.FluentApiCommand;
+import io.toolisticon.fluapigen.api.FluentApiParentBackingBeanMapping;
 import io.toolisticon.fluapigen.api.TargetBackingBean;
 
 import java.util.ArrayList;
@@ -68,7 +69,7 @@ public class ModelInterfaceMethod implements FetchImports, Validatable {
     }
 
     public boolean isParentCall() {
-        return !getHasSameTargetBackingBean() && executableElement.hasAnnotation(FluentApiBackingBeanMapping.class);
+        return !getHasSameTargetBackingBean() && (executableElement.hasAnnotation(FluentApiParentBackingBeanMapping.class) || RenderStateHelper.getParents(this.backingBeanModel).contains(getNextModelInterface().getBackingBeanModel()));
     }
 
     public boolean isCreatingChildConfigCall() {
@@ -117,18 +118,114 @@ public class ModelInterfaceMethod implements FetchImports, Validatable {
     }
 
 
+    public List<ParentStackProcessing> getParentsBackingBeanFields() {
+
+        List<ParentStackProcessing> parentBBFields = new ArrayList<>();
+
+        List<FluentApiParentBackingBeanMappingWrapper> parentMappings = FluentApiParentBackingBeanMappingWrapper.wrap(executableElement.unwrap());
+
+        ModelBackingBean currentBackingBean = getNextBackingBean();
+
+
+        int bbCounter = 0;
+        String currentVariableName = "currentBackingBean";
+        for (int i = 0; i < parentMappings.size(); i++) {
+
+            boolean isLast = (i == parentMappings.size() - 1);
+
+            FluentApiParentBackingBeanMappingWrapper parentMapping = parentMappings.get(i);
+            String nextVariableName = "backingBean" + i;
+
+            if (currentBackingBean == null) {
+                // TODO: throw exception
+            }
+
+            String bbFieldName = parentMapping.value();
+
+            Optional<ModelBackingBeanField> field = currentBackingBean.getFieldById(bbFieldName);
+
+            if (!field.isPresent()) {
+                throw new BBFieldNotFoundException(bbFieldName, currentBackingBean.interfaceClassName(), parentMapping);
+            }
+
+            // prepare next iteration
+            parentBBFields.add(new ParentStackProcessing(currentVariableName, nextVariableName, currentBackingBean != null ? currentBackingBean.getClassName() : null, field.get().getFieldName(), i == 0, isLast, field.get().isCollection()));
+            currentBackingBean = currentBackingBean.getParent();
+            currentVariableName = nextVariableName;
+
+
+        }
+
+        return parentBBFields;
+    }
+
+
+    public static class ParentStackProcessing {
+
+        final String currentBBVariableName;
+        final String nextBBVariableName;
+
+        final String nextBBTypeName;
+        final String fieldName;
+
+        final boolean isFirst;
+
+        final boolean isLast;
+
+        final boolean isCollection;
+
+        public ParentStackProcessing(String currentBBVariableName, String nextBBVariableName, String nextBBTypeName, String fieldName, boolean isFirst, boolean isLast, boolean isCollection) {
+            this.currentBBVariableName = currentBBVariableName;
+            this.nextBBVariableName = nextBBVariableName;
+            this.nextBBTypeName = nextBBTypeName;
+            this.fieldName = fieldName;
+            this.isFirst = isFirst;
+            this.isLast = isLast;
+            this.isCollection = isCollection;
+        }
+
+        public String getCurrentBBVariableName() {
+            return currentBBVariableName;
+        }
+
+        public String getNextBBVariableName() {
+            return nextBBVariableName;
+        }
+
+        public String getNextBBTypeName() {
+            return nextBBTypeName;
+        }
+
+        public String getFieldName() {
+            return fieldName;
+        }
+
+        public boolean isFirst() {
+            return isFirst;
+        }
+
+        public boolean isLast() {
+            return isLast;
+        }
+
+        public boolean isCollection() {
+            return isCollection;
+        }
+    }
+
+    // TODO: must be removed
     public ModelBackingBeanField getParentsBackingBeanField() {
 
-        String bbFieldName = executableElement.getAnnotation(FluentApiBackingBeanMapping.class).get().value();
+        String bbFieldName = executableElement.getAnnotation(FluentApiParentBackingBeanMapping.class).get().value();
         Optional<ModelBackingBeanField> field = getNextBackingBean().getFieldById(bbFieldName);
 
         if (!field.isPresent()) {
             throw new BBFieldNotFoundException(bbFieldName, getNextBackingBean().interfaceClassName(), FluentApiBackingBeanMappingWrapper.wrap(executableElement.unwrap()));
         }
-
         return field.get();
     }
 
+    // TODO: must be removed -> use fields getCollectionImplType method instead
     public String getParentsBackingBeanFieldCollectionImplType() {
         switch (getParentsBackingBeanField().getFieldType().getSimpleName()) {
             case "List": {
@@ -142,8 +239,8 @@ public class ModelInterfaceMethod implements FetchImports, Validatable {
         return null;
     }
 
-    public Optional<FluentApiBackingBeanMapping> getBBMappingAnnotation() {
-        return this.executableElement.getAnnotation(FluentApiBackingBeanMapping.class);
+    public List<FluentApiParentBackingBeanMappingWrapper> getParentBBMappingAnnotation() {
+        return FluentApiParentBackingBeanMappingWrapper.wrap(this.executableElement.unwrap());
     }
 
     @DeclareCompilerMessage(code = "190", enumValueName = "ERROR_RETURN_TYPE_MUST_BE_FLUENT_INTERFACE", message = "Return type '${0}' must be a fluent interface!", processorClass = FluentApiProcessor.class)
@@ -194,8 +291,9 @@ public class ModelInterfaceMethod implements FetchImports, Validatable {
         // 1. same BB
         if (getHasSameTargetBackingBean()) {
             nextBackingBean = this.backingBeanModel;
+        } else if (isParentCall()) {
+            nextBackingBean = this.backingBeanModel.getParent();
         } else {
-
             // 2. Child Or Parent
             nextBackingBean = getNextModelInterface().getBackingBeanModel();
         }

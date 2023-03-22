@@ -337,6 +337,20 @@ public class IntegrationTestTest {
         MatcherAssert.assertThat(midLevel5.gotoParent().myCommand().midLevelBB().get(0).stringList(), Matchers.contains("ABC", "DEF","GHI", "JKL","MNO", "PQR"));
 
 
+
+    }
+
+    @Test
+    public void test_fluentApi_test_toParentTraversal() {
+        IntegrationTest.MyRootInterface root = IntegrationTestStarter
+                .setName("NAME")
+                .gotoMidLevel()
+                .addConfig()
+                .setEnum(IntegrationTest.TestEnum.TWO)
+                .closeToRoot();
+
+        MatcherAssert.assertThat(root.myCommand().midLevelBB().get(0).getLowLevelBB().get(0).getEnum(), Matchers.is(IntegrationTest.TestEnum.TWO));
+
     }
 
 }

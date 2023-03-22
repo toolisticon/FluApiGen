@@ -79,6 +79,7 @@ public class ${ model.className } {
         public ${method.methodSignature} {
 
 !{if method.getHasSameTargetBackingBean}
+            // handle same bb traversal
             // clone and update values of backing bean
             ${interface.backingBeanModel.className} nextBackingBean = this.backingBean.cloneBackingBean();
 !{for parameter : method.getAllParameters}
@@ -90,7 +91,7 @@ public class ${ model.className } {
             return new ${method.nextModelInterface.className}(nextBackingBean, parentStack);
 
 !{elseif method.isParentCall}
-
+            // handle parent traversal
             // first clone stack
             Deque newStack = new ArrayDeque(parentStack);
 
@@ -104,22 +105,33 @@ public class ${ model.className } {
 !{/for}
 
             // prepare next backing bean and set values
-            ${method.nextModelInterface.backingBeanModel.className} nextBackingBean = ((${method.nextModelInterface.backingBeanModel.className}) newStack.pop()).cloneBackingBean();
+!{for backingBeanField : method.getParentsBackingBeanFields}
+            ${backingBeanField.nextBBTypeName}  ${backingBeanField.nextBBVariableName} = ((${backingBeanField.nextBBTypeName}) newStack.pop()).cloneBackingBean();
+!{if backingBeanField.isFirst}
 !{for parameter : method.parametersBoundToNextBB}
-            nextBackingBean.${parameter.backingBeanField.get.fieldName}${parameter.assignmentString};
+            ${backingBeanField.nextBBVariableName}.${parameter.backingBeanField.get.fieldName}${parameter.assignmentString};
 !{/for}
 !{for implicitValue : method.implicitValuesBoundToNextBB}
-            nextBackingBean.${implicitValue.backingBeanFieldName}${implicitValue.valueAssignmentString};
+            ${backingBeanField.nextBBVariableName}.${implicitValue.backingBeanFieldName}${implicitValue.valueAssignmentString};
 !{/for}
-            // must set/add current backing bean to parent backing bean
-!{if method.getParentsBackingBeanField.isCollection}
-            nextBackingBean.${method.getParentsBackingBeanField.fieldName}.add(currentBackingBean);
-!{else}
-            nextBackingBean.${method.getParentsBackingBeanField.fieldName} = currentBackingBean;
 !{/if}
-            return new ${method.nextModelInterface.className}(nextBackingBean, newStack);
+
+!{if backingBeanField.isCollection}
+            ${backingBeanField.nextBBVariableName}.${backingBeanField.fieldName}.add(${backingBeanField.currentBBVariableName});
+!{else}
+            ${backingBeanField.nextBBVariableName}.${backingBeanField.fieldName} = ${backingBeanField.currentBBVariableName}.cloneBackingBean();
+!{/if}
+
+!{if backingBeanField.isLast}
+            // init BB impl
+            return new ${method.nextModelInterface.className}(${backingBeanField.nextBBVariableName}, newStack);
+!{/if}
+!{/for}
+
+
 
 !{elseif method.isCreatingChildConfigCall}
+            // handle child traversal
             // update current backing bean and push it ontop of the stack
             Deque newStack = new ArrayDeque(parentStack);
             ${interface.backingBeanModel.className} currentBackingBean = this.backingBean.cloneBackingBean();

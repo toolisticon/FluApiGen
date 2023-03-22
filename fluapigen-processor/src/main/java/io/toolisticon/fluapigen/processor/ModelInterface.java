@@ -6,6 +6,7 @@ import io.toolisticon.aptk.tools.fluentfilter.FluentElementFilter;
 import io.toolisticon.aptk.tools.wrapper.ExecutableElementWrapper;
 import io.toolisticon.fluapigen.api.FluentApiBackingBeanMapping;
 import io.toolisticon.fluapigen.api.FluentApiCommand;
+import io.toolisticon.fluapigen.api.FluentApiParentBackingBeanMapping;
 import io.toolisticon.fluapigen.api.FluentApiRoot;
 
 import java.util.ArrayList;
@@ -99,14 +100,14 @@ public class ModelInterface implements FetchImports, Validatable {
                     && getBackingBeanModel().getParent().equals(method.getNextBackingBean())){
 
                     // check if annotation is present
-                    if ( !method.getBBMappingAnnotation().isPresent()) {
-                        method.getExecutableElement().compilerMessage().asError().write(FluentApiProcessorCompilerMessages.BB_MAPPING_ANNOTATION_MUST_BE_PRESENT_ADD_TO_PARENT_TRAVERSALS, FluentApiBackingBeanMapping.class.getSimpleName());
+                    if ( method.getParentBBMappingAnnotation().size() == 0) {
+                        method.getExecutableElement().compilerMessage().asError().write(FluentApiProcessorCompilerMessages.BB_MAPPING_ANNOTATION_MUST_BE_PRESENT_ADD_TO_PARENT_TRAVERSALS, FluentApiParentBackingBeanMapping.class.getSimpleName());
                         outcome = false;
                     } else {
 
                         try {
                             // must check if field can be mapped
-                            method.getParentsBackingBeanField();
+                            method.getParentsBackingBeanFields();
                         } catch (BBFieldNotFoundException e) {
                             e.writeErrorCompilerMessage();
                             outcome = false;
