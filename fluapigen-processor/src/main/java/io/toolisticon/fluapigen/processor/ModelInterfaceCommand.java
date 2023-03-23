@@ -5,7 +5,7 @@ import io.toolisticon.aptk.tools.wrapper.ExecutableElementWrapper;
 import java.util.HashSet;
 import java.util.Set;
 
-public class ModelInterfaceCommand implements FetchImports, Validatable {
+public class ModelInterfaceCommand implements FetchImports {
 
     private final ExecutableElementWrapper executableElement;
     private final FluentApiCommandWrapper fluentApiCommandWrapper;
@@ -47,12 +47,4 @@ public class ModelInterfaceCommand implements FetchImports, Validatable {
 
     }
 
-    @Override
-    public boolean validate() {
-
-        boolean outcome = true;
-
-        return outcome;
-
-    }
 }

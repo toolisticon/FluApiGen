@@ -237,5 +237,16 @@ public class FluentApiProcessorTest {
 
     }
 
+    @Test
+    public void test_invalid_InvalidNumberOfParentMappingsAtCommand() {
+
+        compileTestBuilder
+                .addSources(JavaFileObjectUtils.readFromResource("testcases/TestcaseInvalidNumberOfParentMappingsAtCommand.java"))
+                .compilationShouldFail()
+                .expectErrorMessage().thatContains(FluentApiProcessorCompilerMessages.ERROR_INVALID_NUMBER_OF_PARENT_MAPPINGS_TO_REACH_ROOT_BB.getCode())
+                .executeTest();
+
+
+    }
 
 }

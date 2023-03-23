@@ -78,7 +78,7 @@ public class ModelInterfaceMethod implements FetchImports, Validatable {
     public boolean isParentCall() {
 
         boolean isCommand = executableElement.hasAnnotation(FluentApiCommand.class);
-boolean hasDirectParent = (FluentApiParentBackingBeanMappingWrapper.wrap(executableElement.unwrap()).size() > 0)  && RenderStateHelper.getParents(this.backingBeanModel).size() > 0;
+        boolean hasDirectParent = this.backingBeanModel.hasParent();
 
         return hasDirectParent && (isCommand || RenderStateHelper.getParents(this.backingBeanModel).contains(getNextModelInterface().getBackingBeanModel()));
     }
@@ -237,6 +237,9 @@ boolean hasDirectParent = (FluentApiParentBackingBeanMappingWrapper.wrap(executa
     }
 
     @DeclareCompilerMessage(code = "190", enumValueName = "ERROR_RETURN_TYPE_MUST_BE_FLUENT_INTERFACE", message = "Return type '${0}' must be a fluent interface!", processorClass = FluentApiProcessor.class)
+    @DeclareCompilerMessage(code = "191", enumValueName = "ERROR_NO_PATH_TO_ROOT_BB", message = "The root BB can't be reached from this backingBean", processorClass = FluentApiProcessor.class)
+    @DeclareCompilerMessage(code = "192", enumValueName = "ERROR_INVALID_NUMBER_OF_PARENT_MAPPINGS_TO_REACH_ROOT_BB", message = "There must be ${0} ${1} annotations to be able to reach root backing bean ${2}", processorClass = FluentApiProcessor.class)
+
     public boolean validate() {
 
         boolean outcome = true;
@@ -263,8 +266,8 @@ boolean hasDirectParent = (FluentApiParentBackingBeanMappingWrapper.wrap(executa
             outcome = false;
         }
 
-        // check return value -> must be Api Interface
-        if (!executableElement.hasAnnotation(FluentApiCommand.class)) {
+        // check return value -> must be an Api Interface
+        if (!isCommandMethod()) {
 
             if (RenderStateHelper.getInterfaceModelForInterfaceSimpleClassName(executableElement.getReturnType().getSimpleName()) == null) {
                 executableElement.compilerMessage().asError().write(FluentApiProcessorCompilerMessages.ERROR_RETURN_TYPE_MUST_BE_FLUENT_INTERFACE, executableElement.getReturnType().isVoidType() ? "void" : executableElement.getReturnType().getSimpleName());
@@ -273,6 +276,25 @@ boolean hasDirectParent = (FluentApiParentBackingBeanMappingWrapper.wrap(executa
 
         }
 
+        // must check command case
+        if (isCommandMethod()) {
+
+            if (isParentCall()) {
+                // check number of Mapping annotations to root
+                if (RenderStateHelper.getParents(this.backingBeanModel).size() != FluentApiParentBackingBeanMappingWrapper.wrap(executableElement.unwrap()).size()){
+                    executableElement.compilerMessage().asError().write(FluentApiProcessorCompilerMessages.ERROR_INVALID_NUMBER_OF_PARENT_MAPPINGS_TO_REACH_ROOT_BB, RenderStateHelper.getParents(this.backingBeanModel).size(), FluentApiParentBackingBeanMapping.class.getSimpleName(), RenderStateHelper.getRootInterface().get().getBackingBeanModel().interfaceClassName());
+                    outcome = false;
+                }
+
+                // check for root
+                if(!RenderStateHelper.getParents(this.backingBeanModel).contains(RenderStateHelper.getRootInterface().get().getBackingBeanModel())) {
+                    executableElement.compilerMessage().asError().write(FluentApiProcessorCompilerMessages.ERROR_NO_PATH_TO_ROOT_BB);
+                    outcome = false;
+                }
+            }
+
+
+        }
 
         return outcome;
     }
