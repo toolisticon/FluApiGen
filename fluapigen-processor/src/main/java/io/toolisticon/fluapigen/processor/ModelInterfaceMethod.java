@@ -2,6 +2,7 @@ package io.toolisticon.fluapigen.processor;
 
 import io.toolisticon.aptk.compilermessage.api.DeclareCompilerMessage;
 import io.toolisticon.aptk.tools.wrapper.ExecutableElementWrapper;
+import io.toolisticon.aptk.tools.wrapper.TypeElementWrapper;
 import io.toolisticon.aptk.tools.wrapper.VariableElementWrapper;
 import io.toolisticon.fluapigen.api.FluentApiBackingBeanMapping;
 import io.toolisticon.fluapigen.api.FluentApiCommand;
@@ -57,23 +58,41 @@ public class ModelInterfaceMethod implements FetchImports, Validatable {
 
 
     public ModelInterface getNextModelInterface() {
-        return RenderStateHelper.getInterfaceModelForInterfaceSimpleClassName(this.executableElement.getReturnType().getTypeElement().get().getSimpleName());
+        // must catch void,primitive types and arrays
+        Optional<TypeElementWrapper> interfaceTypeWrapper = this.executableElement.getReturnType().getTypeElement();
+        return interfaceTypeWrapper.isPresent() ? RenderStateHelper.getInterfaceModelForInterfaceSimpleClassName(interfaceTypeWrapper.get().getSimpleName()) : null;
     }
 
     public boolean getHasSameTargetBackingBean() {
 
+        if (this.isCommandMethod()) {
+            return true;
+        }
+
         // need to catch wrong configuration - like broken bb mapping
         ModelInterface nextModelInterface = getNextModelInterface();
-        return nextModelInterface != null && backingBeanModel.getClassName().equals(getNextModelInterface().getBackingBeanModel().getClassName());
+        return (nextModelInterface == null && isCommandMethod()) || (nextModelInterface != null && backingBeanModel.getClassName().equals(nextModelInterface.getBackingBeanModel().getClassName()));
 
     }
 
     public boolean isParentCall() {
-        return !getHasSameTargetBackingBean() && (executableElement.hasAnnotation(FluentApiParentBackingBeanMapping.class) || RenderStateHelper.getParents(this.backingBeanModel).contains(getNextModelInterface().getBackingBeanModel()));
+
+        boolean isCommand = executableElement.hasAnnotation(FluentApiCommand.class);
+boolean hasDirectParent = (FluentApiParentBackingBeanMappingWrapper.wrap(executableElement.unwrap()).size() > 0)  && RenderStateHelper.getParents(this.backingBeanModel).size() > 0;
+
+        return hasDirectParent && (isCommand || RenderStateHelper.getParents(this.backingBeanModel).contains(getNextModelInterface().getBackingBeanModel()));
     }
 
     public boolean isCreatingChildConfigCall() {
         return !getHasSameTargetBackingBean() && !executableElement.hasAnnotation(FluentApiBackingBeanMapping.class);
+    }
+
+    public boolean isCommandMethod() {
+        return this.executableElement.hasAnnotation(FluentApiCommand.class);
+    }
+
+    public ModelInterfaceCommand getCommand() {
+        return new ModelInterfaceCommand(executableElement);
     }
 
     public List<ModelInterfaceMethodParameter> getAllParameters() {
@@ -213,32 +232,6 @@ public class ModelInterfaceMethod implements FetchImports, Validatable {
         }
     }
 
-    // TODO: must be removed
-    public ModelBackingBeanField getParentsBackingBeanField() {
-
-        String bbFieldName = executableElement.getAnnotation(FluentApiParentBackingBeanMapping.class).get().value();
-        Optional<ModelBackingBeanField> field = getNextBackingBean().getFieldById(bbFieldName);
-
-        if (!field.isPresent()) {
-            throw new BBFieldNotFoundException(bbFieldName, getNextBackingBean().interfaceClassName(), FluentApiBackingBeanMappingWrapper.wrap(executableElement.unwrap()));
-        }
-        return field.get();
-    }
-
-    // TODO: must be removed -> use fields getCollectionImplType method instead
-    public String getParentsBackingBeanFieldCollectionImplType() {
-        switch (getParentsBackingBeanField().getFieldType().getSimpleName()) {
-            case "List": {
-                return "java.util.ArrayList";
-            }
-            case "Set": {
-                return "java.util.HashSet";
-            }
-
-        }
-        return null;
-    }
-
     public List<FluentApiParentBackingBeanMappingWrapper> getParentBBMappingAnnotation() {
         return FluentApiParentBackingBeanMappingWrapper.wrap(this.executableElement.unwrap());
     }
@@ -288,12 +281,12 @@ public class ModelInterfaceMethod implements FetchImports, Validatable {
     public ModelBackingBean getNextBackingBean() {
         ModelBackingBean nextBackingBean;
         // Must handle 2 cases
-        // 1. same BB
-        if (getHasSameTargetBackingBean()) {
-            nextBackingBean = this.backingBeanModel;
-        } else if (isParentCall()) {
+        if (isParentCall()) {
             nextBackingBean = this.backingBeanModel.getParent();
-        } else {
+        } else if (getHasSameTargetBackingBean()) {
+            // 1. same BB
+            nextBackingBean = this.backingBeanModel;
+        } else  {
             // 2. Child Or Parent
             nextBackingBean = getNextModelInterface().getBackingBeanModel();
         }
@@ -308,6 +301,9 @@ public class ModelInterfaceMethod implements FetchImports, Validatable {
 
         imports.addAll(executableElement.getImports());
 
+        if (isCommandMethod()) {
+            imports.addAll(getCommand().fetchImports());
+        }
         return imports;
 
     }

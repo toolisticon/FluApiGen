@@ -78,19 +78,7 @@ public class ${ model.className } {
         @Override
         public ${method.methodSignature} {
 
-!{if method.getHasSameTargetBackingBean}
-            // handle same bb traversal
-            // clone and update values of backing bean
-            ${interface.backingBeanModel.className} nextBackingBean = this.backingBean.cloneBackingBean();
-!{for parameter : method.getAllParameters}
-            nextBackingBean.${parameter.backingBeanField.get.fieldName}${parameter.assignmentString};
-!{/for}
-!{for implicitValue : method.implicitValuesBoundToCurrentBB}
-            nextBackingBean.${implicitValue.backingBeanFieldName}${implicitValue.valueAssignmentString};
-!{/for}
-            return new ${method.nextModelInterface.className}(nextBackingBean, parentStack);
-
-!{elseif method.isParentCall}
+!{if method.isParentCall}
             // handle parent traversal
             // first clone stack
             Deque newStack = new ArrayDeque(parentStack);
@@ -123,12 +111,36 @@ public class ${ model.className } {
 !{/if}
 
 !{if backingBeanField.isLast}
+!{if method.isCommandMethod}
+            // call command
+            !{if method.command.hasReturnType}return !{/if} ${method.command.commandMethod}(${backingBeanField.nextBBVariableName});
+!{else}
             // init BB impl
             return new ${method.nextModelInterface.className}(${backingBeanField.nextBBVariableName}, newStack);
+!{/if}
 !{/if}
 !{/for}
 
 
+
+
+!{elseif method.getHasSameTargetBackingBean}
+            // handle same bb traversal
+            // clone and update values of backing bean
+            ${interface.backingBeanModel.className} nextBackingBean = this.backingBean.cloneBackingBean();
+!{for parameter : method.getAllParameters}
+            nextBackingBean.${parameter.backingBeanField.get.fieldName}${parameter.assignmentString};
+!{/for}
+!{for implicitValue : method.implicitValuesBoundToCurrentBB}
+            nextBackingBean.${implicitValue.backingBeanFieldName}${implicitValue.valueAssignmentString};
+!{/for}
+!{if method.isCommandMethod}
+            // call command
+            !{if method.command.hasReturnType}return !{/if} ${method.command.commandMethod}(nextBackingBean);
+!{else}
+            // init BB impl
+            return new ${method.nextModelInterface.className}(nextBackingBean, parentStack);
+!{/if}
 
 !{elseif method.isCreatingChildConfigCall}
             // handle child traversal
@@ -158,33 +170,13 @@ public class ${ model.className } {
 !{/if}
         }
 !{/for}
-        // ----------------------------------------------------------------------
-        // Commands
-        // ----------------------------------------------------------------------
-
-!{for command : interface.commands}
-        @Override
-        public ${command.methodSignature} {
-
-            ${interface.backingBeanModel.className} nextBackingBean = this.backingBean.cloneBackingBean();
-
-!{for parameter : command.method.getAllParameters}
-            nextBackingBean.${parameter.backingBeanField.get.fieldName}${parameter.assignmentString};
-!{/for}
-!{for implicitValue : command.method.implicitValuesBoundToCurrentBB}
-            nextBackingBean.${implicitValue.backingBeanFieldName}${implicitValue.valueAssignmentString};
-!{/for}
-            // call command
-            !{if command.hasReturnType}return !{/if} ${command.commandMethod}(nextBackingBean);
-        }
-!{/for}
     }
 !{/for}
 
     // static root functions
 !{for method : model.rootInterface.methods}
     public static ${method.methodSignature} {
-        return new ${model.rootInterface.className}(new ArrayDeque()).${method.methodCall};
+        !{if !method.isCommandMethod || method.command.hasReturnType}return!{/if} new ${model.rootInterface.className}(new ArrayDeque()).${method.methodCall};
     }
 !{/for}
 }

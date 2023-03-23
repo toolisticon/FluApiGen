@@ -247,6 +247,11 @@ public class IntegrationTest {
         @FluentApiParentBackingBeanMapping(value = "lowLevelBBs")
         @FluentApiParentBackingBeanMapping(value = "midLevelBB")
         MyRootInterface closeToRoot();
+
+        @FluentApiParentBackingBeanMapping(value = "lowLevelBBs")
+        @FluentApiParentBackingBeanMapping(value = "midLevelBB")
+        @FluentApiCommand(MyCommand.class)
+        MyRootLevelBackingBean closeToCommand();
     }
 
     // Commands

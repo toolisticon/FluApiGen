@@ -31,11 +31,7 @@ public class ModelInterface implements FetchImports, Validatable {
 
         // get Methods
         for (ExecutableElementWrapper executableElement : FluentElementFilter.createFluentElementFilter(this.wrapper._annotatedElement().getEnclosedElements()).applyFilter(AptkCoreMatchers.IS_METHOD).getResult().stream().map(ExecutableElementWrapper::wrap).collect(Collectors.toList())) {
-            if (!executableElement.getAnnotation(FluentApiCommand.class).isPresent()) {
-                methods.add(new ModelInterfaceMethod(executableElement, backingBeanModel));
-            } else {
-                commands.add(new ModelInterfaceCommand(executableElement, new ModelInterfaceMethod(executableElement, backingBeanModel)));
-            }
+               methods.add(new ModelInterfaceMethod(executableElement, backingBeanModel));
         }
 
         // add to render state
@@ -95,7 +91,9 @@ public class ModelInterface implements FetchImports, Validatable {
         for (ModelInterfaceMethod method : methods) {
             outcome = outcome & method.validate();
 
-            if (!method.getHasSameTargetBackingBean()
+            if (method.isCommandMethod()){
+
+            } else if (!method.getHasSameTargetBackingBean()
                     && getBackingBeanModel().hasParent()
                     && getBackingBeanModel().getParent().equals(method.getNextBackingBean())){
 
@@ -117,9 +115,6 @@ public class ModelInterface implements FetchImports, Validatable {
             }
         }
 
-        for (ModelInterfaceCommand command : commands) {
-            outcome = outcome & command.validate();
-        }
 
         return outcome;
     }

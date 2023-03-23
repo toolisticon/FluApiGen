@@ -10,12 +10,10 @@ public class ModelInterfaceCommand implements FetchImports, Validatable {
     private final ExecutableElementWrapper executableElement;
     private final FluentApiCommandWrapper fluentApiCommandWrapper;
 
-    private final ModelInterfaceMethod method;
     private final String methodSignature;
 
-    ModelInterfaceCommand(ExecutableElementWrapper executableElement, ModelInterfaceMethod method) {
+    ModelInterfaceCommand(ExecutableElementWrapper executableElement) {
         this.executableElement = executableElement;
-        this.method = method;
         this.fluentApiCommandWrapper = FluentApiCommandWrapper.wrap(executableElement.unwrap());
         this.methodSignature = executableElement.getMethodSignature();
     }
@@ -32,9 +30,6 @@ public class ModelInterfaceCommand implements FetchImports, Validatable {
         return !executableElement.getReturnType().isVoidType();
     }
 
-    public ModelInterfaceMethod getMethod(){
-        return method;
-    }
 
 
     @Override
@@ -56,8 +51,6 @@ public class ModelInterfaceCommand implements FetchImports, Validatable {
     public boolean validate() {
 
         boolean outcome = true;
-
-        outcome = outcome & method.validate();
 
         return outcome;
 
