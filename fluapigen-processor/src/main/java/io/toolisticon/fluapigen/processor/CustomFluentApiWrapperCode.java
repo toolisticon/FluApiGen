@@ -3,7 +3,6 @@ package io.toolisticon.fluapigen.processor;
 import io.toolisticon.aptk.annotationwrapper.api.CustomCodeMethod;
 import io.toolisticon.aptk.compilermessage.api.DeclareCompilerMessage;
 import io.toolisticon.aptk.tools.MessagerUtils;
-import io.toolisticon.aptk.tools.command.CommandWithReturnType;
 import io.toolisticon.aptk.tools.corematcher.AptkCoreMatchers;
 import io.toolisticon.aptk.tools.fluentfilter.FluentElementFilter;
 import io.toolisticon.aptk.tools.fluentvalidator.FluentElementValidator;
@@ -13,7 +12,6 @@ import io.toolisticon.fluapigen.api.FluentApiCommand;
 import io.toolisticon.fluapigen.api.FluentApiInterface;
 import io.toolisticon.fluapigen.api.FluentApiRoot;
 
-import javax.lang.model.element.Element;
 import javax.lang.model.element.Modifier;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -46,8 +44,8 @@ public class CustomFluentApiWrapperCode {
         return returnValue;
     }
 
-    @DeclareCompilerMessage(code="010", enumValueName = "ERROR_FLUENTAPI_CLASSNAME_MUST_NOT_BE_EMPTY", message = "FluentApi annotations className attribute must not be empty.", processorClass = FluentApiProcessor.class)
-    @DeclareCompilerMessage(code="011", enumValueName = "ERROR_FLUENTAPI_CLASSNAME_MUST_BE_VALID", message = "FluentApi annotations className attribute must not be empty.", processorClass = FluentApiProcessor.class)
+    @DeclareCompilerMessage(code = "010", enumValueName = "ERROR_FLUENTAPI_CLASSNAME_MUST_NOT_BE_EMPTY", message = "FluentApi annotations className attribute must not be empty.", processorClass = FluentApiProcessor.class)
+    @DeclareCompilerMessage(code = "011", enumValueName = "ERROR_FLUENTAPI_CLASSNAME_MUST_BE_VALID", message = "FluentApi annotations className attribute must not be empty.", processorClass = FluentApiProcessor.class)
 
     static boolean checkClassName(FluentApiWrapper wrapper) {
         if (wrapper.value().isEmpty()) {
@@ -60,17 +58,16 @@ public class CustomFluentApiWrapperCode {
         }
 
 
-
         return true;
     }
 
 
-    @DeclareCompilerMessage(code="012", enumValueName = "ERROR_FLUENTAPI_NO_ROOT_INTERFACE", message = "Please add the ${0} annotation to one of the fluent interfaces annotated with ${1}.", processorClass = FluentApiProcessor.class)
-    @DeclareCompilerMessage(code="013", enumValueName = "ERROR_FLUENTAPI_MULTIPLE_ROOT_INTERFACES", message = "There must be only one interface annotated with the ${0} annotation.", processorClass = FluentApiProcessor.class)
-    static boolean checkIfThereIsExactlyOneFluentApiInterfaceThatMarkedAsRoot(FluentApiWrapper wrapper){
+    @DeclareCompilerMessage(code = "012", enumValueName = "ERROR_FLUENTAPI_NO_ROOT_INTERFACE", message = "Please add the ${0} annotation to one of the fluent interfaces annotated with ${1}.", processorClass = FluentApiProcessor.class)
+    @DeclareCompilerMessage(code = "013", enumValueName = "ERROR_FLUENTAPI_MULTIPLE_ROOT_INTERFACES", message = "There must be only one interface annotated with the ${0} annotation.", processorClass = FluentApiProcessor.class)
+    static boolean checkIfThereIsExactlyOneFluentApiInterfaceThatMarkedAsRoot(FluentApiWrapper wrapper) {
         // check if there is exactly one root interface
         List<FluentApiInterfaceWrapper> rootInterfaces = getFluentInterfaces(wrapper).stream().filter(e -> e._annotatedElement().getAnnotation(FluentApiRoot.class) != null).collect(Collectors.toList());
-        if (rootInterfaces.size() == 0){
+        if (rootInterfaces.size() == 0) {
             MessagerUtils.error(wrapper._annotatedElement(), FluentApiProcessorCompilerMessages.ERROR_FLUENTAPI_NO_ROOT_INTERFACE, FluentApiRoot.class.getName(), FluentApiInterface.class.getName());
             return false;
         } else if (rootInterfaces.size() > 1) {
@@ -98,37 +95,28 @@ public class CustomFluentApiWrapperCode {
 
     }
 
-    static List<FluentApiInterfaceWrapper> getFluentInterfaces (FluentApiWrapper wrapper){
-        return FluentElementFilter.createFluentElementFilter((List<Element>) wrapper._annotatedElement().getEnclosedElements())
+    static List<FluentApiInterfaceWrapper> getFluentInterfaces(FluentApiWrapper wrapper) {
+        return FluentElementFilter.createFluentElementFilter(wrapper._annotatedElement().getEnclosedElements())
                 .applyFilter(AptkCoreMatchers.BY_ANNOTATION).filterByAllOf(FluentApiInterface.class)
-                .<FluentApiInterfaceWrapper>executeCommand(new CommandWithReturnType<Element, FluentApiInterfaceWrapper>() {
-                    @Override
-                    public FluentApiInterfaceWrapper execute(Element element) {
-                        return FluentApiInterfaceWrapper.wrap(element);
-                    }
+                .executeCommand(element -> {
+                    return FluentApiInterfaceWrapper.wrap(element);
                 });
     }
 
-    static List<FluentApiBackingBeanWrapper> getBackingBeans (FluentApiWrapper wrapper){
-        return  FluentElementFilter.createFluentElementFilter((List<Element>) wrapper._annotatedElement().getEnclosedElements())
+    static List<FluentApiBackingBeanWrapper> getBackingBeans(FluentApiWrapper wrapper) {
+        return FluentElementFilter.createFluentElementFilter(wrapper._annotatedElement().getEnclosedElements())
                 .applyFilter(AptkCoreMatchers.BY_ANNOTATION).filterByAllOf(FluentApiBackingBean.class)
-                .<FluentApiBackingBeanWrapper>executeCommand(new CommandWithReturnType<Element, FluentApiBackingBeanWrapper>() {
-                    @Override
-                    public FluentApiBackingBeanWrapper execute(Element element) {
-                        return FluentApiBackingBeanWrapper.wrap(element);
-                    }
+                .executeCommand(element -> {
+                    return FluentApiBackingBeanWrapper.wrap(element);
                 });
     }
 
 
-    static List<FluentApiCommandWrapper> getCommands (FluentApiWrapper wrapper) {
-        return  FluentElementFilter.createFluentElementFilter((List<Element>) wrapper._annotatedElement().getEnclosedElements())
+    static List<FluentApiCommandWrapper> getCommands(FluentApiWrapper wrapper) {
+        return FluentElementFilter.createFluentElementFilter(wrapper._annotatedElement().getEnclosedElements())
                 .applyFilter(AptkCoreMatchers.BY_ANNOTATION).filterByAllOf(FluentApiCommand.class)
-                .<FluentApiCommandWrapper>executeCommand(new CommandWithReturnType<Element, FluentApiCommandWrapper>() {
-                    @Override
-                    public FluentApiCommandWrapper execute(Element element) {
-                        return FluentApiCommandWrapper.wrap(element);
-                    }
+                .executeCommand(element -> {
+                    return FluentApiCommandWrapper.wrap(element);
                 });
     }
 

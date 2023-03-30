@@ -26,7 +26,7 @@ public class ModelInterfaceMethodParameter {
         parameterElement = variableElement;
         this.backingBeanModel = backingBeanModel;
         this.modelInterfaceMethod = modelInterfaceMethod;
-        parameterName = variableElement.getSimpleName().toString();
+        parameterName = variableElement.getSimpleName();
         fluentApiBackingBeanMapping = variableElement.unwrap().getAnnotation(FluentApiBackingBeanMapping.class);
         type = variableElement.asType();
     }
@@ -68,15 +68,84 @@ public class ModelInterfaceMethodParameter {
 
         if (backBeanField.isPresent()) {
 
-            if (backBeanField.get().isCollection() && parameterElement.asType().isArray()) {
-                return  "new " + backBeanField.get().getCollectionImplType() + "(Arrays.asList(" + getParameterName() + "))";
+            // must distinct two cases
+            // 1. Collections - May have ADD or SET action
+            // 2. Single Value - only set is allowed per default
+            // Might also think about handling Arrays like Collections
+
+            if (backBeanField.get().isCollection()) {
+
+                switch (getFluentApiBackingBeanMapping().action()) {
+
+                    case SET: {
+
+                        // validate types
+                        TypeMirrorWrapper typeMirrorWrapper = type;
+                        if (typeMirrorWrapper.isCollection() || typeMirrorWrapper.isArray()) {
+                            typeMirrorWrapper = typeMirrorWrapper.getWrappedComponentType();
+                        }
+                        if (!typeMirrorWrapper.erasure().isAssignableTo(backBeanField.get().getConcreteType().erasure())) {
+                            // must throw validation error
+                            throw new IncompatibleParameterTypeException(type.getSimpleName(),backBeanField.get().getFieldName(),backBeanField.get().getFieldType().getTypeDeclaration(),FluentApiBackingBeanMappingWrapper.wrap(parameterElement.unwrap()));
+                        }
+
+                        // must handle 3 scenarios depending on parameter type:
+
+                        // 1. varargs / array
+                        // 2. Collection
+                        // 3. single value
+
+                        if (type.isArray()) {
+                            return " = new " + backBeanField.get().getCollectionImplType() + "(Arrays.asList(" + getParameterName() + "));";
+                        } else if (type.isCollection()) {
+                            return " = new " + backBeanField.get().getCollectionImplType() + "(" + getParameterName() + ");";
+                        } else {
+                            return " = new " + backBeanField.get().getCollectionImplType() + "(Collections.singletonList( " + getParameterName() + " ));";
+                        }
+
+                    }
+                    case ADD: {
+                        // must handle 3 scenarios depending on parameter type:
+
+                        // 1. varargs / array
+                        // 2. Collection
+                        // 3. single value
+
+                        if (type.isArray()) {
+                            return ".addAll(Arrays.asList(" + getParameterName() + "));";
+                        } else if (type.isCollection()) {
+                            return ".addAll(" + getParameterName() + ");";
+                        } else {
+                            return ".add(" + getParameterName() + ");";
+                        }
+
+                    }
+                }
+            }
+            /*-
+            else if (backBeanField.get().isArray()) {
+                switch (getFluentApiBackingBeanMapping().action()) {
+                    case SET: {
+                        return;
+                    }
+                    case ADD: {
+                        return;
+                    }
+                }
+            }*/
+
+            else {
+
+                // just parameter assignment
+                return " = " + getParameterName() +";";
             }
 
-            return getParameterName();
         }
 
         return "";
     }
+
+
 
     @DeclareCompilerMessage(code = "001", enumValueName = "BB_MAPPING_ANNOTATION_MUST_BE_PRESENT", message = "${0} annotation must be present on parameter", processorClass = FluentApiProcessor.class)
     @DeclareCompilerMessage(code = "002", enumValueName = "PARAMETER_AND_MAPPED_BB_FIELD_MUST_HAVE_SAME_TYPE", message = "Parameter type (${0}) must match backing bean field type (${1})", processorClass = FluentApiProcessor.class)
@@ -93,7 +162,6 @@ public class ModelInterfaceMethodParameter {
             return false;
         }
 
-
         if (!getBackingBeanField().isPresent()) {
             parameterElement.compilerMessage().asError().write(
                     FluentApiProcessorCompilerMessages.BB_MAPPING_COULDNT_BE_RESOLVED,
@@ -104,6 +172,12 @@ public class ModelInterfaceMethodParameter {
         }
 
 
+        try {
+            getAssignmentString();
+        } catch (IncompatibleParameterTypeException e) {
+            e.writeErrorCompilerMessage();
+            return false;
+        }
 
         return result;
     }

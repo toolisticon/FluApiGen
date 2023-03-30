@@ -17,7 +17,6 @@ import io.toolisticon.fluapigen.api.FluentApiInterface;
 import javax.lang.model.element.ElementKind;
 import javax.lang.model.element.ExecutableElement;
 import javax.lang.model.element.Modifier;
-import javax.lang.model.element.VariableElement;
 import java.util.List;
 
 public class CustomFluentApiCommandWrapperCode {
@@ -34,16 +33,16 @@ public class CustomFluentApiCommandWrapperCode {
 
     }
 
-    @DeclareCompilerMessage(code="065", enumValueName = "ERROR_COMMAND_CLASS_MUST_BE_DEFINED_IN_CLASS_ANNOTATED_WITH_FLUENT_API_ANNOTATION",message = "Static command class annotated with ${0} must be nested inside a class annotated with ${1}", processorClass = FluentApiProcessor.class)
-    @DeclareCompilerMessage(code="066", enumValueName = "ERROR_COMMAND_CLASS_MUST_DECLARE_EXACTLY_ONE_STATIC_METHOD",message = "Class must contain exactly one static method", processorClass = FluentApiProcessor.class)
-    @DeclareCompilerMessage(code="067", enumValueName = "ERROR_PARAMETER_OF_COMMAND_METHOD_MUST_BE_INTERFACE_ANNOTATED_AS_BACKING_BEAN",message = "The parameter must reference an interface annotated with ${0} annotation", processorClass = FluentApiProcessor.class)
+    @DeclareCompilerMessage(code = "065", enumValueName = "ERROR_COMMAND_CLASS_MUST_BE_DEFINED_IN_CLASS_ANNOTATED_WITH_FLUENT_API_ANNOTATION", message = "Static command class annotated with ${0} must be nested inside a class annotated with ${1}", processorClass = FluentApiProcessor.class)
+    @DeclareCompilerMessage(code = "066", enumValueName = "ERROR_COMMAND_CLASS_MUST_DECLARE_EXACTLY_ONE_STATIC_METHOD", message = "Class must contain exactly one static method", processorClass = FluentApiProcessor.class)
+    @DeclareCompilerMessage(code = "067", enumValueName = "ERROR_PARAMETER_OF_COMMAND_METHOD_MUST_BE_INTERFACE_ANNOTATED_AS_BACKING_BEAN", message = "The parameter must reference an interface annotated with ${0} annotation", processorClass = FluentApiProcessor.class)
     @CustomCodeMethod(FluentApiCommand.class)
     static boolean validate(FluentApiCommandWrapper wrapper) {
 
 
         if (wrapper._annotatedElement().getKind() == ElementKind.METHOD) {
             // CASE 1 : REFERENCE IN FLUENT API INTERFACE
-            boolean result = FluentElementValidator.createFluentElementValidator(wrapper._annotatedElement())
+            return FluentElementValidator.createFluentElementValidator(wrapper._annotatedElement())
                     .is(AptkCoreMatchers.IS_METHOD)
                     .applyValidator(AptkCoreMatchers.BY_MODIFIER).hasNoneOf(Modifier.PRIVATE)
                     .validateAndIssueMessages()
@@ -52,7 +51,6 @@ public class CustomFluentApiCommandWrapperCode {
                             .is(AptkCoreMatchers.IS_INTERFACE)
                             .validateAndIssueMessages();
 
-            return result;
         } else {
             // CASE 2 : REFERENCE ON COMMAND CLASS
             // check if annotation is placed on class and if class is inside type
@@ -63,7 +61,7 @@ public class CustomFluentApiCommandWrapperCode {
                     &
                     FluentElementValidator.createFluentElementValidator(wrapper._annotatedElement().getEnclosingElement())
                             .is(AptkCoreMatchers.IS_CLASS)
-                            .setCustomMessage(FluentApiProcessorCompilerMessages.ERROR_COMMAND_CLASS_MUST_BE_DEFINED_IN_CLASS_ANNOTATED_WITH_FLUENT_API_ANNOTATION,  FluentApiInterface.class.getName(), FluentApi.class.getName()).applyValidator(AptkCoreMatchers.BY_ANNOTATION).hasAllOf(FluentApi.class)
+                            .setCustomMessage(FluentApiProcessorCompilerMessages.ERROR_COMMAND_CLASS_MUST_BE_DEFINED_IN_CLASS_ANNOTATED_WITH_FLUENT_API_ANNOTATION, FluentApiInterface.class.getName(), FluentApi.class.getName()).applyValidator(AptkCoreMatchers.BY_ANNOTATION).hasAllOf(FluentApi.class)
                             .validateAndIssueMessages();
 
             // check if class exactly contains one static function.

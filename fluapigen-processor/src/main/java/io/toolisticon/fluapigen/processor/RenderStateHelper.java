@@ -2,8 +2,10 @@ package io.toolisticon.fluapigen.processor;
 
 import io.toolisticon.aptk.compilermessage.api.DeclareCompilerMessage;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
@@ -172,4 +174,17 @@ public class RenderStateHelper implements AutoCloseable {
         return get().backingBeanParents.get(modelBackingBean);
     }
 
+
+    public static Set<ModelBackingBean> getParents(ModelBackingBean modelBackingBean) {
+        Set<ModelBackingBean> parents = new HashSet<>();
+        ModelBackingBean nextBB = getParentBB(modelBackingBean);
+        while (nextBB != null) {
+            parents.add(nextBB);
+            nextBB = getParentBB(nextBB);
+        }
+
+        parents.remove(modelBackingBean);
+
+        return parents;
+    }
 }

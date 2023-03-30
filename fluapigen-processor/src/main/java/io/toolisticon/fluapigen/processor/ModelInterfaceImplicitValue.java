@@ -2,10 +2,6 @@ package io.toolisticon.fluapigen.processor;
 
 import io.toolisticon.aptk.compilermessage.api.DeclareCompilerMessage;
 
-import javax.lang.model.element.ElementKind;
-import java.util.Set;
-import java.util.stream.Collectors;
-
 public class ModelInterfaceImplicitValue implements Validatable {
 
 
@@ -23,7 +19,7 @@ public class ModelInterfaceImplicitValue implements Validatable {
     }
 
     public String getValueAssignmentString() {
-        return ModelBackingBeanField.getValueAssignmentString(backingBeanField.getFieldType(), annotation.value(), true);
+        return ModelBackingBeanField.getAssignmentString(backingBeanField.getFieldType(), annotation.value(), annotation.action());
     }
 
 

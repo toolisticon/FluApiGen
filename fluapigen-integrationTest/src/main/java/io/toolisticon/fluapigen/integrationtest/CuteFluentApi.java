@@ -8,6 +8,7 @@ import io.toolisticon.fluapigen.api.FluentApiBackingBeanMapping;
 import io.toolisticon.fluapigen.api.FluentApiCommand;
 import io.toolisticon.fluapigen.api.FluentApiImplicitValue;
 import io.toolisticon.fluapigen.api.FluentApiInterface;
+import io.toolisticon.fluapigen.api.FluentApiParentBackingBeanMapping;
 import io.toolisticon.fluapigen.api.FluentApiRoot;
 
 import java.util.List;
@@ -116,12 +117,12 @@ public class CuteFluentApi {
     public interface CompilerMessageCheckComparisonType {
 
         @FluentApiImplicitValue(id = "compilerMessageComparisonType", value = "CONTAINS")
-        @FluentApiBackingBeanMapping(value = "compileMessageChecks")
+        @FluentApiParentBackingBeanMapping(value = "compileMessageChecks")
         CompilerTestInterface thatContains(@FluentApiBackingBeanMapping(value = "searchString") String text);
 
 
         @FluentApiImplicitValue(id = "compilerMessageComparisonType", value = "EQUALS")
-        @FluentApiBackingBeanMapping(value = "compileMessageChecks")
+        @FluentApiParentBackingBeanMapping(value = "compileMessageChecks")
         CompilerTestInterface thatEquals(@FluentApiBackingBeanMapping(value = "searchString") String text);
 
 

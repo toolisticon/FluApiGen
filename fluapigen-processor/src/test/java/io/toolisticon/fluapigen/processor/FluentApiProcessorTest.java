@@ -5,11 +5,16 @@ import io.toolisticon.aptk.tools.corematcher.AptkCoreMatchers;
 import io.toolisticon.aptk.tools.corematcher.CoreMatcherValidationMessages;
 import io.toolisticon.cute.CompileTestBuilder;
 import io.toolisticon.cute.JavaFileObjectUtils;
+import io.toolisticon.cute.PassIn;
+import io.toolisticon.cute.UnitTestForTestingAnnotationProcessors;
 import org.junit.Before;
 import org.junit.Test;
 
+import javax.annotation.processing.ProcessingEnvironment;
+import javax.tools.FileObject;
 import javax.tools.JavaFileObject;
 import javax.tools.StandardLocation;
+import java.io.FileWriter;
 
 
 /**
@@ -228,6 +233,19 @@ public class FluentApiProcessorTest {
                 .compilationShouldFail()
                 .expectErrorMessage().thatContains(FluentApiProcessorCompilerMessages.ERROR_IMPLICIT_VALUE_INVALID_ENUM_VALUE.getCode())
                 .executeTest();
+
+
+    }
+
+    @Test
+    public void test_invalid_InvalidNumberOfParentMappingsAtCommand() {
+
+        compileTestBuilder
+                .addSources(JavaFileObjectUtils.readFromResource("testcases/TestcaseInvalidNumberOfParentMappingsAtCommand.java"))
+                .compilationShouldFail()
+                .expectErrorMessage().thatContains(FluentApiProcessorCompilerMessages.ERROR_INVALID_NUMBER_OF_PARENT_MAPPINGS_TO_REACH_ROOT_BB.getCode())
+                .executeTest();
+
 
     }
 

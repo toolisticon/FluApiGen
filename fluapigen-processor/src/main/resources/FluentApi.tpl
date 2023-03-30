@@ -30,21 +30,8 @@ public class ${ model.className } {
         private ${backingBean.className} cloneBackingBean() {
             ${backingBean.className} thisClone = new ${backingBean.className}();
 !{for backingBeanField : backingBean.fields}
-!{if backingBeanField.isBackingBeanReference}!{if backingBeanField.isCollection}
-            thisClone.${backingBeanField.fieldName} = this.${backingBeanField.fieldName} != null ? this.${backingBeanField.fieldName}.stream().map(e -> ((${backingBeanField.backingBeanReference.get})((${backingBeanField.backingBeanReferenceBackingBeanModel.className}) e).cloneBackingBean())).collect(Collectors.to${backingBeanField.fieldType.simpleName}()) : null;
-!{else}
-            thisClone.${backingBeanField.fieldName} = this.${backingBeanField.fieldName} != null ? this.${backingBeanField.fieldName}.cloneBackingBean() : null;
-!{/if}!{elseif backingBeanField.isCloneable}
-!{if backingBeanField.isCollection}
-            thisClone.${backingBeanField.fieldName} = this.${backingBeanField.fieldName} != null ? this.${backingBeanField.fieldName}.stream().map(e -> ((${backingBeanField.backingBeanReference.get})((${backingBeanField.backingBeanReferenceBackingBeanModel.className}) e).clone())).collect(Collectors.to${backingBeanField.fieldType.simpleName}()) : null;
-!{else}
-            thisClone.${backingBeanField.fieldName} = this.${backingBeanField.fieldName} != null ? this.${backingBeanField.fieldName}.clone() : null;
-!{/if}!{else}
-!{if backingBeanField.isCollection}
-            thisClone.${backingBeanField.fieldName} = this.${backingBeanField.fieldName} != null ? new ${backingBeanField.collectionImplType}(this.${backingBeanField.fieldName}) : null;
-!{else}
-            thisClone.${backingBeanField.fieldName} = this.${backingBeanField.fieldName};
-!{/if}!{/if}!{/for}
+            thisClone.${backingBeanField.fieldName} = ${backingBeanField.backingBeanCloneValueAssignmentString}
+!{/for}
             return thisClone;
         }
 
@@ -91,81 +78,90 @@ public class ${ model.className } {
         @Override
         public ${method.methodSignature} {
 
-!{if method.getHasSameTargetBackingBean}
-
-            ${interface.backingBeanModel.className} nextBackingBean = this.backingBean.cloneBackingBean();
-
-            // set values (both implicit and explicit) - parent stack stays untouched
-!{for parameter : method.getAllParameters}
-            nextBackingBean.${parameter.backingBeanField.get.fieldName} = ${parameter.assignmentString};
-!{/for}
-!{for implicitValue : method.implicitValuesBoundToCurrentBB}
-            nextBackingBean.${implicitValue.backingBeanFieldName} = ${implicitValue.valueAssignmentString};
-!{/for}
-            return new ${method.nextModelInterface.className}(nextBackingBean, parentStack);
-
-!{elseif method.isParentCall}
-
-            // first get parent bb from stack (clone stack and pop)
+!{if method.isParentCall}
+            // handle parent traversal
+            // first clone stack
             Deque newStack = new ArrayDeque(parentStack);
 
-            // Must set fields to current backing bean (clone and set)
+            // clone and update values of backing bean
             ${interface.backingBeanModel.className} currentBackingBean = this.backingBean.cloneBackingBean();
-
 !{for parameter : method.parametersBoundToCurrentBB}
-            currentBackingBean.${parameter.backingBeanField.get.fieldName} = ${parameter.parameterName};
+            currentBackingBean.${parameter.backingBeanField.get.fieldName}${parameter.assignmentString};
 !{/for}
 !{for implicitValue : method.implicitValuesBoundToCurrentBB}
-            currentBackingBean.${implicitValue.backingBeanFieldName} = ${implicitValue.valueAssignmentString};
+            currentBackingBean.${implicitValue.backingBeanFieldName}${implicitValue.valueAssignmentString};
 !{/for}
 
-            // Must set fields to next backing bean (clone and set)
-            ${method.nextModelInterface.backingBeanModel.className} nextBackingBean = ((${method.nextModelInterface.backingBeanModel.className}) newStack.pop()).cloneBackingBean();
-
+            // prepare next backing bean and set values
+!{for backingBeanField : method.getParentsBackingBeanFields}
+            ${backingBeanField.nextBBTypeName}  ${backingBeanField.nextBBVariableName} = ((${backingBeanField.nextBBTypeName}) newStack.pop()).cloneBackingBean();
+!{if backingBeanField.isFirst}
 !{for parameter : method.parametersBoundToNextBB}
-            nextBackingBean.${parameter.backingBeanField.get.fieldName} = ${parameter.parameterName};
+            ${backingBeanField.nextBBVariableName}.${parameter.backingBeanField.get.fieldName}${parameter.assignmentString};
 !{/for}
 !{for implicitValue : method.implicitValuesBoundToNextBB}
-            nextBackingBean.${implicitValue.backingBeanFieldName} = ${implicitValue.valueAssignmentString};
+            ${backingBeanField.nextBBVariableName}.${implicitValue.backingBeanFieldName}${implicitValue.valueAssignmentString};
+!{/for}
+!{/if}
+
+!{if backingBeanField.isCollection}
+            ${backingBeanField.nextBBVariableName}.${backingBeanField.fieldName}.add(${backingBeanField.currentBBVariableName});
+!{else}
+            ${backingBeanField.nextBBVariableName}.${backingBeanField.fieldName} = ${backingBeanField.currentBBVariableName}.cloneBackingBean();
+!{/if}
+
+!{if backingBeanField.isLast}
+!{if method.isCommandMethod}
+            // call command
+            !{if method.command.hasReturnType}return !{/if} ${method.command.commandMethod}(${backingBeanField.nextBBVariableName});
+!{else}
+            // init BB impl
+            return new ${method.nextModelInterface.className}(${backingBeanField.nextBBVariableName}, newStack);
+!{/if}
+!{/if}
 !{/for}
 
-            // must set/add current backing bean to parent backing bean
-!{if method.getParentsBackingBeanField.isCollection}
-            if (nextBackingBean.${method.getParentsBackingBeanField.fieldName} == null) {
-                nextBackingBean.${method.getParentsBackingBeanField.fieldName} = new ${method.parentsBackingBeanFieldCollectionImplType}<>();
-            }
-            nextBackingBean.${method.getParentsBackingBeanField.fieldName}.add(currentBackingBean);
+
+
+
+!{elseif method.getHasSameTargetBackingBean}
+            // handle same bb traversal
+            // clone and update values of backing bean
+            ${interface.backingBeanModel.className} nextBackingBean = this.backingBean.cloneBackingBean();
+!{for parameter : method.getAllParameters}
+            nextBackingBean.${parameter.backingBeanField.get.fieldName}${parameter.assignmentString};
+!{/for}
+!{for implicitValue : method.implicitValuesBoundToCurrentBB}
+            nextBackingBean.${implicitValue.backingBeanFieldName}${implicitValue.valueAssignmentString};
+!{/for}
+!{if method.isCommandMethod}
+            // call command
+            !{if method.command.hasReturnType}return !{/if} ${method.command.commandMethod}(nextBackingBean);
 !{else}
-            nextBackingBean.${method.getParentsBackingBeanField.fieldName} = currentBackingBean;
+            // init BB impl
+            return new ${method.nextModelInterface.className}(nextBackingBean, parentStack);
 !{/if}
-            return new ${method.nextModelInterface.className}(nextBackingBean, newStack);
 
 !{elseif method.isCreatingChildConfigCall}
-
-            // must clone current backing bean and put it on the cloned stack ()
+            // handle child traversal
+            // update current backing bean and push it ontop of the stack
             Deque newStack = new ArrayDeque(parentStack);
-
             ${interface.backingBeanModel.className} currentBackingBean = this.backingBean.cloneBackingBean();
-
-            // Must set fields to current backing bean (clone and set)
 !{for parameter : method.parametersBoundToCurrentBB}
-            currentBackingBean.${parameter.backingBeanField.get.fieldName} = ${parameter.parameterName};
+            currentBackingBean.${parameter.backingBeanField.get.fieldName}${parameter.assignmentString};
 !{/for}
 !{for implicitValue : method.implicitValuesBoundToCurrentBB}
-            currentBackingBean.${implicitValue.backingBeanFieldName} = ${implicitValue.valueAssignmentString};
+            currentBackingBean.${implicitValue.backingBeanFieldName}${implicitValue.valueAssignmentString};
 !{/for}
-
             newStack.push(currentBackingBean);
 
-            // create next backing bean
+            // create next backing bean and apply values
             ${method.nextModelInterface.backingBeanModel.className} nextBackingBean = new ${method.nextModelInterface.backingBeanModel.className}();
-
-            // Must set fields to next backing bean (clone and set)
 !{for parameter : method.parametersBoundToNextBB}
-            nextBackingBean.${parameter.backingBeanField.get.fieldName} = ${parameter.parameterName};
+            nextBackingBean.${parameter.backingBeanField.get.fieldName}${parameter.assignmentString};
 !{/for}
 !{for implicitValue : method.implicitValuesBoundToNextBB}
-            nextBackingBean.${implicitValue.backingBeanFieldName} = ${implicitValue.valueAssignmentString};
+            nextBackingBean.${implicitValue.backingBeanFieldName}${implicitValue.valueAssignmentString};
 !{/for}
             return new ${method.nextModelInterface.className}(nextBackingBean, newStack);
 !{else}
@@ -174,33 +170,13 @@ public class ${ model.className } {
 !{/if}
         }
 !{/for}
-        // ----------------------------------------------------------------------
-        // Commands
-        // ----------------------------------------------------------------------
-
-!{for command : interface.commands}
-        @Override
-        public ${command.methodSignature} {
-
-            ${interface.backingBeanModel.className} nextBackingBean = this.backingBean.cloneBackingBean();
-
-!{for parameter : command.method.getAllParameters}
-            nextBackingBean.${parameter.backingBeanField.get.fieldName} = ${parameter.parameterName};
-!{/for}
-!{for implicitValue : command.method.implicitValuesBoundToCurrentBB}
-            nextBackingBean.${implicitValue.backingBeanFieldName} = ${implicitValue.valueAssignmentString};
-!{/for}
-            // call command
-            !{if command.hasReturnType}return !{/if} ${command.commandMethod}(nextBackingBean);
-        }
-!{/for}
     }
 !{/for}
 
     // static root functions
 !{for method : model.rootInterface.methods}
     public static ${method.methodSignature} {
-        return new ${model.rootInterface.className}(new ArrayDeque()).${method.methodCall};
+        !{if !method.isCommandMethod || method.command.hasReturnType}return!{/if} new ${model.rootInterface.className}(new ArrayDeque()).${method.methodCall};
     }
 !{/for}
 }
