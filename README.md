@@ -33,7 +33,7 @@ The api lib must be bound as a dependency - for example in maven:
     <dependency>
         <groupId>io.toolisticon.fluapigen</groupId>
         <artifactId>fluapigen-api</artifactId>
-        <version>0.1.0</version>
+        <version>0.3.0</version>
     </dependency>
 
 </dependencies>
@@ -139,7 +139,8 @@ It's a compile testing framework that allows you to configure test by using a fl
 In this example checks for compiler outcome and for specific compiler messages can be defined.
 
 ```java
-package io.toolisticon.fluapigen;
+package io.toolisticon.fluapigen.integrationtest;
+
 
 import io.toolisticon.fluapigen.api.FluentApi;
 import io.toolisticon.fluapigen.api.FluentApiBackingBean;
@@ -148,6 +149,7 @@ import io.toolisticon.fluapigen.api.FluentApiBackingBeanMapping;
 import io.toolisticon.fluapigen.api.FluentApiCommand;
 import io.toolisticon.fluapigen.api.FluentApiImplicitValue;
 import io.toolisticon.fluapigen.api.FluentApiInterface;
+import io.toolisticon.fluapigen.api.FluentApiParentBackingBeanMapping;
 import io.toolisticon.fluapigen.api.FluentApiRoot;
 
 import java.util.List;
@@ -210,15 +212,15 @@ public class CuteFluentApi {
         @FluentApiImplicitValue(id = "testType", value = "UNIT")
         CompilerTestInterface unitTest();
 
-
         @FluentApiImplicitValue(id = "testType", value = "BLACK_BOX")
         CompilerTestInterface blackBoxTest();
-        
+
     }
 
     @FluentApiInterface(CompilerTest.class)
     public interface CompilerTestInterface {
-        
+
+
         @FluentApiImplicitValue(id = "compilationSucceeded", value = "true")
         CompilerTestInterface compilationShouldSucceed();
 
@@ -253,12 +255,11 @@ public class CuteFluentApi {
     public interface CompilerMessageCheckComparisonType {
 
         @FluentApiImplicitValue(id = "compilerMessageComparisonType", value = "CONTAINS")
-        @FluentApiBackingBeanMapping(value = "compileMessageChecks")
+        @FluentApiParentBackingBeanMapping(value = "compileMessageChecks")
         CompilerTestInterface thatContains(@FluentApiBackingBeanMapping(value = "searchString") String text);
-
-
+        
         @FluentApiImplicitValue(id = "compilerMessageComparisonType", value = "EQUALS")
-        @FluentApiBackingBeanMapping(value = "compileMessageChecks")
+        @FluentApiParentBackingBeanMapping(value = "compileMessageChecks")
         CompilerTestInterface thatEquals(@FluentApiBackingBeanMapping(value = "searchString") String text);
         
         CompilerMessageCheckComparisonType atLine(@FluentApiBackingBeanMapping(value = "atLine")Integer line);
@@ -268,8 +269,7 @@ public class CuteFluentApi {
     @FluentApiCommand
     public static class ExecuteTestCommand {
         static void myCommand(CompilerTest backingBean) {
-            // Do something by using the backing bean
-            // ...
+            /// ...
         }
     }
 
