@@ -78,7 +78,7 @@
         <!-- versions of test dependencies -->
         <junit.version>4.13.2</junit.version>
         <hamcrest.version>2.2</hamcrest.version>
-        <mockito.version>5.2.0</mockito.version>
+        <mockito.version>5.3.0</mockito.version>
 
         <sonatype-oss-dist-mgmt-snapshots-url>https://oss.sonatype.org/content/repositories/snapshots/
         </sonatype-oss-dist-mgmt-snapshots-url>
