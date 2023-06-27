@@ -2,6 +2,7 @@ package io.toolisticon.fluapigen.processor;
 
 import io.toolisticon.aptk.compilermessage.api.DeclareCompilerMessage;
 import io.toolisticon.aptk.tools.TypeMirrorWrapper;
+import io.toolisticon.aptk.tools.wrapper.CompileMessageWriter;
 import io.toolisticon.aptk.tools.wrapper.ElementWrapper;
 import io.toolisticon.aptk.tools.wrapper.ExecutableElementWrapper;
 import io.toolisticon.fluapigen.api.FluentApiBackingBean;
@@ -34,6 +35,15 @@ public class ModelBackingBeanField implements FetchImports, Validatable {
         return annotation;
     }
 
+    public CompileMessageWriter.CompileMessageWriterStart getCompilerMessageWriter() {
+
+        return getAnnotation() != null ?
+            getAnnotation().compilerMessage() :
+            field.compilerMessage();
+
+
+    }
+
     /**
      * Get the type of the field.
      *
@@ -59,7 +69,13 @@ public class ModelBackingBeanField implements FetchImports, Validatable {
     }
 
     public String getFieldId() {
-        return annotation != null ? annotation.value() : null;
+
+        if (annotation != null) {
+            return !annotation.valueIsDefaultValue() ? annotation.value() : field.getSimpleName().toString();
+        } else {
+            return field.getSimpleName().toString();
+        }
+
     }
 
     public String getGetterMethodSignature() {
@@ -136,17 +152,16 @@ public class ModelBackingBeanField implements FetchImports, Validatable {
     public String getInitValueString() {
 
         // always init Collections...
-        if (getFieldType().isCollection() && this.getAnnotation().initValueIsDefaultValue()) {
+        if (getFieldType().isCollection() && (this.getAnnotation() == null || this.getAnnotation().initValueIsDefaultValue())) {
             return " = new " + getCollectionImplType() + "()";
         }
 
 
         // no init value defined for non collections
-        if (this.getAnnotation().initValueIsDefaultValue()) {
+        if ( this.getAnnotation() == null || this.getAnnotation().initValueIsDefaultValue()) {
             return "";
         }
 
-        //String valueAssignementString = getValueAssignmentString(getFieldType(), getAnnotation().initValue(), false);
         String valueAssignementString = getAssignmentString(getFieldType(), getAnnotation().initValue(), MappingAction.SET);
         return valueAssignementString.isEmpty() ? "" : valueAssignementString;
     }
@@ -281,7 +296,7 @@ public class ModelBackingBeanField implements FetchImports, Validatable {
             if (isCollection()) {
                 return "this." + fieldName + " != null ? this." + fieldName + ".stream().map(e -> ((" + getBackingBeanReference().get() + ")((" + getBackingBeanReferenceBackingBeanModel().getClassName() + ") e).clone())).collect(Collectors.toCollection(" + getCollectionImplType() + "::new)) : null;";
             } else {
-                return "this." + fieldName + " != null ? this." + fieldName + ".clone() : null;";
+                return "this." + fieldName + " != null ? (" +  this.getFieldType().getTypeDeclaration() + ")this." + fieldName + ".clone() : null;";
             }
 
         } else {
@@ -324,21 +339,16 @@ public class ModelBackingBeanField implements FetchImports, Validatable {
     }
 
     @Override
-    @DeclareCompilerMessage(code = "200", enumValueName = "ERROR_BACKING_BEAN_FIELD_MUST_BE_ANNOTATED_WITH_BB_FIELD_ANNOTATION", message = "Backing bean field method must be annotated with ${0} annotation", processorClass = FluentApiProcessor.class)
     @DeclareCompilerMessage(code = "201", enumValueName = "ERROR_BACKING_BEAN_FIELD_ID_MUST_NOT_BE_EMPTY", message = "Backing bean field id must not be an empty string", processorClass = FluentApiProcessor.class)
     @DeclareCompilerMessage(code = "202", enumValueName = "ERROR_BACKING_BEAN_FIELD_INIT_VALUE_MUST_BE_SINGLE_VALUE", message = "Backing bean fields init value must be one single value", processorClass = FluentApiProcessor.class)
 
     public boolean validate() {
         boolean outcome = true;
 
-        if (annotation == null) {
-            // must be annotated with FluentApiBackingBeanField annotation
-            FluentApiProcessorCompilerMessages.ERROR_BACKING_BEAN_FIELD_MUST_BE_ANNOTATED_WITH_BB_FIELD_ANNOTATION.error(field.unwrap(), FluentApiBackingBeanField.class.getSimpleName());
-            outcome = false;
-        } else {
+        if (annotation != null) {
 
             // id must be not empty
-            if ("".equals(annotation.value())) {
+            if ("".equals(this.getFieldId())) {
                 annotation.compilerMessage()
                         .asError()
                         .write(FluentApiProcessorCompilerMessages.ERROR_BACKING_BEAN_FIELD_ID_MUST_NOT_BE_EMPTY);
@@ -348,7 +358,6 @@ public class ModelBackingBeanField implements FetchImports, Validatable {
 
             try {
                 getInitValueString();
-
             } catch (NumberFormatException e) {
                 annotation.valueAsAttributeWrapper().compilerMessage().asError().write(FluentApiProcessorCompilerMessages.ERROR_IMPLICIT_VALUE_CANNOT_CONVERT_VALUE_STRING_TO_TARGET_TYPE, annotation.initValue(), this.getFieldType().getSimpleName());
                 outcome = false;

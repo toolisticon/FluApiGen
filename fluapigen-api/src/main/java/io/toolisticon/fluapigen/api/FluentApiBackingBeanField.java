@@ -18,7 +18,7 @@ public @interface FluentApiBackingBeanField {
      * The id of the backing bean field.
      * @return the id
      */
-    String value();
+    String value() default "";
 
     /**
      * The initial value to be set.

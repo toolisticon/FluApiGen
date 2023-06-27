@@ -5,6 +5,7 @@ import io.toolisticon.aptk.tools.corematcher.AptkCoreMatchers;
 import io.toolisticon.aptk.tools.wrapper.ElementWrapper;
 import io.toolisticon.aptk.tools.wrapper.ExecutableElementWrapper;
 
+import javax.lang.model.element.Modifier;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -25,7 +26,8 @@ public class ModelBackingBean implements FetchImports, Validatable{
         this.wrapper = wrapper;
 
         fields = ElementWrapper.wrap(wrapper._annotatedElement())
-                .filterEnclosedElements().applyFilter(AptkCoreMatchers.IS_METHOD).getResult()
+                .filterEnclosedElements().applyFilter(AptkCoreMatchers.IS_METHOD)
+                .applyFilter(AptkCoreMatchers.BY_MODIFIER).filterByNoneOf(Modifier.DEFAULT).getResult()
                 .stream()
                 .map(ExecutableElementWrapper::wrap)
                 .map(ModelBackingBeanField::new)
@@ -126,6 +128,7 @@ public class ModelBackingBean implements FetchImports, Validatable{
         return  getBackingBeanInterfaceSimpleName() != null ? getBackingBeanInterfaceSimpleName().hashCode() : 0;
     }
 
+
     @Override
     @DeclareCompilerMessage(code = "22", enumValueName = "ERROR_BACKING_BEAN_FIELD_ID_MUST_NOT_UNIQUE_IN_BB", message = "Backing bean field id '${0}' must be unique in backing bean ${1}", processorClass = FluentApiProcessor.class)
     public boolean validate() {
@@ -145,7 +148,7 @@ public class ModelBackingBean implements FetchImports, Validatable{
         if (idDoublets.size() > 0) {
             idDoublets.forEach(
                     e -> e.getValue().stream().forEach(
-                            f -> f.getAnnotation().compilerMessage().asError().write(FluentApiProcessorCompilerMessages.ERROR_BACKING_BEAN_FIELD_ID_MUST_NOT_UNIQUE_IN_BB, e.getKey(), interfaceClassName())
+                            f -> f.getCompilerMessageWriter().asError().write(FluentApiProcessorCompilerMessages.ERROR_BACKING_BEAN_FIELD_ID_MUST_NOT_UNIQUE_IN_BB, e.getKey(), interfaceClassName())
                     )
             );
             outcome = false;

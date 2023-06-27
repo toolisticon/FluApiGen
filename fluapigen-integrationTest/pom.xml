@@ -97,6 +97,11 @@
             <artifactId>fluapigen-api</artifactId>
         </dependency>
 
+        <dependency>
+            <groupId>io.toolisticon.cute</groupId>
+            <artifactId>cute</artifactId>
+            <scope>compile</scope>
+        </dependency>
 
     </dependencies>
 

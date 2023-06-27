@@ -125,7 +125,9 @@ Those interface will be bound to one specific backing bean. A backing bean can b
 Methods defined in those interfaces are only allowed to return other fluent api interfaces, except for closing commands.
 
 All method parameters and methods that close a backing bean creation must be annotated with the _FluentApiBackingBeanField_ annotation which defines which value should be written.
-Of course parameter and value type must match.
+Of course parameter and value type must match. 
+
+Default methods will completely be ignored by the processor and can be used to transform parameters and to delegate calls to another interface method. 
 
 There must be exactly one interface annotated with the _FluentApiRoot_ annotation. 
 Those interfaces methods will be available as static starter methods for the fluent api.

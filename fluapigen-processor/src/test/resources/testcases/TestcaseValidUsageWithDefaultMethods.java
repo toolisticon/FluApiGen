@@ -9,7 +9,7 @@ import io.toolisticon.fluapigen.api.FluentApiInterface;
 import io.toolisticon.fluapigen.api.FluentApiRoot;
 
 @FluentApi("Xyz")
-public class TestcaseValidUsage {
+public class TestcaseValidUsageWithDefaultMethods {
 
     // Backing Bean Interface
     @FluentApiBackingBean
@@ -17,6 +17,10 @@ public class TestcaseValidUsage {
 
         @FluentApiBackingBeanField("name")
         String getName();
+
+        default String aDefaultMethod() {
+            return "IT WORKS";
+        }
 
     }
 
@@ -29,6 +33,10 @@ public class TestcaseValidUsage {
 
         @FluentApiCommand(MyCommand.class)
         void myCommand();
+
+        default String aDefaultMethod() {
+            return "IT WORKS";
+        }
 
     }
 

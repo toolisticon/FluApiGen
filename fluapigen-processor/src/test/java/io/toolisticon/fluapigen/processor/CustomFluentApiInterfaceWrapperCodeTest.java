@@ -2,7 +2,9 @@ package io.toolisticon.fluapigen.processor;
 
 import io.toolisticon.aptk.cute.APTKUnitTestProcessor;
 import io.toolisticon.aptk.tools.MessagerUtils;
+import io.toolisticon.aptk.tools.TypeMirrorWrapper;
 import io.toolisticon.aptk.tools.corematcher.CoreMatcherValidationMessages;
+import io.toolisticon.aptk.tools.wrapper.TypeElementWrapper;
 import io.toolisticon.cute.CompileTestBuilder;
 import io.toolisticon.cute.PassIn;
 import io.toolisticon.fluapigen.api.FluentApi;
@@ -13,7 +15,10 @@ import org.junit.Before;
 import org.junit.Test;
 
 import javax.annotation.processing.ProcessingEnvironment;
+import javax.lang.model.element.Element;
 import javax.lang.model.element.TypeElement;
+import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  * Unit tests for {@link CustomFluentApiInterfaceWrapperCode}
@@ -95,5 +100,6 @@ public class CustomFluentApiInterfaceWrapperCodeTest {
 
 
     }
+
 
 }
