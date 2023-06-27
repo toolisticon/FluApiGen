@@ -5,7 +5,7 @@
 
     <groupId>io.toolisticon.fluapigen</groupId>
     <artifactId>fluapigen</artifactId>
-    <version>0.3.0</version>
+    <version>0.4.0</version>
     <packaging>pom</packaging>
 
     <name>fluapigen</name>
@@ -76,18 +76,18 @@
         <aptk.version>0.21.0</aptk.version>
 
         <!-- versions of test dependencies -->
-        <junit.version>4.13.1</junit.version>
+        <junit.version>4.13.2</junit.version>
         <hamcrest.version>2.2</hamcrest.version>
         <mockito.version>5.2.0</mockito.version>
 
-        <sonatype-oss-dist-mgmt-snapshots-url>https://oss.sonatype.org/content/repositories/snapshots/
-        </sonatype-oss-dist-mgmt-snapshots-url>
+        <!-- sonatype url-->
+        <sonatype-oss-dist-mgmt-snapshots-url>https://oss.sonatype.org/content/repositories/snapshots/</sonatype-oss-dist-mgmt-snapshots-url>
 
 
         <!-- plugin versions -->
         <animal-sniffer-maven-plugin.version>1.18</animal-sniffer-maven-plugin.version>
         <maven-assembly-plugin.version>3.5.0</maven-assembly-plugin.version>
-        <maven-build-helper-plugin.version>3.0.0</maven-build-helper-plugin.version>
+        <maven-build-helper-plugin.version>3.3.0</maven-build-helper-plugin.version>
         <maven-clean-plugin.version>3.2.0</maven-clean-plugin.version>
         <maven-compiler-plugin.version>3.11.0</maven-compiler-plugin.version>
         <maven-dependency-plugin.version>3.5.0</maven-dependency-plugin.version>
@@ -495,7 +495,7 @@
                     <plugin>
                         <groupId>org.codehaus.mojo</groupId>
                         <artifactId>findbugs-maven-plugin</artifactId>
-                        <version>3.0.0</version>
+                        <version>3.0.5</version>
                         <configuration>
                             <xmlOutput>true</xmlOutput>
                             <findbugsXmlOutput>true</findbugsXmlOutput>

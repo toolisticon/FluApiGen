@@ -1,25 +1,16 @@
 package io.toolisticon.fluapigen.processor;
 
 import io.toolisticon.aptk.tools.MessagerUtils;
-import io.toolisticon.aptk.tools.corematcher.AptkCoreMatchers;
 import io.toolisticon.aptk.tools.corematcher.CoreMatcherValidationMessages;
 import io.toolisticon.cute.CompileTestBuilder;
 import io.toolisticon.cute.JavaFileObjectUtils;
-import io.toolisticon.cute.PassIn;
-import io.toolisticon.cute.UnitTestForTestingAnnotationProcessors;
 import org.junit.Before;
 import org.junit.Test;
-
-import javax.annotation.processing.ProcessingEnvironment;
-import javax.tools.FileObject;
-import javax.tools.JavaFileObject;
-import javax.tools.StandardLocation;
-import java.io.FileWriter;
 
 
 /**
  * Tests of {@link io.toolisticon.fluapigen.api.FluentApi}.
- *
+ * <p>
  * TODO: replace the example testcases with your own testcases
  */
 
@@ -37,7 +28,7 @@ public class FluentApiProcessorTest {
                 .addProcessors(FluentApiProcessor.class);
     }
 
-/*-
+
     @Test
     public void test_valid_usage() {
 
@@ -48,7 +39,7 @@ public class FluentApiProcessorTest {
                 .executeTest();
     }
 
-
+/*-
     @Test
     public void test_valid_usage2() {
 
@@ -59,6 +50,7 @@ public class FluentApiProcessorTest {
                 .executeTest();
     }
 */
+
     @Test
     public void test_valid_usage3() {
 
@@ -78,6 +70,16 @@ public class FluentApiProcessorTest {
                 //.compilationShouldFail()
                 .compilationShouldSucceed()
                 .expectThatGeneratedSourceFileExists("io.toolisticon.fluapigen.testcases.IntegrationTestStarter")
+                .executeTest();
+    }
+
+    @Test
+    public void test_valid_usage_withDefaultMethods() {
+
+        compileTestBuilder
+                .addSources(JavaFileObjectUtils.readFromResource("testcases/TestcaseValidUsageWithDefaultMethods.java"))
+                .compilationShouldSucceed()
+                .expectThatGeneratedSourceFileExists("io.toolisticon.fluapigen.processor.tests.Xyz")
                 .executeTest();
     }
 
@@ -171,12 +173,11 @@ public class FluentApiProcessorTest {
     }
 
     @Test
-    public void test_invalid_MissingBBFieldAnnotation() {
+    public void test_valid_MissingBBFieldAnnotation() {
 
         compileTestBuilder
                 .addSources(JavaFileObjectUtils.readFromResource("testcases/IntegrationTest_MissingBBFieldAnnotation.java"))
-                .compilationShouldFail()
-                .expectErrorMessage().thatContains(FluentApiProcessorCompilerMessages.ERROR_BACKING_BEAN_FIELD_MUST_BE_ANNOTATED_WITH_BB_FIELD_ANNOTATION.getCode())
+                .compilationShouldSucceed()
                 .executeTest();
 
     }
@@ -186,6 +187,17 @@ public class FluentApiProcessorTest {
 
         compileTestBuilder
                 .addSources(JavaFileObjectUtils.readFromResource("testcases/IntegrationTest_NonUniqueBBFieldId.java"))
+                .compilationShouldFail()
+                .expectErrorMessage().thatContains(FluentApiProcessorCompilerMessages.ERROR_BACKING_BEAN_FIELD_ID_MUST_NOT_UNIQUE_IN_BB.getCode())
+                .executeTest();
+
+    }
+
+    @Test
+    public void test_invalid_NonUniqueBBFieldId_ImplicitlySet() {
+
+        compileTestBuilder
+                .addSources(JavaFileObjectUtils.readFromResource("testcases/IntegrationTest_NonUniqueBBFieldId_ImplicitlySet.java"))
                 .compilationShouldFail()
                 .expectErrorMessage().thatContains(FluentApiProcessorCompilerMessages.ERROR_BACKING_BEAN_FIELD_ID_MUST_NOT_UNIQUE_IN_BB.getCode())
                 .executeTest();

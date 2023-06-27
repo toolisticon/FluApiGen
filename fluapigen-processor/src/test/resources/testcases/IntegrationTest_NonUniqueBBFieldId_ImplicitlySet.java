@@ -14,15 +14,15 @@ import io.toolisticon.fluapigen.api.TargetBackingBean;
 import java.util.List;
 
 @FluentApi("IntegrationTestStarter")
-public class IntegrationTest_MissingBBFieldAnnotation {
+public class IntegrationTest_NonUniqueBBFieldId_ImplicitlySet {
 
     // Backing Bean Interface
     @FluentApiBackingBean
     interface MyRootLevelBackingBean {
 
-        String name();
-
         @FluentApiBackingBeanField("midLevelBB")
+        String getName();
+
         List<MyMidLevelBackingBean> midLevelBB();
 
     }
@@ -220,7 +220,7 @@ public class IntegrationTest_MissingBBFieldAnnotation {
     @FluentApiCommand
     static class MyCommand {
         static void myCommand(MyRootLevelBackingBean backingBean) {
-            System.out.println(backingBean.name());
+            System.out.println(backingBean.getName());
         }
     }
 

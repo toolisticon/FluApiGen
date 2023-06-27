@@ -6,6 +6,7 @@ import ${import};
 import java.util.Arrays;
 import java.util.ArrayList;
 import java.util.ArrayDeque;
+import java.util.Collections;
 import java.util.Deque;
 import java.util.HashSet;
 import java.util.stream.Collectors;
@@ -50,7 +51,7 @@ public class ${ model.className } {
     // ----------------------------------------------------------------------
 
 !{for interface : model.fluentInterfaces}
-    private static class ${interface.className} implements ${interface.interfaceClassName} {
+    private static class ${interface.className} ${interface.typeParametersString} implements ${interface.interfaceClassName}${interface.typeParameterNamesString} {
 
         final ${interface.backingBeanModel.className} backingBean;
 
@@ -120,9 +121,6 @@ public class ${ model.className } {
 !{/if}
 !{/if}
 !{/for}
-
-
-
 
 !{elseif method.getHasSameTargetBackingBean}
             // handle same bb traversal

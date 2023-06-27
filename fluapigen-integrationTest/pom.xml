@@ -9,7 +9,7 @@
     <parent>
         <groupId>io.toolisticon.fluapigen</groupId>
         <artifactId>fluapigen</artifactId>
-        <version>0.3.0</version>
+        <version>0.4.0</version>
     </parent>
 
     <name>fluapigen-integrationTest</name>
@@ -97,6 +97,11 @@
             <artifactId>fluapigen-api</artifactId>
         </dependency>
 
+        <dependency>
+            <groupId>io.toolisticon.cute</groupId>
+            <artifactId>cute</artifactId>
+            <scope>compile</scope>
+        </dependency>
 
     </dependencies>
 
