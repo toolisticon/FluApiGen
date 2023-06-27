@@ -79,8 +79,11 @@ The backing bean interfaces are defining the configuration to be build.
 It basically defines the getter methods for are values set by the fluent api.
 Therefor all methods must have a non void return type and must not have any parameters.
 
-The backing bean interfaces must be annotated with the _FluentApiBackingBean_ anotation.
-The value getter methods must be annotated with the _FluentApiBackingBeanField_ annotation and must have an interface unique id.
+The backing bean interfaces must be annotated with the _FluentApiBackingBean_ annotation.
+The value getter methods can be annotated with the _FluentApiBackingBeanField_ annotation.
+By doing this it's possible to declare an id for the field and its initial value.
+If the id is not explicitly it will fallback to the fields method name.
+Field ids must be unique in the interface.
 
 ```java
 @FluentApiBackingBean

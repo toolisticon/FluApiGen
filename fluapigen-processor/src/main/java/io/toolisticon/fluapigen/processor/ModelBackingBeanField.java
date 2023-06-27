@@ -289,7 +289,7 @@ public class ModelBackingBeanField implements FetchImports, Validatable {
             if (isCollection()) {
                 return "this." + fieldName + "!= null ? this." + fieldName + ".stream().map(e -> ((" + getBackingBeanReference().get() + ")((" + getBackingBeanReferenceBackingBeanModel().getClassName() + ") e).cloneBackingBean())).collect(Collectors.toCollection(" + getCollectionImplType() + "::new)) : null;";
             } else {
-                return "this." + fieldName + " != null ? this." + fieldName + ".cloneBackingBean() : null;";
+                return "this." + fieldName + " != null ? ((" + this.getBackingBeanReferenceBackingBeanModel().getClassName() + ")this." + fieldName + ").cloneBackingBean() : null;";
             }
         } else if (isCloneable()) {
 
