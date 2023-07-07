@@ -7,7 +7,8 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
 /**
- * A Fluent Api interface
+ * Defines a fluent api interface.
+ * Must be placed on interface declared in class annotated with {@link FluentApi}.
  */
 @Retention(RetentionPolicy.RUNTIME)
 @Target(value = {ElementType.TYPE})

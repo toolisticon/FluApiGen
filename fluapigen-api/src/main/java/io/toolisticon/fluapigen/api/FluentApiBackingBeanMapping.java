@@ -7,7 +7,8 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
 /**
- * Configures mapping of method parameter to backing bean value.
+ * Configures mapping of a fluent api method parameter to a backing bean value.
+ * Must be used inside a class annotated with {@link FluentApiInterface} annotation.
  */
 @Retention(RetentionPolicy.RUNTIME)
 @Target(value = {ElementType.PARAMETER, ElementType.METHOD})
@@ -22,12 +23,18 @@ public @interface FluentApiBackingBeanMapping {
 
     /**
      * Defines the target backing bean to set the value for.
-     * Will be ignored if placed on method. This is usually the case if backing bean is added to parent.
-     * @return
+     * This can be either the current backing bean defined via the {@link FluentApiInterface} annotation or the next backing bean defined by the methods return value.
+     * In this case the return value must correspond to an interface annotated with the {@link FluentApiInterface}.
+     * @return The targetted backing bean, defaults to THIS (== the current backing bean)
      */
     TargetBackingBean target() default TargetBackingBean.THIS;
 
 
+    /**
+     * Defines how a value should be applied.
+     * Currently, it's possible to set a value or to add a value to a supported Collection type.
+     * @return The mapping action to use. Defaults to MappingAction.SET
+     */
     MappingAction action() default MappingAction.SET;
 
 }
