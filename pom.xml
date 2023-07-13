@@ -5,7 +5,7 @@
 
     <groupId>io.toolisticon.fluapigen</groupId>
     <artifactId>fluapigen</artifactId>
-    <version>0.5.0</version>
+    <version>0.5.1-SNAPSHOT</version>
     <packaging>pom</packaging>
 
     <name>fluapigen</name>
