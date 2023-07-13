@@ -48,6 +48,10 @@ public class ModelInterfaceMethodParameter {
                     returnValue = modelInterfaceMethod.getNextBackingBean().getFieldById(fluentApiBackingBeanMapping.value());
                     break;
                 }
+                case INLINE: {
+                    returnValue = modelInterfaceMethod.getInlineBackingBean().getFieldById(fluentApiBackingBeanMapping.value());
+                    break;
+                }
             }
 
         }

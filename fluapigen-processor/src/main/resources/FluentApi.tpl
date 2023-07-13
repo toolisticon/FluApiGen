@@ -79,6 +79,14 @@ public class ${ model.className } {
         @Override
         public ${method.methodSignature} {
 
+!{if method.hasInlineBackingBeanMapping}
+            ${method.inlineBackingBean.className} inlineBackingBean = new ${method.inlineBackingBean.className}();
+!{for parameter : method.parametersBoundToInlineBB}
+            inlineBackingBean.${parameter.backingBeanField.get.fieldName}${parameter.assignmentString}
+!{/for}!{for implicitValue : method.implicitValuesBoundToInlineBB}
+            inlineBackingBean.${implicitValue.backingBeanFieldName}${implicitValue.valueAssignmentString};
+!{/for}
+!{/if}
 !{if method.isParentCall}
             // handle parent traversal
             // first clone stack
@@ -87,18 +95,25 @@ public class ${ model.className } {
             // clone and update values of backing bean
             ${interface.backingBeanModel.className} currentBackingBean = this.backingBean.cloneBackingBean();
 !{for parameter : method.parametersBoundToCurrentBB}
-            currentBackingBean.${parameter.backingBeanField.get.fieldName}${parameter.assignmentString};
+            currentBackingBean.${parameter.backingBeanField.get.fieldName}${parameter.assignmentString}
 !{/for}
 !{for implicitValue : method.implicitValuesBoundToCurrentBB}
             currentBackingBean.${implicitValue.backingBeanFieldName}${implicitValue.valueAssignmentString};
 !{/for}
+!{if method.hasInlineBackingBeanMapping}
+!{if method.inlineBackingBeanField.isCollection}
+            currentBackingBean.${method.getInlineBackingBeanField.fieldName}.add(inlineBackingBean);
+!{else}
+            currentBackingBean.${method.getInlineBackingBeanField.fieldName} = inlineBackingBean;
+!{/if}
+!{/if}
 
             // prepare next backing bean and set values
 !{for backingBeanField : method.getParentsBackingBeanFields}
             ${backingBeanField.nextBBTypeName}  ${backingBeanField.nextBBVariableName} = ((${backingBeanField.nextBBTypeName}) newStack.pop()).cloneBackingBean();
 !{if backingBeanField.isFirst}
 !{for parameter : method.parametersBoundToNextBB}
-            ${backingBeanField.nextBBVariableName}.${parameter.backingBeanField.get.fieldName}${parameter.assignmentString};
+            ${backingBeanField.nextBBVariableName}.${parameter.backingBeanField.get.fieldName}${parameter.assignmentString}
 !{/for}
 !{for implicitValue : method.implicitValuesBoundToNextBB}
             ${backingBeanField.nextBBVariableName}.${implicitValue.backingBeanFieldName}${implicitValue.valueAssignmentString};
@@ -126,7 +141,14 @@ public class ${ model.className } {
             // handle same bb traversal
             // clone and update values of backing bean
             ${interface.backingBeanModel.className} nextBackingBean = this.backingBean.cloneBackingBean();
-!{for parameter : method.getAllParameters}
+!{if method.hasInlineBackingBeanMapping}
+!{if method.inlineBackingBeanField.isCollection}
+            nextBackingBean.${method.getInlineBackingBeanField.fieldName}.add(inlineBackingBean);
+!{else}
+            nextBackingBean.${method.getInlineBackingBeanField.fieldName} = inlineBackingBean;
+!{/if}
+!{/if}
+!{for parameter : method.getNotInlineMappedParameters}
             nextBackingBean.${parameter.backingBeanField.get.fieldName}${parameter.assignmentString};
 !{/for}
 !{for implicitValue : method.implicitValuesBoundToCurrentBB}
@@ -146,17 +168,24 @@ public class ${ model.className } {
             Deque newStack = new ArrayDeque(parentStack);
             ${interface.backingBeanModel.className} currentBackingBean = this.backingBean.cloneBackingBean();
 !{for parameter : method.parametersBoundToCurrentBB}
-            currentBackingBean.${parameter.backingBeanField.get.fieldName}${parameter.assignmentString};
+            currentBackingBean.${parameter.backingBeanField.get.fieldName}${parameter.assignmentString}
 !{/for}
 !{for implicitValue : method.implicitValuesBoundToCurrentBB}
             currentBackingBean.${implicitValue.backingBeanFieldName}${implicitValue.valueAssignmentString};
 !{/for}
+!{if method.hasInlineBackingBeanMapping}
+!{if method.inlineBackingBeanField.isCollection}
+            currentBackingBean.${method.getInlineBackingBeanField.fieldName}.add(inlineBackingBean);
+!{else}
+            currentBackingBean.${method.getInlineBackingBeanField.fieldName} = inlineBackingBean;
+!{/if}
+!{/if}
             newStack.push(currentBackingBean);
 
             // create next backing bean and apply values
             ${method.nextModelInterface.backingBeanModel.className} nextBackingBean = new ${method.nextModelInterface.backingBeanModel.className}();
 !{for parameter : method.parametersBoundToNextBB}
-            nextBackingBean.${parameter.backingBeanField.get.fieldName}${parameter.assignmentString};
+            nextBackingBean.${parameter.backingBeanField.get.fieldName}${parameter.assignmentString}
 !{/for}
 !{for implicitValue : method.implicitValuesBoundToNextBB}
             nextBackingBean.${implicitValue.backingBeanFieldName}${implicitValue.valueAssignmentString};

@@ -39,6 +39,17 @@ public class FluentApiProcessorTest {
                 .executeTest();
     }
 
+    @Test
+    public void test_valid_usage_with_inline_bb_mapping() {
+
+        compileTestBuilder
+                .addSources(JavaFileObjectUtils.readFromResource("testcases/TestcaseValidUsageWithInlineBackingBeanMapping.java"))
+                .compilationShouldSucceed()
+                .expectThatGeneratedSourceFileExists("io.toolisticon.fluapigen.processor.tests.Xyz")
+                .executeTest();
+    }
+
+
 /*-
     @Test
     public void test_valid_usage2() {
@@ -56,7 +67,6 @@ public class FluentApiProcessorTest {
 
         compileTestBuilder
                 .addSources(JavaFileObjectUtils.readFromResource("testcases/CuteFluentApi.java"))
-                //.compilationShouldFail()
                 .compilationShouldSucceed()
                 //.expectThatGeneratedSourceFileExists("io.toolisticon.fluapigen.processor.tests.ExampleFluentApiStarter")
                 .executeTest();
