@@ -9,6 +9,7 @@ import java.lang.annotation.Target;
 
 /**
  * Repeatable annotation to implicitly set one or more values.
+ * Must be used on a method in an interface annotated with {@link FluentApiInterface}.
  */
 @Retention(RetentionPolicy.RUNTIME)
 @Target(value = {ElementType.METHOD})

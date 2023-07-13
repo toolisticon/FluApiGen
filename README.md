@@ -5,20 +5,23 @@
 [![release_on_master](https://github.com/toolisticon/FluApiGen/actions/workflows/release.yml/badge.svg?branch=master)](https://github.com/toolisticon/FluApiGen/actions/workflows/release.yml)
 [![codecov](https://codecov.io/gh/toolisticon/FluApiGen/branch/develop/graph/badge.svg?token=FlcugFxC64)](https://codecov.io/gh/toolisticon/FluApiGen)
 
-Implementing and maintaining of fluent, immutable apis is one of a most annoying and difficult task in java developing.
+Implementing and especially maintaining of fluent and immutable apis is one of a most annoying and difficult tasks to do in java developing.
 
-This project helps you to create fluent apis just by defining some interfaces and annotating them.
+You usually have to implement a lot of boilerplate code that is only needed to handle and clone the fluent apis internal state.
+Changing of an existing fluent api can therefore be a very complex thing to do.
 
-Then this annotation processor will generate an implementation for you - by doing this it completely hides all necessary boilerplate code from you. 
+This project provides an annotation processor that will generate the fluent api implementation for you and therefore completely hiding all necessary boilerplate code from you.
+All you have to do is to define a bunch of interfaces and to configure its "plumbing" by placing a few annotations.
 
 # Features
 - fluent api is created by defining some interfaces and placing some annotations on them
 - our annotation processor then generates the fluent api implementation for you
 - implementing, extending and maintaining of an immutable, fluent api becomes a no-brainer
 
+
 # Restrictions
-- interfaces must not contain any cycles
-- there will be some extensions in the near future to allow you to do mapping by for example parameter name, reducing the amount of annotations needed to build the api
+- fluent interfaces must not contain any cycles and must be strongly hierarchically
+- fluent interfaces doesn't support parent interfaces at the moment, a solution to support this is currently in work.
 
 # How does it work?
 
@@ -33,7 +36,7 @@ The api lib must be bound as a dependency - for example in maven:
     <dependency>
         <groupId>io.toolisticon.fluapigen</groupId>
         <artifactId>fluapigen-api</artifactId>
-        <version>0.3.0</version>
+        <version>0.4.1</version>
     </dependency>
 
 </dependencies>
@@ -51,7 +54,7 @@ Additionally, you need to declare the annotation processor path in your compiler
             <path>
                 <groupId>io.toolisticon.fluapigen</groupId>
                 <artifactId>fluapigen-processor</artifactId>
-                <version>0.1.0</version>
+                <version>0.4.1</version>
             </path>
         </annotationProcessorPaths>
         
@@ -75,14 +78,14 @@ public class CuteFluentApi {
 This can be broke down to 3 different steps.
 
 ### Defining The Backing Bean
-The backing bean interfaces are defining the configuration to be build.
-It basically defines the getter methods for are values set by the fluent api.
-Therefor all methods must have a non void return type and must not have any parameters.
+The backing bean interfaces are defining the configuration (or in other word context) to be build.
+It basically defines the getter methods for all values used by the fluent api.
+Therefore, all methods must have a non-void return type and must not have any parameters.
 
 The backing bean interfaces must be annotated with the _FluentApiBackingBean_ annotation.
-The value getter methods can be annotated with the _FluentApiBackingBeanField_ annotation.
+The value getter methods may be annotated with the _FluentApiBackingBeanField_ annotation.
 By doing this it's possible to declare an id for the field and its initial value.
-If the id is not explicitly it will fallback to the fields method name.
+If the id is not explicitly it will use the fields method name as a fallback.
 Field ids must be unique in the interface.
 
 ```java
@@ -99,15 +102,14 @@ public interface CompilerTest {
 }
 ```
 
-Child backing beans can be included as single value or List or Set.
+Child backing beans can be defined as single values or as Collection types of List or Set.
 
 ### Defining Closing Commands
 Closing commands can be defined by defining static inner classes annotated with the _FluentApiCommand_ annotation.
 A command class must contain exactly one static method which takes the backing bean as the only parameter.
 
-
 It's later possible to link a fluent api method to a closing command.
-The fluent api method call will then be forwarded to the closing command.
+The fluent api method call then will be forwarded to the closing command.
 
 ```java
 @FluentApiCommand
@@ -140,7 +142,7 @@ Please check the following example for further information - because the code ex
 ## Example
 
 This is a small example related to the [toolisticon CUTE]() project.
-It's a compile testing framework that allows you to configure test by using a fluent api.
+CUTE a compile testing framework for testing annotation processors that allows you to configure test by using an immutable fluent api.
 In this example checks for compiler outcome and for specific compiler messages can be defined.
 
 ```java
@@ -165,13 +167,10 @@ public class CuteFluentApi {
     @FluentApiBackingBean
     public interface CompilerTest {
 
-        @FluentApiBackingBeanField("testType")
-        String getTestType();
+        String testType();
 
-        @FluentApiBackingBeanField("compilationSucceeded")
         Boolean compilationSucceeded();
 
-        @FluentApiBackingBeanField("compileMessageChecks")
         List<CompilerMessageCheck> compilerMessageChecks();
 
     }
@@ -179,16 +178,12 @@ public class CuteFluentApi {
     @FluentApiBackingBean
     public interface CompilerMessageCheck {
 
-        @FluentApiBackingBeanField("compilerMessageScope")
-        CompilerMessageScope getCompilerMessageScope();
+        CompilerMessageScope compilerMessageScope();
 
-        @FluentApiBackingBeanField("compilerMessageComparisonType")
-        CompilerMessageComparisonType getComparisonType();
+        CompilerMessageComparisonType compilerMessageComparisonType();
 
-        @FluentApiBackingBeanField("searchString")
-        String getSearchString();
+        String searchString();
 
-        @FluentApiBackingBeanField("atLine")
         Integer atLine();
 
     }
