@@ -39,4 +39,10 @@ public @interface FluentApiImplicitValue {
 
     MappingAction action() default MappingAction.SET;
 
+    /**
+     * Converter to use for non matching fluent interface parameter types.
+     * @return the converted value.
+     */
+    Class<? extends FluentApiConverter> converter () default FluentApiConverter.NoConversion.class;
+
 }

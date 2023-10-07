@@ -172,7 +172,7 @@ public class FluentApiProcessorTest {
     }
 
     @Test
-    public void test_invalid_ImpllicitValue_Int() {
+    public void test_invalid_ImplicitValue_Int() {
 
         compileTestBuilder
                 .addSources(JavaFileObjectUtils.readFromResource("testcases/IntegrationTest_InvalidImplicitValue_Int.java"))
@@ -266,6 +266,130 @@ public class FluentApiProcessorTest {
                 .addSources(JavaFileObjectUtils.readFromResource("testcases/TestcaseInvalidNumberOfParentMappingsAtCommand.java"))
                 .compilationShouldFail()
                 .expectErrorMessage().thatContains(FluentApiProcessorCompilerMessages.ERROR_INVALID_NUMBER_OF_PARENT_MAPPINGS_TO_REACH_ROOT_BB.getCode())
+                .executeTest();
+
+
+    }
+
+    @Test
+    public void test_valid_ImplicitValueConverter() {
+
+        compileTestBuilder
+                .addSources(JavaFileObjectUtils.readFromResource("testcases/IntegrationTest_ImplicitValueConverterTest.java"))
+                .compilationShouldSucceed()
+                .executeTest();
+
+
+    }
+
+    @Test
+    public void test_invalid_ImplicitValueConverter_invalidTargetType() {
+
+        compileTestBuilder
+                .addSources(JavaFileObjectUtils.readFromResource("testcases/IntegrationTest_ImplicitValueConverterTest_withInvalidConverter_invalidTargetType.java"))
+                .expectErrorMessage().atSource("/testcases/IntegrationTest_ImplicitValueConverterTest_withInvalidConverter_invalidTargetType.java").atLineNumber(55L).thatContains(FluentApiProcessorCompilerMessages.ERROR_IMPLICIT_VALUE_CONVERTER_MUST_CONVERT_TO_TARGET_ATTRIBUTE_TYPE.getCode())
+                .expectErrorMessage().atSource("/testcases/IntegrationTest_ImplicitValueConverterTest_withInvalidConverter_invalidTargetType.java").atLineNumber(58L).thatContains(FluentApiProcessorCompilerMessages.ERROR_IMPLICIT_VALUE_CONVERTER_MUST_CONVERT_TO_TARGET_ATTRIBUTE_TYPE.getCode())
+                .expectErrorMessage().atSource("/testcases/IntegrationTest_ImplicitValueConverterTest_withInvalidConverter_invalidTargetType.java").atLineNumber(61L).thatContains(FluentApiProcessorCompilerMessages.ERROR_IMPLICIT_VALUE_CONVERTER_MUST_CONVERT_TO_TARGET_ATTRIBUTE_TYPE.getCode())
+                .expectErrorMessage().atSource("/testcases/IntegrationTest_ImplicitValueConverterTest_withInvalidConverter_invalidTargetType.java").atLineNumber(64L).thatContains(FluentApiProcessorCompilerMessages.ERROR_IMPLICIT_VALUE_CONVERTER_MUST_CONVERT_TO_TARGET_ATTRIBUTE_TYPE.getCode())
+                .compilationShouldFail()
+                .executeTest();
+
+
+    }
+
+    @Test
+    public void test_invalid_ImplicitValueConverter_invalidSourceType() {
+
+        compileTestBuilder
+                .addSources(JavaFileObjectUtils.readFromResource("testcases/IntegrationTest_ImplicitValueConverterTest_withInvalidConverter_invalidSourceType.java"))
+                .expectErrorMessage().atSource("/testcases/IntegrationTest_ImplicitValueConverterTest_withInvalidConverter_invalidSourceType.java").atLineNumber(55L).thatContains(FluentApiProcessorCompilerMessages.ERROR_IMPLICIT_VALUE_CONVERTER_MUST_CONVERT_SOURCE_TYPE_STRING.getCode())
+                .expectErrorMessage().atSource("/testcases/IntegrationTest_ImplicitValueConverterTest_withInvalidConverter_invalidSourceType.java").atLineNumber(58L).thatContains(FluentApiProcessorCompilerMessages.ERROR_IMPLICIT_VALUE_CONVERTER_MUST_CONVERT_SOURCE_TYPE_STRING.getCode())
+                .expectErrorMessage().atSource("/testcases/IntegrationTest_ImplicitValueConverterTest_withInvalidConverter_invalidSourceType.java").atLineNumber(61L).thatContains(FluentApiProcessorCompilerMessages.ERROR_IMPLICIT_VALUE_CONVERTER_MUST_CONVERT_SOURCE_TYPE_STRING.getCode())
+                .expectErrorMessage().atSource("/testcases/IntegrationTest_ImplicitValueConverterTest_withInvalidConverter_invalidSourceType.java").atLineNumber(64L).thatContains(FluentApiProcessorCompilerMessages.ERROR_IMPLICIT_VALUE_CONVERTER_MUST_CONVERT_SOURCE_TYPE_STRING.getCode())
+                .compilationShouldFail()
+                .executeTest();
+
+
+    }
+
+    @Test
+    public void test_valid_BackingBeanMappingConverter() {
+
+        compileTestBuilder
+                .addSources(JavaFileObjectUtils.readFromResource("testcases/IntegrationTest_BackingBeanMapping_Converter.java"))
+                .compilationShouldSucceed()
+                .executeTest();
+
+
+    }
+
+    @Test
+    public void test_invalid_BackingBeanMappingConverter_wrongSingleValueSource() {
+
+        compileTestBuilder
+                .addSources(JavaFileObjectUtils.readFromResource("testcases/IntegrationTest_BackingBeanMapping_Converter_WrongSourceSingleValue.java"))
+                .expectErrorMessage().atLineNumber(62L).thatContains(FluentApiProcessorCompilerMessages.BB_MAPPING_INVALID_CONVERTER.getCode())
+                .compilationShouldFail()
+                .executeTest();
+
+
+    }
+
+    @Test
+    public void test_invalid_BackingBeanMappingConverter_wrongArrayValueSource() {
+
+        compileTestBuilder
+                .addSources(JavaFileObjectUtils.readFromResource("testcases/IntegrationTest_BackingBeanMapping_Converter_WrongSourceArrayValue.java"))
+                .expectErrorMessage().atLineNumber(64L).thatContains(FluentApiProcessorCompilerMessages.BB_MAPPING_INVALID_CONVERTER.getCode())
+                .compilationShouldFail()
+                .executeTest();
+
+
+    }
+
+    @Test
+    public void test_invalid_BackingBeanMappingConverter_wrongCollectionValueSource() {
+
+        compileTestBuilder
+                .addSources(JavaFileObjectUtils.readFromResource("testcases/IntegrationTest_BackingBeanMapping_Converter_WrongSourceCollectionValue.java"))
+                .expectErrorMessage().atLineNumber(66L).thatContains(FluentApiProcessorCompilerMessages.BB_MAPPING_INVALID_CONVERTER.getCode())
+                .compilationShouldFail()
+                .executeTest();
+
+
+    }
+
+    @Test
+    public void test_invalid_BackingBeanMappingConverter_wrongSingleValueTarget() {
+
+        compileTestBuilder
+                .addSources(JavaFileObjectUtils.readFromResource("testcases/IntegrationTest_BackingBeanMapping_Converter_WrongTargetSingleValue.java"))
+                .expectErrorMessage().atLineNumber(62L).thatContains(FluentApiProcessorCompilerMessages.BB_MAPPING_INVALID_CONVERTER.getCode())
+                .compilationShouldFail()
+                .executeTest();
+
+
+    }
+
+    @Test
+    public void test_invalid_BackingBeanMappingConverter_wrongArrayValueTarget() {
+
+        compileTestBuilder
+                .addSources(JavaFileObjectUtils.readFromResource("testcases/IntegrationTest_BackingBeanMapping_Converter_WrongTargetArrayValue.java"))
+                .expectErrorMessage().atLineNumber(64L).thatContains(FluentApiProcessorCompilerMessages.BB_MAPPING_INVALID_CONVERTER.getCode())
+                .compilationShouldFail()
+                .executeTest();
+
+
+    }
+
+    @Test
+    public void test_invalid_BackingBeanMappingConverter_wrongCollectionValueTarget() {
+
+        compileTestBuilder
+                .addSources(JavaFileObjectUtils.readFromResource("testcases/IntegrationTest_BackingBeanMapping_Converter_WrongTargetCollectionValue.java"))
+                .expectErrorMessage().atLineNumber(66L).thatContains(FluentApiProcessorCompilerMessages.BB_MAPPING_INVALID_CONVERTER.getCode())
+                .compilationShouldFail()
                 .executeTest();
 
 

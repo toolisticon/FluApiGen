@@ -1,11 +1,14 @@
 package io.toolisticon.fluapigen.processor;
 
 import io.toolisticon.aptk.compilermessage.api.DeclareCompilerMessage;
+import io.toolisticon.aptk.tools.InterfaceUtils;
 import io.toolisticon.aptk.tools.TypeMirrorWrapper;
 import io.toolisticon.aptk.tools.wrapper.VariableElementWrapper;
 import io.toolisticon.fluapigen.api.FluentApiBackingBeanMapping;
+import io.toolisticon.fluapigen.api.FluentApiConverter;
 import io.toolisticon.fluapigen.api.TargetBackingBean;
 
+import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
@@ -21,14 +24,14 @@ public class ModelInterfaceMethodParameter {
 
     final TypeMirrorWrapper type;
 
-    final FluentApiBackingBeanMapping fluentApiBackingBeanMapping;
+    final FluentApiBackingBeanMappingWrapper fluentApiBackingBeanMapping;
 
     ModelInterfaceMethodParameter(VariableElementWrapper variableElement, ModelBackingBean backingBeanModel, ModelInterfaceMethod modelInterfaceMethod) {
         parameterElement = variableElement;
         this.backingBeanModel = backingBeanModel;
         this.modelInterfaceMethod = modelInterfaceMethod;
         parameterName = variableElement.getSimpleName();
-        fluentApiBackingBeanMapping = variableElement.unwrap().getAnnotation(FluentApiBackingBeanMapping.class);
+        fluentApiBackingBeanMapping = FluentApiBackingBeanMappingWrapper.wrap(variableElement.unwrap());
         type = variableElement.asType();
     }
 
@@ -59,13 +62,24 @@ public class ModelInterfaceMethodParameter {
         return returnValue;
     }
 
-    public FluentApiBackingBeanMapping getFluentApiBackingBeanMapping() {
+    public FluentApiBackingBeanMappingWrapper getFluentApiBackingBeanMapping() {
         return fluentApiBackingBeanMapping;
+    }
+
+    public boolean hasConverter () {
+        return !fluentApiBackingBeanMapping.converterIsDefaultValue();
+                //&& !getFluentApiBackingBeanMapping().converterAsFqn().equals(FluentApiConverter.NoConversion.class.getCanonicalName()
+
     }
 
     public String getParameterName() {
         return parameterName;
     }
+
+    String addConverterIfNeeded(String parameterName) {
+        return !hasConverter() ? parameterName : "new " + getFluentApiBackingBeanMapping().converterAsTypeMirrorWrapper().getQualifiedName() + "().convert(" + parameterName +")";
+    }
+
 
     public String getAssignmentString() {
 
@@ -89,9 +103,13 @@ public class ModelInterfaceMethodParameter {
                         if (typeMirrorWrapper.isCollection() || typeMirrorWrapper.isArray()) {
                             typeMirrorWrapper = typeMirrorWrapper.getWrappedComponentType();
                         }
-                        if (!typeMirrorWrapper.erasure().isAssignableTo(backBeanField.get().getConcreteType().erasure())) {
-                            // must throw validation error
-                            throw new IncompatibleParameterTypeException(type.getSimpleName(),backBeanField.get().getFieldName(),backBeanField.get().getFieldType().getTypeDeclaration(),FluentApiBackingBeanMappingWrapper.wrap(parameterElement.unwrap()));
+                        if (!hasConverter()) {
+                            if (!typeMirrorWrapper.erasure().isAssignableTo(backBeanField.get().getConcreteType().erasure())) {
+                                // must throw validation error
+                                throw new IncompatibleParameterTypeException(type.getSimpleName(), backBeanField.get().getFieldName(), backBeanField.get().getFieldType().getTypeDeclaration(), FluentApiBackingBeanMappingWrapper.wrap(parameterElement.unwrap()));
+                            }
+                        } else {
+                            validateConverter(backBeanField.get());
                         }
 
                         // must handle 3 scenarios depending on parameter type:
@@ -101,11 +119,11 @@ public class ModelInterfaceMethodParameter {
                         // 3. single value
 
                         if (type.isArray()) {
-                            return " = new " + backBeanField.get().getCollectionImplType() + "(Arrays.asList(" + getParameterName() + "));";
+                            return " = new " + backBeanField.get().getCollectionImplType() + "(Arrays.asList(" + addConverterIfNeeded(getParameterName()) + "));";
                         } else if (type.isCollection()) {
-                            return " = new " + backBeanField.get().getCollectionImplType() + "(" + getParameterName() + ");";
+                            return " = new " + backBeanField.get().getCollectionImplType() + "(" + addConverterIfNeeded(getParameterName()) + ");";
                         } else {
-                            return " = new " + backBeanField.get().getCollectionImplType() + "(Collections.singletonList( " + getParameterName() + " ));";
+                            return " = new " + backBeanField.get().getCollectionImplType() + "(Collections.singletonList( " + addConverterIfNeeded(getParameterName()) + " ));";
                         }
 
                     }
@@ -117,17 +135,18 @@ public class ModelInterfaceMethodParameter {
                         // 3. single value
 
                         if (type.isArray()) {
-                            return ".addAll(Arrays.asList(" + getParameterName() + "));";
+                            return ".addAll(Arrays.asList(" + addConverterIfNeeded(getParameterName()) + "));";
                         } else if (type.isCollection()) {
-                            return ".addAll(" + getParameterName() + ");";
+                            return ".addAll(" + addConverterIfNeeded(getParameterName()) + ");";
                         } else {
-                            return ".add(" + getParameterName() + ");";
+                            return ".add(" + addConverterIfNeeded(getParameterName()) + ");";
                         }
 
                     }
                 }
             }
             /*-
+
             else if (backBeanField.get().isArray()) {
                 switch (getFluentApiBackingBeanMapping().action()) {
                     case SET: {
@@ -141,8 +160,17 @@ public class ModelInterfaceMethodParameter {
 
             else {
 
+                if (hasConverter()) {
+                    validateConverter(backBeanField.get());
+                } else {
+                    if (!type.erasure().isAssignableTo(backBeanField.get().getFieldType().erasure())) {
+                        // must throw validation error
+                        throw new IncompatibleParameterTypeException(type.getSimpleName(), backBeanField.get().getFieldName(), backBeanField.get().getFieldType().getTypeDeclaration(), FluentApiBackingBeanMappingWrapper.wrap(parameterElement.unwrap()));
+                    }
+                }
+
                 // just parameter assignment
-                return " = " + getParameterName() +";";
+                return " = " + addConverterIfNeeded(getParameterName()) +";";
             }
 
         }
@@ -150,6 +178,19 @@ public class ModelInterfaceMethodParameter {
         return "";
     }
 
+    private void validateConverter(ModelBackingBeanField backBeanField) {
+        TypeMirrorWrapper converter = fluentApiBackingBeanMapping.converterAsTypeMirrorWrapper();
+
+        TypeMirrorWrapper sourceType = this.parameterElement.asType();
+        TypeMirrorWrapper targetType = backBeanField.getFieldType();
+
+        List<TypeMirrorWrapper> converterTypeArguments = InterfaceUtils.getResolvedTypeArgumentOfSuperTypeOrInterface(converter.getTypeElement().get(), TypeMirrorWrapper.wrap(FluentApiConverter.class));
+
+        if (!sourceType.isAssignableTo(converterTypeArguments.get(0))
+                || !converterTypeArguments.get(1).isAssignableTo(targetType)) {
+            throw new IncompatibleConverterException(fluentApiBackingBeanMapping,sourceType,targetType,converter,converterTypeArguments);
+        }
+    }
 
 
     @DeclareCompilerMessage(code = "001", enumValueName = "BB_MAPPING_ANNOTATION_MUST_BE_PRESENT", message = "${0} annotation must be present on parameter", processorClass = FluentApiProcessor.class)
@@ -183,7 +224,7 @@ public class ModelInterfaceMethodParameter {
 
         try {
             getAssignmentString();
-        } catch (IncompatibleParameterTypeException e) {
+        } catch (CompilerErrorException e) {
             e.writeErrorCompilerMessage();
             return false;
         }
