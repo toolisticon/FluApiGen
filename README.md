@@ -130,7 +130,7 @@ Those interface will be bound to one specific backing bean. A backing bean can b
 Methods defined in those interfaces are only allowed to return other fluent api interfaces, except for closing commands.
 
 All method parameters and methods that close a backing bean creation must be annotated with the _FluentApiBackingBeanField_ annotation which defines which value should be written.
-Of course parameter and value type must match. 
+Of course parameter and value type must match or a correct converter must be used. 
 
 Default methods will completely be ignored by the processor and can be used to transform parameters and to delegate calls to another interface method. 
 
@@ -286,12 +286,92 @@ CuteFluentApiStarter.unitTest()
     .expectCompilerMessage().asError().thatContains("DEF")
     .executeTest();
 ```
+
+## Advanced Techniques
+
+### Inline Backing Bean Mappings
+Sometimes you have smaller backing beans which you might want to declare inline by using multiple parameters of the fluent api method.
+The fluent api generator provides you the possibility to do that.
+You have to add the _FluentApiInlineBackingBeanMapping_ annotation to the method and set the target of the corresponding _FluentApiBackingBeanMapping_ to INLINE.
+
+```java
+@FluentApiInterface(value = MyBackingBean.class)
+public interface MyFluentInterface {
     
+    // Converters in backing bean mappings
+    @FluentApiInlineBackingBeanMapping("nameOfTargetBackingBeanField")
+    MyFluentInterface doSomething(
+            @FluentApiBackingBeanMapping(value = "value1", target=TargetBackingBean.INLINE) Long value1,
+            @FluentApiBackingBeanMapping(value = "value2", target=TargetBackingBean.INLINE) Long value2
+    );
+
+}
+```
+In this example an inline backing bean will be set at _MyBackingBean.nameOfTargetBackingBeanField_.
+It's _value1_ and _value2_ attributes will be mapped from the corresponding method parameters.
+
+### Converters
+Converters can be used to map input parameters from either implicit value annotations or backing bean mappings to the backing bean type.
+
+An example Converter:
+```java
+public static class TargetType {
+
+    private final String value;
+
+    public TargetType (String value) {
+        this.value = value;
+    }
+
+    @Override
+    public String toString() {
+        return this.value;
+    }
+}
+
+public static class MyStringConverter implements FluentApiConverter<String,TargetType> {
+
+    @Override
+    public TargetType convert(String o) {
+        return new TargetType(o);
+    }
+
+}
+
+public static class MyLongConverter implements FluentApiConverter<String, TargetType> {
+
+    @Override
+    public TargetType convert(Long o) {
+        // not null save ;)
+        return new TargetType(o.toString());
+    }
+
+}
+
+@FluentApiInterface(value = MyBackingBean.class)
+public interface MyFluentInterface {
+    
+    // Converters in implicit value annotation
+    @FluentApiImplicitValue(id = "singleValue", value = "SINGLE", converter = MyStringConverter.class)
+    MyFluentInterface setSingleValue();
+    
+    // Converters in backing bean mappings
+    MyFluentInterface setViaLongValue(@FluentApiBackingBeanMapping(value = "singleValue", converter = MyLongConverter.class) Long longValue);
+
+}
+```
+   
+### Javas default methods in fluent api and backing bean in interfaces
+Default methods will be ignored during processing of fluent api and backing bean interfaces and can be used for different tasks:
+
+- They can provide alternative ways to set a parameter by providing conversions of input parameters and internally calling fluent api methods.
+- They can also be very helpful to provide methods for accessing/filtering/aggregate backing bean attributes.
+ 
 # Contributing
 
 We welcome any kind of suggestions and pull requests.
 
-## Building and developing the ${rootArtifactId} annotation processor
+## Building and developing the FluApiGen annotation processor
 
 This project is built using Maven.
 A simple import of the pom in your IDE should get you up and running. To build the project on the commandline, just run `./mvnw` or `./mvnw clean install`

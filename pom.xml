@@ -73,7 +73,7 @@
         <!-- project dependency versions -->
         <cute.version>0.12.1</cute.version>
         <spiap.version>0.11.0</spiap.version>
-        <aptk.version>0.21.0</aptk.version>
+        <aptk.version>0.22.3</aptk.version>
 
         <!-- versions of test dependencies -->
         <junit.version>4.13.2</junit.version>
@@ -81,7 +81,8 @@
         <mockito.version>5.2.0</mockito.version>
 
         <!-- sonatype url-->
-        <sonatype-oss-dist-mgmt-snapshots-url>https://oss.sonatype.org/content/repositories/snapshots/</sonatype-oss-dist-mgmt-snapshots-url>
+        <sonatype-oss-dist-mgmt-snapshots-url>https://oss.sonatype.org/content/repositories/snapshots/
+        </sonatype-oss-dist-mgmt-snapshots-url>
 
 
         <!-- plugin versions -->

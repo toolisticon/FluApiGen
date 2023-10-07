@@ -100,7 +100,7 @@
         <dependency>
             <groupId>io.toolisticon.cute</groupId>
             <artifactId>cute</artifactId>
-            <scope>compile</scope>
+            <scope>test</scope>
         </dependency>
 
     </dependencies>
