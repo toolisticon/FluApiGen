@@ -21,7 +21,6 @@ All you have to do is to define a bunch of interfaces and to configure its "plum
 
 # Restrictions
 - fluent interfaces must not contain any cycles and must be strongly hierarchically
-- fluent interfaces doesn't support parent interfaces at the moment, a solution to support this is currently in work.
 
 # How does it work?
 
@@ -367,6 +366,100 @@ Default methods will be ignored during processing of fluent api and backing bean
 - They can provide alternative ways to set a parameter by providing conversions of input parameters and internally calling fluent api methods.
 - They can also be very helpful to provide methods for accessing/filtering/aggregate backing bean attributes.
  
+### Using parent interfaces to share method declarations and backing bean fields declarations
+It's possible to use parent interfaces to share fluent api method declarations in multiple interfaces:
+
+```java
+    @FluentApiBackingBean
+    interface MyRootLevelBackingBean {
+
+        @FluentApiBackingBeanField("1st")
+        FirstInheritedBackingBean get1st();
+
+        @FluentApiBackingBeanField("2nd")
+        SecondInheritedBackingBean get2nd();
+
+    }
+
+
+    // Parent backing bean interface must not be annotated with FluentApiBackingBean annotation
+    interface MyReusedBackingBeanFields {
+
+        @FluentApiBackingBeanField("name")
+        String getName();
+
+    }
+
+
+    @FluentApiBackingBean
+    interface FirstInheritedBackingBean extends MyReusedBackingBeanFields {
+
+        @FluentApiBackingBeanField("1st")
+        String get1st();
+
+    }
+
+    @FluentApiBackingBean
+    interface SecondInheritedBackingBean extends MyReusedBackingBeanFields {
+
+        @FluentApiBackingBeanField("2nd")
+        String get2nd();
+
+    }
+
+
+    // Fluent Api interfaces
+    @FluentApiInterface(MyRootLevelBackingBean.class)
+    @FluentApiRoot
+    public interface MyRootInterface {
+
+        My1stInterface goto1st();
+
+        My2ndInterface goto2nd();
+
+        @FluentApiCommand(MyCommand.class)
+        void myCommand();
+
+
+    }
+
+    // Parent fluent api interface must not be annotated with FluentApiInterface
+    // There must be a related backing bean interface for related attributes
+    // Type Parameters must be used to pass in the followup fluent api interfaces
+    public interface SharedInterface<FLUENT_INTERFACE> {
+
+        // Fluebt followup interface must be returned as type variable
+        FLUENT_INTERFACE setName(@FluentApiBackingBeanMapping(value = "name") String name);
+
+    }
+
+    
+    @FluentApiInterface(FirstInheritedBackingBean.class)
+    public interface My1stInterface extends SharedInterface<My1stInterface> {
+
+        @FluentApiParentBackingBeanMapping("1st")
+        MyRootInterface set1st(@FluentApiBackingBeanMapping(value = "1st") String first);
+
+    }
+
+    @FluentApiInterface(SecondInheritedBackingBean.class)
+    public interface My2ndInterface extends SharedInterface<My2ndInterface> {
+
+        @FluentApiParentBackingBeanMapping("2nd")
+        MyRootInterface set1st(@FluentApiBackingBeanMapping(value = "2nd") String second);
+
+    }
+
+    // Commands
+    @FluentApiCommand
+    static class MyCommand {
+        static void myCommand(MyRootLevelBackingBean backingBean) {
+            System.out.println("CHECK");
+        }
+    }
+```
+
+
 # Contributing
 
 We welcome any kind of suggestions and pull requests.

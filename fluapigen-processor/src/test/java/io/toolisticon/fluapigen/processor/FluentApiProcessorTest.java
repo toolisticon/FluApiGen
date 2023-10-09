@@ -395,4 +395,15 @@ public class FluentApiProcessorTest {
 
     }
 
+    @Test
+    public void test_Inheritance_reusingInterfaces() {
+
+        compileTestBuilder
+                .addSources(JavaFileObjectUtils.readFromResource("testcases/IntegrationTest_Inheritance_reusingInterfaces.java"))
+                .compilationShouldSucceed()
+                .executeTest();
+
+
+    }
+
 }
