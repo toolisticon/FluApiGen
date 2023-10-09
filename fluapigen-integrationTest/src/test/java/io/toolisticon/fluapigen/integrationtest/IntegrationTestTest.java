@@ -353,4 +353,10 @@ public class IntegrationTestTest {
 
     }
 
+    @Test
+    public void testInheritance() {
+       IntegrationTest_Inheritance_reusingInterfaces.MyRootLevelBackingBean bb = InheritanceIntegrationTestStarter.goto1st().setName("1stName").set1st("1").goto2nd().setName("2ndName").set1st("2").myCommand();
+       MatcherAssert.assertThat(bb, Matchers.notNullValue());
+    }
+
 }

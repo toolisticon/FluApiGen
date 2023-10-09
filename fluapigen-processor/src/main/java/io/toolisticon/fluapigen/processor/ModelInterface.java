@@ -1,6 +1,7 @@
 package io.toolisticon.fluapigen.processor;
 
 import io.toolisticon.aptk.compilermessage.api.DeclareCompilerMessage;
+import io.toolisticon.aptk.tools.InterfaceUtils;
 import io.toolisticon.aptk.tools.TypeMirrorWrapper;
 import io.toolisticon.aptk.tools.TypeUtils;
 import io.toolisticon.aptk.tools.corematcher.AptkCoreMatchers;
@@ -35,8 +36,16 @@ public class ModelInterface implements FetchImports, Validatable {
         this.wrapper = wrapper;
         this.backingBeanModel = backingBeanModel;
 
+
+        for (ExecutableElementWrapper executableElement : InterfaceUtils.getMethodsToImplement(TypeElementWrapper.wrap((TypeElement) this.wrapper._annotatedElement())) ){
+
+            if (executableElement.isDefault()) {
+                // ignore default methods
+                continue;
+            }
+        //}
         // get Methods
-        for (ExecutableElementWrapper executableElement : FluentElementFilter.createFluentElementFilter(this.wrapper._annotatedElement().getEnclosedElements()).applyFilter(AptkCoreMatchers.IS_METHOD).applyFilter(AptkCoreMatchers.BY_MODIFIER).filterByNoneOf(Modifier.DEFAULT).getResult().stream().map(ExecutableElementWrapper::wrap).collect(Collectors.toList())) {
+        //for (ExecutableElementWrapper executableElement : FluentElementFilter.createFluentElementFilter(this.wrapper._annotatedElement().getEnclosedElements()).applyFilter(AptkCoreMatchers.IS_METHOD).applyFilter(AptkCoreMatchers.BY_MODIFIER).filterByNoneOf(Modifier.DEFAULT).getResult().stream().map(ExecutableElementWrapper::wrap).collect(Collectors.toList())) {
                methods.add(new ModelInterfaceMethod(executableElement, backingBeanModel));
         }
 
