@@ -11,7 +11,8 @@
                 FluentApiImplicitValue.class,
                 FluentApiBackingBeanMapping.class,
                 FluentApiParentBackingBeanMapping.class,
-                FluentApiInlineBackingBeanMapping.class
+                FluentApiInlineBackingBeanMapping.class,
+                FluentApiValidator.class
         })
 package io.toolisticon.fluapigen.processor;
 
@@ -25,3 +26,4 @@ import io.toolisticon.fluapigen.api.FluentApiImplicitValue;
 import io.toolisticon.fluapigen.api.FluentApiInlineBackingBeanMapping;
 import io.toolisticon.fluapigen.api.FluentApiInterface;
 import io.toolisticon.fluapigen.api.FluentApiParentBackingBeanMapping;
+import io.toolisticon.fluapigen.api.validation.FluentApiValidator;

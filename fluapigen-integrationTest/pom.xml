@@ -29,6 +29,11 @@
                                 <artifactId>fluapigen-processor</artifactId>
                                 <version>${project.version}</version>
                             </path>
+                            <path>
+                                <groupId>io.toolisticon.fluapigen</groupId>
+                                <artifactId>fluapigen-runtime-api</artifactId>
+                                <version>${project.version}</version>
+                            </path>
 
                         </annotationProcessorPaths>
                     </configuration>
@@ -95,6 +100,11 @@
         <dependency>
             <groupId>io.toolisticon.fluapigen</groupId>
             <artifactId>fluapigen-api</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>io.toolisticon.fluapigen</groupId>
+            <artifactId>fluapigen-runtime-api</artifactId>
         </dependency>
 
         <dependency>

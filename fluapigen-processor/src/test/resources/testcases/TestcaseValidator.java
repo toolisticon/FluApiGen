@@ -1,4 +1,4 @@
-package io.toolisticon.fluapigen;
+package io.toolisticon.fluapigen.processor.tests;
 
 import io.toolisticon.fluapigen.api.FluentApi;
 import io.toolisticon.fluapigen.api.FluentApiBackingBean;
@@ -7,10 +7,10 @@ import io.toolisticon.fluapigen.api.FluentApiBackingBeanMapping;
 import io.toolisticon.fluapigen.api.FluentApiCommand;
 import io.toolisticon.fluapigen.api.FluentApiInterface;
 import io.toolisticon.fluapigen.api.FluentApiRoot;
+import io.toolisticon.fluapigen.api.validation.Matches;
 
-
-@FluentApi("ExampleFluentApiStarter")
-public class ExampleFluentApi {
+@FluentApi("Xyz")
+public class TestcaseValidator {
 
     // Backing Bean Interface
     @FluentApiBackingBean
@@ -26,7 +26,7 @@ public class ExampleFluentApi {
     @FluentApiRoot
     public interface MyRootInterface {
 
-        MyRootInterface setName(@FluentApiBackingBeanMapping(value = "name") String name);
+        MyRootInterface setName(@Matches("aaa.*") @FluentApiBackingBeanMapping("name") String name);
 
         @FluentApiCommand(MyCommand.class)
         void myCommand();
@@ -43,9 +43,5 @@ public class ExampleFluentApi {
 
 
 
-    public static void main (String[] args) {
-        MyRootInterface test;
-       //test.setName("Test").myCommand();
-    }
 
 }

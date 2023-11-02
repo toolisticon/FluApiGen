@@ -78,7 +78,15 @@ public class ${ model.className } {
 !{for method : interface.methods}
         @Override
         public ${method.methodSignature} {
-
+!{for parameter : method.allParameters}
+!{if parameter.hasValidators}
+!{for validator : parameter.validators}
+            if(!${validator.validatorExpression}.validate(${parameter.parameterName})) {
+                throw new RuntimeException("Parameter ${parameter.parameterName} failed validation");
+            }
+!{/for}
+!{/if}
+!{/for}
 !{if method.hasInlineBackingBeanMapping}
             ${method.inlineBackingBean.className} inlineBackingBean = new ${method.inlineBackingBean.className}();
 !{for parameter : method.parametersBoundToInlineBB}

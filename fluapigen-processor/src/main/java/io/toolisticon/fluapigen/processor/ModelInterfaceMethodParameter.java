@@ -7,6 +7,7 @@ import io.toolisticon.aptk.tools.wrapper.VariableElementWrapper;
 import io.toolisticon.fluapigen.api.FluentApiBackingBeanMapping;
 import io.toolisticon.fluapigen.api.FluentApiConverter;
 import io.toolisticon.fluapigen.api.TargetBackingBean;
+import io.toolisticon.fluapigen.api.validation.FluentApiValidator;
 
 import java.util.List;
 import java.util.Optional;
@@ -44,7 +45,7 @@ public class ModelInterfaceMethodParameter {
 
             switch (fluentApiBackingBeanMapping.target()) {
                 case THIS: {
-                    returnValue =  backingBeanModel.getFieldById(fluentApiBackingBeanMapping.value());
+                    returnValue = backingBeanModel.getFieldById(fluentApiBackingBeanMapping.value());
                     break;
                 }
                 case NEXT: {
@@ -66,10 +67,18 @@ public class ModelInterfaceMethodParameter {
         return fluentApiBackingBeanMapping;
     }
 
-    public boolean hasConverter () {
+    public boolean hasConverter() {
         return !fluentApiBackingBeanMapping.converterIsDefaultValue();
-                //&& !getFluentApiBackingBeanMapping().converterAsFqn().equals(FluentApiConverter.NoConversion.class.getCanonicalName()
+        //&& !getFluentApiBackingBeanMapping().converterAsFqn().equals(FluentApiConverter.NoConversion.class.getCanonicalName()
+    }
 
+
+    public boolean hasValidators() {
+        return getValidators().size() > 0;
+    }
+
+    public List<ModelValidator> getValidators() {
+        return this.parameterElement.getAnnotations().stream().filter(e -> e.asElement().hasAnnotation(FluentApiValidator.class)).map(ModelValidator::new).collect(Collectors.toList());
     }
 
     public String getParameterName() {
@@ -77,7 +86,7 @@ public class ModelInterfaceMethodParameter {
     }
 
     String addConverterIfNeeded(String parameterName) {
-        return !hasConverter() ? parameterName : "new " + getFluentApiBackingBeanMapping().converterAsTypeMirrorWrapper().getQualifiedName() + "().convert(" + parameterName +")";
+        return !hasConverter() ? parameterName : "new " + getFluentApiBackingBeanMapping().converterAsTypeMirrorWrapper().getQualifiedName() + "().convert(" + parameterName + ")";
     }
 
 
@@ -170,7 +179,7 @@ public class ModelInterfaceMethodParameter {
                 }
 
                 // just parameter assignment
-                return " = " + addConverterIfNeeded(getParameterName()) +";";
+                return " = " + addConverterIfNeeded(getParameterName()) + ";";
             }
 
         }
@@ -188,7 +197,7 @@ public class ModelInterfaceMethodParameter {
 
         if (!sourceType.isAssignableTo(converterTypeArguments.get(0))
                 || !converterTypeArguments.get(1).isAssignableTo(targetType)) {
-            throw new IncompatibleConverterException(fluentApiBackingBeanMapping,sourceType,targetType,converter,converterTypeArguments);
+            throw new IncompatibleConverterException(fluentApiBackingBeanMapping, sourceType, targetType, converter, converterTypeArguments);
         }
     }
 

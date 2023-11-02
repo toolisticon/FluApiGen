@@ -73,7 +73,7 @@
         <!-- project dependency versions -->
         <cute.version>0.12.1</cute.version>
         <spiap.version>0.11.0</spiap.version>
-        <aptk.version>0.22.5</aptk.version>
+        <aptk.version>0.22.7-SNAPSHOT</aptk.version>
 
         <!-- versions of test dependencies -->
         <junit.version>4.13.2</junit.version>
@@ -619,6 +619,14 @@
 
 
             <!-- internal -->
+
+            <dependency>
+                <groupId>io.toolisticon.fluapigen</groupId>
+                <artifactId>fluapigen-runtime-api</artifactId>
+                <version>${project.version}</version>
+                <scope>compile</scope>
+            </dependency>
+
             <dependency>
                 <groupId>io.toolisticon.fluapigen</groupId>
                 <artifactId>fluapigen-api</artifactId>
@@ -682,6 +690,7 @@
 
 
     <modules>
+        <module>fluapigen-runtime-api</module>
         <module>fluapigen-api</module>
         <module>fluapigen-processor</module>
         <module>fluapigen-example</module>
