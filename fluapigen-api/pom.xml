@@ -31,7 +31,7 @@
     <dependencies>
         <dependency>
             <groupId>io.toolisticon.fluapigen</groupId>
-            <artifactId>fluapigen-runtime-api</artifactId>
+            <artifactId>fluapigen-validation-api</artifactId>
         </dependency>
     </dependencies>
 

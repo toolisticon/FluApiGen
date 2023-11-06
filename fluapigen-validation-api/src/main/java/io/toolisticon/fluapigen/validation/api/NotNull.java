@@ -1,4 +1,4 @@
-package io.toolisticon.fluapigen.api.validation;
+package io.toolisticon.fluapigen.validation.api;
 
 @FluentApiValidator(NotNull.ValidatorImpl.class)
 public @interface NotNull {

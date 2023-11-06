@@ -7,7 +7,9 @@ import io.toolisticon.fluapigen.api.FluentApiBackingBeanMapping;
 import io.toolisticon.fluapigen.api.FluentApiCommand;
 import io.toolisticon.fluapigen.api.FluentApiInterface;
 import io.toolisticon.fluapigen.api.FluentApiRoot;
-import io.toolisticon.fluapigen.api.validation.Matches;
+import io.toolisticon.fluapigen.validation.api.Matches;
+import io.toolisticon.fluapigen.validation.api.MaxLength;
+import io.toolisticon.fluapigen.validation.api.NotNull;
 
 @FluentApi("ValidatorExampleStarter")
 public class ValidatorExample {
@@ -26,7 +28,7 @@ public class ValidatorExample {
     @FluentApiRoot
     public interface MyRootInterface {
 
-        MyRootInterface setName(@Matches("aaa.*") @FluentApiBackingBeanMapping("name") String name);
+        MyRootInterface setName(@NotNull @MaxLength(8) @Matches("aaa.*") @FluentApiBackingBeanMapping("name") String name);
 
         @FluentApiCommand(MyCommand.class)
         void myCommand();
@@ -35,13 +37,11 @@ public class ValidatorExample {
 
     // Commands
     @FluentApiCommand
-    static class MyCommand{
-        static void myCommand (MyBackingBean backingBean) {
+    static class MyCommand {
+        static void myCommand(MyBackingBean backingBean) {
             System.out.println(backingBean.getName());
         }
     }
-
-
 
 
 }

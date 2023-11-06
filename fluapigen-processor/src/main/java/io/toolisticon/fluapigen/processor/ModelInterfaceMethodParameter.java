@@ -7,7 +7,7 @@ import io.toolisticon.aptk.tools.wrapper.VariableElementWrapper;
 import io.toolisticon.fluapigen.api.FluentApiBackingBeanMapping;
 import io.toolisticon.fluapigen.api.FluentApiConverter;
 import io.toolisticon.fluapigen.api.TargetBackingBean;
-import io.toolisticon.fluapigen.api.validation.FluentApiValidator;
+import io.toolisticon.fluapigen.validation.api.FluentApiValidator;
 
 import java.util.List;
 import java.util.Optional;

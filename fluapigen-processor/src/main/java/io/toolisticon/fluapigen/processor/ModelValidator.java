@@ -1,5 +1,6 @@
 package io.toolisticon.fluapigen.processor;
 
+import io.toolisticon.aptk.common.ToolingProvider;
 import io.toolisticon.aptk.tools.TypeMirrorWrapper;
 import io.toolisticon.aptk.tools.corematcher.AptkCoreMatchers;
 import io.toolisticon.aptk.tools.wrapper.AnnotationMirrorWrapper;
@@ -22,6 +23,7 @@ public class ModelValidator {
         return FluentApiValidatorWrapper.wrap(this.validatorAnnotation.asElement().unwrap());
     }
 
+    // TODO NOT USED YET, MUST BE IMPLEMENTED
     public boolean validate() {
         // must check if parameter types are assignable
         FluentApiValidatorWrapper validatorMetaAnnotation = getValidatorAnnotation();
@@ -35,7 +37,13 @@ public class ModelValidator {
         } else {
             // must have a noarg constructor or just the default
             TypeElementWrapper validatorImplTypeElement = validatorImplType.getTypeElement().get();
-            List<ExecutableElement> constructors = validatorImplTypeElement.filterEnclosedElements().applyFilter(AptkCoreMatchers.IS_CONSTRUCTOR).getResult();
+            boolean hasNoargConstructor = validatorImplTypeElement.filterEnclosedElements().applyFilter(AptkCoreMatchers.IS_CONSTRUCTOR).applyFilter(AptkCoreMatchers.HAS_NO_PARAMETERS).getResult().size() == 1;
+            boolean hasJustDefaultConstructor = validatorImplTypeElement.filterEnclosedElements().applyFilter(AptkCoreMatchers.IS_CONSTRUCTOR).hasSize(0);
+
+            if (! ( hasNoargConstructor || hasJustDefaultConstructor)) {
+                //ToolingProvider.getTooling().getMessager().
+                //this.validatorAnnotation.
+            }
         }
 
         return true;
@@ -84,5 +92,8 @@ public class ModelValidator {
         return stringBuilder.toString();
     }
 
+    public String getValidatorSummary() {
+        return validatorAnnotation.getStringRepresentation();
+    }
 
 }

@@ -7,7 +7,15 @@ public class ValidatorExampleTest {
     @Test(expected = RuntimeException.class)
     public void testValidator_failingValidation() {
 
-        ValidatorExampleStarter.setName("bbbadad").myCommand();
+        ValidatorExampleStarter.setName("bbbadadadsd").myCommand();
 
     }
+
+    @Test()
+    public void testValidator() {
+
+        ValidatorExampleStarter.setName("aaaBDSXS").myCommand();
+
+    }
+
 }

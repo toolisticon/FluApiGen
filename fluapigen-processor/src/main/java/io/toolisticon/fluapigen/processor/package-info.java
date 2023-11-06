@@ -26,4 +26,4 @@ import io.toolisticon.fluapigen.api.FluentApiImplicitValue;
 import io.toolisticon.fluapigen.api.FluentApiInlineBackingBeanMapping;
 import io.toolisticon.fluapigen.api.FluentApiInterface;
 import io.toolisticon.fluapigen.api.FluentApiParentBackingBeanMapping;
-import io.toolisticon.fluapigen.api.validation.FluentApiValidator;
+import io.toolisticon.fluapigen.validation.api.FluentApiValidator;

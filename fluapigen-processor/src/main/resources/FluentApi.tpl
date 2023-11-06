@@ -11,6 +11,8 @@ import java.util.Deque;
 import java.util.HashSet;
 import java.util.stream.Collectors;
 
+import io.toolisticon.fluapigen.validation.api.ValidatorException;
+
 /**
  * An empty class.
  */
@@ -82,7 +84,7 @@ public class ${ model.className } {
 !{if parameter.hasValidators}
 !{for validator : parameter.validators}
             if(!${validator.validatorExpression}.validate(${parameter.parameterName})) {
-                throw new RuntimeException("Parameter ${parameter.parameterName} failed validation");
+                throw new ValidatorException("Parameter '${parameter.parameterName}' of method '${method.executableElement.simpleName}' failed validation: ${validator.validatorSummary}");
             }
 !{/for}
 !{/if}

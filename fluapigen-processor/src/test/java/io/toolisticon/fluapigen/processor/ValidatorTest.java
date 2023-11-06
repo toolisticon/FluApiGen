@@ -6,7 +6,7 @@ import io.toolisticon.aptk.tools.wrapper.VariableElementWrapper;
 import io.toolisticon.cute.CompileTestBuilder;
 import io.toolisticon.cute.PassIn;
 import io.toolisticon.cute.UnitTest;
-import io.toolisticon.fluapigen.api.validation.Matches;
+import io.toolisticon.fluapigen.validation.api.Matches;
 import org.hamcrest.MatcherAssert;
 import org.hamcrest.Matchers;
 import org.junit.Before;
@@ -42,7 +42,7 @@ public class ValidatorTest {
                         ToolingProvider.setTooling(processingEnvironment);
 
                         ModelValidator unit = new ModelValidator(VariableElementWrapper.wrap(element).getAnnotationMirror(Matches.class).get());
-                        MatcherAssert.assertThat(unit.validatorExpression(), Matchers.is("new io.toolisticon.fluapigen.api.validation.Matches.ValidatorImpl(\"aaa.*\")"));
+                        MatcherAssert.assertThat(unit.validatorExpression(), Matchers.is("new io.toolisticon.fluapigen.validation.api.Matches.ValidatorImpl(\"aaa.*\")"));
 
                     } finally {
                         ToolingProvider.clearTooling();

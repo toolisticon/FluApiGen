@@ -1,4 +1,4 @@
-package io.toolisticon.fluapigen.api.validation;
+package io.toolisticon.fluapigen.validation.api;
 
 import java.lang.reflect.Array;
 import java.util.Collection;

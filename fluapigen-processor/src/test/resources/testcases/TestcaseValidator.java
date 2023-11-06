@@ -7,7 +7,7 @@ import io.toolisticon.fluapigen.api.FluentApiBackingBeanMapping;
 import io.toolisticon.fluapigen.api.FluentApiCommand;
 import io.toolisticon.fluapigen.api.FluentApiInterface;
 import io.toolisticon.fluapigen.api.FluentApiRoot;
-import io.toolisticon.fluapigen.api.validation.Matches;
+import io.toolisticon.fluapigen.validation.api.Matches;
 
 @FluentApi("Xyz")
 public class TestcaseValidator {

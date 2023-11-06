@@ -1,4 +1,4 @@
-package io.toolisticon.fluapigen.api.validation;
+package io.toolisticon.fluapigen.validation.api;
 
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;

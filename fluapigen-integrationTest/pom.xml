@@ -31,10 +31,9 @@
                             </path>
                             <path>
                                 <groupId>io.toolisticon.fluapigen</groupId>
-                                <artifactId>fluapigen-runtime-api</artifactId>
+                                <artifactId>fluapigen-api</artifactId>
                                 <version>${project.version}</version>
                             </path>
-
                         </annotationProcessorPaths>
                     </configuration>
 
@@ -104,7 +103,7 @@
 
         <dependency>
             <groupId>io.toolisticon.fluapigen</groupId>
-            <artifactId>fluapigen-runtime-api</artifactId>
+            <artifactId>fluapigen-validation-api</artifactId>
         </dependency>
 
         <dependency>
