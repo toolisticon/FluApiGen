@@ -6,6 +6,7 @@ import io.toolisticon.fluapigen.api.FluentApiBackingBeanField;
 import io.toolisticon.fluapigen.api.FluentApiBackingBeanMapping;
 import io.toolisticon.fluapigen.api.FluentApiCommand;
 import io.toolisticon.fluapigen.api.FluentApiImplicitValue;
+import io.toolisticon.fluapigen.api.FluentApiInlineBackingBeanMapping;
 import io.toolisticon.fluapigen.api.FluentApiInterface;
 import io.toolisticon.fluapigen.api.FluentApiParentBackingBeanMapping;
 import io.toolisticon.fluapigen.api.FluentApiRoot;
@@ -27,6 +28,8 @@ public class IntegrationTest {
 
         @FluentApiBackingBeanField("midLevelBB")
         List<MyMidLevelBackingBean> midLevelBB();
+
+
 
     }
 

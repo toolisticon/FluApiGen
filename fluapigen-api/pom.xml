@@ -9,7 +9,7 @@
     <parent>
         <groupId>io.toolisticon.fluapigen</groupId>
         <artifactId>fluapigen</artifactId>
-        <version>0.3.1-SNAPSHOT</version>
+        <version>0.8.1-SNAPSHOT</version>
     </parent>
 
     <name>fluapigen-api</name>
@@ -25,7 +25,14 @@
 
         </plugins>
 
-    </build>
 
+
+    </build>
+    <dependencies>
+        <dependency>
+            <groupId>io.toolisticon.fluapigen</groupId>
+            <artifactId>fluapigen-validation-api</artifactId>
+        </dependency>
+    </dependencies>
 
 </project>

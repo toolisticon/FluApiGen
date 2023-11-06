@@ -7,7 +7,6 @@ import io.toolisticon.cute.CompileTestBuilder;
 import io.toolisticon.cute.PassIn;
 import io.toolisticon.fluapigen.api.FluentApi;
 import io.toolisticon.fluapigen.api.FluentApiBackingBean;
-import io.toolisticon.fluapigen.api.FluentApiInterface;
 import org.hamcrest.MatcherAssert;
 import org.junit.Before;
 import org.junit.Test;

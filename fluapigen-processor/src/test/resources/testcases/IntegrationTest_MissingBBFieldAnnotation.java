@@ -20,7 +20,7 @@ public class IntegrationTest_MissingBBFieldAnnotation {
     @FluentApiBackingBean
     interface MyRootLevelBackingBean {
 
-        String getName();
+        String name();
 
         @FluentApiBackingBeanField("midLevelBB")
         List<MyMidLevelBackingBean> midLevelBB();
@@ -220,7 +220,7 @@ public class IntegrationTest_MissingBBFieldAnnotation {
     @FluentApiCommand
     static class MyCommand {
         static void myCommand(MyRootLevelBackingBean backingBean) {
-            System.out.println(backingBean.getName());
+            System.out.println(backingBean.name());
         }
     }
 

@@ -9,7 +9,7 @@ import javax.lang.model.element.AnnotationValue;
 import javax.lang.model.element.Element;
 
 @DeclareCompilerMessage(code = "602", enumValueName = "ERROR_INCOMPATIBLE_BACKING_BEAN_MAPPING_TYPES", message = "Cannot map parameter of type ${0} to backing bean field '${1}' with type '${2}'", processorClass = FluentApiProcessor.class)
-public class IncompatibleParameterTypeException extends RuntimeException{
+public class IncompatibleParameterTypeException extends CompilerErrorException{
 
     final String parameterType;
 

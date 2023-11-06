@@ -9,6 +9,7 @@ import java.lang.annotation.Target;
 
 /**
  * Repeatable annotation to implicitly set one or more values.
+ * Must be used on a method in an interface annotated with {@link FluentApiInterface}.
  */
 @Retention(RetentionPolicy.RUNTIME)
 @Target(value = {ElementType.METHOD})
@@ -37,5 +38,11 @@ public @interface FluentApiImplicitValue {
 
 
     MappingAction action() default MappingAction.SET;
+
+    /**
+     * Converter to use for non matching fluent interface parameter types.
+     * @return the converted value.
+     */
+    Class<? extends FluentApiConverter> converter () default FluentApiConverter.NoConversion.class;
 
 }

@@ -1,12 +1,17 @@
 package io.toolisticon.fluapigen.processor;
 
 import io.toolisticon.aptk.compilermessage.api.DeclareCompilerMessage;
+import io.toolisticon.aptk.tools.InterfaceUtils;
 import io.toolisticon.aptk.tools.TypeMirrorWrapper;
 import io.toolisticon.aptk.tools.wrapper.VariableElementWrapper;
 import io.toolisticon.fluapigen.api.FluentApiBackingBeanMapping;
+import io.toolisticon.fluapigen.api.FluentApiConverter;
 import io.toolisticon.fluapigen.api.TargetBackingBean;
+import io.toolisticon.fluapigen.validation.api.FluentApiValidator;
 
+import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 public class ModelInterfaceMethodParameter {
 
@@ -20,14 +25,14 @@ public class ModelInterfaceMethodParameter {
 
     final TypeMirrorWrapper type;
 
-    final FluentApiBackingBeanMapping fluentApiBackingBeanMapping;
+    final FluentApiBackingBeanMappingWrapper fluentApiBackingBeanMapping;
 
     ModelInterfaceMethodParameter(VariableElementWrapper variableElement, ModelBackingBean backingBeanModel, ModelInterfaceMethod modelInterfaceMethod) {
         parameterElement = variableElement;
         this.backingBeanModel = backingBeanModel;
         this.modelInterfaceMethod = modelInterfaceMethod;
         parameterName = variableElement.getSimpleName();
-        fluentApiBackingBeanMapping = variableElement.unwrap().getAnnotation(FluentApiBackingBeanMapping.class);
+        fluentApiBackingBeanMapping = FluentApiBackingBeanMappingWrapper.wrap(variableElement.unwrap());
         type = variableElement.asType();
     }
 
@@ -40,11 +45,15 @@ public class ModelInterfaceMethodParameter {
 
             switch (fluentApiBackingBeanMapping.target()) {
                 case THIS: {
-                    returnValue =  backingBeanModel.getFieldById(fluentApiBackingBeanMapping.value());
+                    returnValue = backingBeanModel.getFieldById(fluentApiBackingBeanMapping.value());
                     break;
                 }
                 case NEXT: {
                     returnValue = modelInterfaceMethod.getNextBackingBean().getFieldById(fluentApiBackingBeanMapping.value());
+                    break;
+                }
+                case INLINE: {
+                    returnValue = modelInterfaceMethod.getInlineBackingBean().getFieldById(fluentApiBackingBeanMapping.value());
                     break;
                 }
             }
@@ -54,13 +63,32 @@ public class ModelInterfaceMethodParameter {
         return returnValue;
     }
 
-    public FluentApiBackingBeanMapping getFluentApiBackingBeanMapping() {
+    public FluentApiBackingBeanMappingWrapper getFluentApiBackingBeanMapping() {
         return fluentApiBackingBeanMapping;
+    }
+
+    public boolean hasConverter() {
+        return !fluentApiBackingBeanMapping.converterIsDefaultValue();
+        //&& !getFluentApiBackingBeanMapping().converterAsFqn().equals(FluentApiConverter.NoConversion.class.getCanonicalName()
+    }
+
+
+    public boolean hasValidators() {
+        return getValidators().size() > 0;
+    }
+
+    public List<ModelValidator> getValidators() {
+        return this.parameterElement.getAnnotations().stream().filter(e -> e.asElement().hasAnnotation(FluentApiValidator.class)).map(ModelValidator::new).collect(Collectors.toList());
     }
 
     public String getParameterName() {
         return parameterName;
     }
+
+    String addConverterIfNeeded(String parameterName) {
+        return !hasConverter() ? parameterName : "new " + getFluentApiBackingBeanMapping().converterAsTypeMirrorWrapper().getQualifiedName() + "().convert(" + parameterName + ")";
+    }
+
 
     public String getAssignmentString() {
 
@@ -84,9 +112,13 @@ public class ModelInterfaceMethodParameter {
                         if (typeMirrorWrapper.isCollection() || typeMirrorWrapper.isArray()) {
                             typeMirrorWrapper = typeMirrorWrapper.getWrappedComponentType();
                         }
-                        if (!typeMirrorWrapper.erasure().isAssignableTo(backBeanField.get().getConcreteType().erasure())) {
-                            // must throw validation error
-                            throw new IncompatibleParameterTypeException(type.getSimpleName(),backBeanField.get().getFieldName(),backBeanField.get().getFieldType().getTypeDeclaration(),FluentApiBackingBeanMappingWrapper.wrap(parameterElement.unwrap()));
+                        if (!hasConverter()) {
+                            if (!typeMirrorWrapper.erasure().isAssignableTo(backBeanField.get().getConcreteType().erasure())) {
+                                // must throw validation error
+                                throw new IncompatibleParameterTypeException(type.getSimpleName(), backBeanField.get().getFieldName(), backBeanField.get().getFieldType().getTypeDeclaration(), FluentApiBackingBeanMappingWrapper.wrap(parameterElement.unwrap()));
+                            }
+                        } else {
+                            validateConverter(backBeanField.get());
                         }
 
                         // must handle 3 scenarios depending on parameter type:
@@ -96,11 +128,11 @@ public class ModelInterfaceMethodParameter {
                         // 3. single value
 
                         if (type.isArray()) {
-                            return " = new " + backBeanField.get().getCollectionImplType() + "(Arrays.asList(" + getParameterName() + "));";
+                            return " = new " + backBeanField.get().getCollectionImplType() + "(Arrays.asList(" + addConverterIfNeeded(getParameterName()) + "));";
                         } else if (type.isCollection()) {
-                            return " = new " + backBeanField.get().getCollectionImplType() + "(" + getParameterName() + ");";
+                            return " = new " + backBeanField.get().getCollectionImplType() + "(" + addConverterIfNeeded(getParameterName()) + ");";
                         } else {
-                            return " = new " + backBeanField.get().getCollectionImplType() + "(Collections.singletonList( " + getParameterName() + " ));";
+                            return " = new " + backBeanField.get().getCollectionImplType() + "(Collections.singletonList( " + addConverterIfNeeded(getParameterName()) + " ));";
                         }
 
                     }
@@ -112,17 +144,18 @@ public class ModelInterfaceMethodParameter {
                         // 3. single value
 
                         if (type.isArray()) {
-                            return ".addAll(Arrays.asList(" + getParameterName() + "));";
+                            return ".addAll(Arrays.asList(" + addConverterIfNeeded(getParameterName()) + "));";
                         } else if (type.isCollection()) {
-                            return ".addAll(" + getParameterName() + ");";
+                            return ".addAll(" + addConverterIfNeeded(getParameterName()) + ");";
                         } else {
-                            return ".add(" + getParameterName() + ");";
+                            return ".add(" + addConverterIfNeeded(getParameterName()) + ");";
                         }
 
                     }
                 }
             }
             /*-
+
             else if (backBeanField.get().isArray()) {
                 switch (getFluentApiBackingBeanMapping().action()) {
                     case SET: {
@@ -136,8 +169,17 @@ public class ModelInterfaceMethodParameter {
 
             else {
 
+                if (hasConverter()) {
+                    validateConverter(backBeanField.get());
+                } else {
+                    if (!type.erasure().isAssignableTo(backBeanField.get().getFieldType().erasure())) {
+                        // must throw validation error
+                        throw new IncompatibleParameterTypeException(type.getSimpleName(), backBeanField.get().getFieldName(), backBeanField.get().getFieldType().getTypeDeclaration(), FluentApiBackingBeanMappingWrapper.wrap(parameterElement.unwrap()));
+                    }
+                }
+
                 // just parameter assignment
-                return " = " + getParameterName() +";";
+                return " = " + addConverterIfNeeded(getParameterName()) + ";";
             }
 
         }
@@ -145,11 +187,24 @@ public class ModelInterfaceMethodParameter {
         return "";
     }
 
+    private void validateConverter(ModelBackingBeanField backBeanField) {
+        TypeMirrorWrapper converter = fluentApiBackingBeanMapping.converterAsTypeMirrorWrapper();
+
+        TypeMirrorWrapper sourceType = this.parameterElement.asType();
+        TypeMirrorWrapper targetType = backBeanField.getFieldType();
+
+        List<TypeMirrorWrapper> converterTypeArguments = InterfaceUtils.getResolvedTypeArgumentOfSuperTypeOrInterface(converter.getTypeElement().get(), TypeMirrorWrapper.wrap(FluentApiConverter.class));
+
+        if (!sourceType.isAssignableTo(converterTypeArguments.get(0))
+                || !converterTypeArguments.get(1).isAssignableTo(targetType)) {
+            throw new IncompatibleConverterException(fluentApiBackingBeanMapping, sourceType, targetType, converter, converterTypeArguments);
+        }
+    }
 
 
     @DeclareCompilerMessage(code = "001", enumValueName = "BB_MAPPING_ANNOTATION_MUST_BE_PRESENT", message = "${0} annotation must be present on parameter", processorClass = FluentApiProcessor.class)
     @DeclareCompilerMessage(code = "002", enumValueName = "PARAMETER_AND_MAPPED_BB_FIELD_MUST_HAVE_SAME_TYPE", message = "Parameter type (${0}) must match backing bean field type (${1})", processorClass = FluentApiProcessor.class)
-    @DeclareCompilerMessage(code = "003", enumValueName = "BB_MAPPING_COULDNT_BE_RESOLVED", message = "Field ${0} doesn't exist in mapped backing bean ${1}", processorClass = FluentApiProcessor.class)
+    @DeclareCompilerMessage(code = "003", enumValueName = "BB_MAPPING_COULDNT_BE_RESOLVED", message = "Field ${0} doesn't exist in mapped backing bean ${1}. It must be one of: [${2}]", processorClass = FluentApiProcessor.class)
     public boolean validate() {
 
         boolean result = true;
@@ -163,10 +218,14 @@ public class ModelInterfaceMethodParameter {
         }
 
         if (!getBackingBeanField().isPresent()) {
+
+            ModelBackingBean referencedBackingBean = fluentApiBackingBeanMapping.target() == TargetBackingBean.THIS ? backingBeanModel : modelInterfaceMethod.getNextBackingBean();
             parameterElement.compilerMessage().asError().write(
                     FluentApiProcessorCompilerMessages.BB_MAPPING_COULDNT_BE_RESOLVED,
                     fluentApiBackingBeanMapping.value(),
-                    fluentApiBackingBeanMapping.target() == TargetBackingBean.THIS ? backingBeanModel.getBackingBeanInterfaceSimpleName() : modelInterfaceMethod.getNextBackingBean().getBackingBeanInterfaceSimpleName()
+                    referencedBackingBean.getBackingBeanInterfaceSimpleName(),
+                    referencedBackingBean.getFields().stream().map(e -> "\"" + e.getFieldId() + "\"").collect(Collectors.joining(", "))
+
             );
             return false;
         }
@@ -174,7 +233,7 @@ public class ModelInterfaceMethodParameter {
 
         try {
             getAssignmentString();
-        } catch (IncompatibleParameterTypeException e) {
+        } catch (CompilerErrorException e) {
             e.writeErrorCompilerMessage();
             return false;
         }
