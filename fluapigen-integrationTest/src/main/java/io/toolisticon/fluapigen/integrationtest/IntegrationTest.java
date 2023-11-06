@@ -6,8 +6,11 @@ import io.toolisticon.fluapigen.api.FluentApiBackingBeanField;
 import io.toolisticon.fluapigen.api.FluentApiBackingBeanMapping;
 import io.toolisticon.fluapigen.api.FluentApiCommand;
 import io.toolisticon.fluapigen.api.FluentApiImplicitValue;
+import io.toolisticon.fluapigen.api.FluentApiInlineBackingBeanMapping;
 import io.toolisticon.fluapigen.api.FluentApiInterface;
+import io.toolisticon.fluapigen.api.FluentApiParentBackingBeanMapping;
 import io.toolisticon.fluapigen.api.FluentApiRoot;
+import io.toolisticon.fluapigen.api.MappingAction;
 import io.toolisticon.fluapigen.api.TargetBackingBean;
 
 import java.util.List;
@@ -25,6 +28,8 @@ public class IntegrationTest {
 
         @FluentApiBackingBeanField("midLevelBB")
         List<MyMidLevelBackingBean> midLevelBB();
+
+
 
     }
 
@@ -135,7 +140,7 @@ public class IntegrationTest {
         @FluentApiImplicitValue(id = "stringValue", value = "IMPLICIT_PASSED", target = TargetBackingBean.NEXT)
         MyLowLevelInterface addConfigWithImplicitStringValue();
 
-        @FluentApiBackingBeanMapping(value = "midLevelBB")
+        @FluentApiParentBackingBeanMapping(value = "midLevelBB")
         MyRootInterface gotoParent();
 
         MyMidLevelInterface setStringArray(@FluentApiBackingBeanMapping(value = "stringArray") String ... strings);
@@ -145,6 +150,10 @@ public class IntegrationTest {
 
 
         MyMidLevelInterface setStringList(@FluentApiBackingBeanMapping(value = "stringList") String ... strings);
+
+        MyMidLevelInterface addStringListValue(@FluentApiBackingBeanMapping(value = "stringList", action = MappingAction.ADD) String singleString);
+
+        MyMidLevelInterface addStringListValues(@FluentApiBackingBeanMapping(value = "stringList", action = MappingAction.ADD) String ... singleString);
 
 
         @FluentApiImplicitValue(id = "stringList", value = {"XYZ","123"})
@@ -216,10 +225,10 @@ public class IntegrationTest {
         @FluentApiImplicitValue(id = "primitiveDoubleValue", value = "3.0")
         @FluentApiImplicitValue(id = "doubleValue", value = "4.0")
         @FluentApiImplicitValue(id = "enumValue", value = "TWO")
-        @FluentApiBackingBeanMapping(value = "lowLevelBBs")
+        @FluentApiParentBackingBeanMapping(value = "lowLevelBBs")
         MyMidLevelInterface closeWithImplicit();
 
-        @FluentApiBackingBeanMapping(value = "lowLevelBBs")
+        @FluentApiParentBackingBeanMapping(value = "lowLevelBBs")
         MyMidLevelInterface closeWithParameters(
                 @FluentApiBackingBeanMapping("stringValue") String stringValue,
                 @FluentApiBackingBeanMapping("primitiveBooleanValue") boolean primitiveBooleanValue,
@@ -235,9 +244,17 @@ public class IntegrationTest {
                 @FluentApiBackingBeanMapping("enumValue") TestEnum enumValue
         );
 
-        @FluentApiBackingBeanMapping(value = "lowLevelBBs")
+        @FluentApiParentBackingBeanMapping(value = "lowLevelBBs")
         MyMidLevelInterface closeWithoutValues();
 
+        @FluentApiParentBackingBeanMapping(value = "lowLevelBBs")
+        @FluentApiParentBackingBeanMapping(value = "midLevelBB")
+        MyRootInterface closeToRoot();
+
+        @FluentApiParentBackingBeanMapping(value = "lowLevelBBs")
+        @FluentApiParentBackingBeanMapping(value = "midLevelBB")
+        @FluentApiCommand(MyCommand.class)
+        MyRootLevelBackingBean closeToCommand();
     }
 
     // Commands

@@ -1,10 +1,6 @@
 package io.toolisticon.fluapigen.processor;
 
-import io.toolisticon.aptk.compilermessage.api.DeclareCompilerMessage;
-import io.toolisticon.fluapigen.api.FluentApiRoot;
-
 import java.util.List;
-import java.util.stream.Collectors;
 
 /**
  * The processing state.

@@ -2,11 +2,11 @@ package io.toolisticon.fluapigen.processor.tests;
 
 import io.toolisticon.fluapigen.api.FluentApi;
 import io.toolisticon.fluapigen.api.FluentApiBackingBean;
+import io.toolisticon.fluapigen.api.FluentApiBackingBeanField;
+import io.toolisticon.fluapigen.api.FluentApiBackingBeanMapping;
 import io.toolisticon.fluapigen.api.FluentApiCommand;
 import io.toolisticon.fluapigen.api.FluentApiInterface;
 import io.toolisticon.fluapigen.api.FluentApiRoot;
-
-import javax.annotation.Generated;
 
 @FluentApi("Xyz")
 public class TestcaseValidUsage {
@@ -15,6 +15,7 @@ public class TestcaseValidUsage {
     @FluentApiBackingBean
     interface MyBackingBean {
 
+        @FluentApiBackingBeanField("name")
         String getName();
 
     }
@@ -24,7 +25,7 @@ public class TestcaseValidUsage {
     @FluentApiRoot
     public interface MyRootInterface {
 
-        MyRootInterface setName(String name);
+        MyRootInterface setName(@FluentApiBackingBeanMapping("name") String name);
 
         @FluentApiCommand(MyCommand.class)
         void myCommand();

@@ -36,6 +36,10 @@ public class BBFieldNotFoundException extends RuntimeException {
         this(bbFieldName, bbFieldType, annotation._annotatedElement(), annotation._annotationMirror(), annotation.valueAsAnnotationValue());
     }
 
+    public BBFieldNotFoundException(String bbFieldName, String bbFieldType, FluentApiParentBackingBeanMappingWrapper annotation) {
+        this(bbFieldName, bbFieldType, annotation._annotatedElement(), annotation._annotationMirror(), annotation.valueAsAnnotationValue());
+    }
+
     public void writeErrorCompilerMessage() {
         MessagerUtils.error(element, annotationMirror, annotationValue, FluentApiProcessorCompilerMessages.ERROR_CANNOT_FIND_BACKING_BEAN_FIELD, bbFieldName, bbFieldType);
     }

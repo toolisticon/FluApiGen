@@ -8,6 +8,7 @@ import io.toolisticon.fluapigen.api.FluentApiCommand;
 import io.toolisticon.fluapigen.api.FluentApiInterface;
 import io.toolisticon.fluapigen.api.FluentApiRoot;
 
+
 @FluentApi("ExampleFluentApiStarter")
 public class ExampleFluentApi {
 

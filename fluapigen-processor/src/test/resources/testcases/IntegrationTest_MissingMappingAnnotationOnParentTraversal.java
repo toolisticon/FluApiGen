@@ -4,6 +4,7 @@ import io.toolisticon.fluapigen.api.FluentApi;
 import io.toolisticon.fluapigen.api.FluentApiBackingBean;
 import io.toolisticon.fluapigen.api.FluentApiBackingBeanField;
 import io.toolisticon.fluapigen.api.FluentApiBackingBeanMapping;
+import io.toolisticon.fluapigen.api.FluentApiParentBackingBeanMapping;
 import io.toolisticon.fluapigen.api.FluentApiCommand;
 import io.toolisticon.fluapigen.api.FluentApiImplicitValue;
 import io.toolisticon.fluapigen.api.FluentApiInterface;
@@ -120,7 +121,7 @@ public class IntegrationTest_MissingMappingAnnotationOnParentTraversal {
 
         MyLowLevelInterface addConfigWithPassingStringValue(@FluentApiBackingBeanMapping(value = "stringValue", target = TargetBackingBean.NEXT) String stringValue);
 
-        @FluentApiImplicitValue(id = "stringValue", value = "IMPLICIT_PASSED", target = TargetBackingBean.NEXT)
+        @FluentApiParentBackingBeanMapping(id = "stringValue", value = "IMPLICIT_PASSED", target = TargetBackingBean.NEXT)
         MyLowLevelInterface addConfigWithImplicitStringValue();
 
         MyRootInterface gotoParent();
@@ -191,10 +192,10 @@ public class IntegrationTest_MissingMappingAnnotationOnParentTraversal {
         @FluentApiImplicitValue(id = "primitiveDoubleValue", value = "3.0")
         @FluentApiImplicitValue(id = "doubleValue", value = "4.0")
         @FluentApiImplicitValue(id = "enumValue", value = "TWO")
-        @FluentApiBackingBeanMapping(value = "lowLevelBBs")
+        @FluentApiParentBackingBeanMapping(value = "lowLevelBBs")
         MyMidLevelInterface closeWithImplicit();
 
-        @FluentApiBackingBeanMapping(value = "lowLevelBBs")
+        @FluentApiParentBackingBeanMapping(value = "lowLevelBBs")
         MyMidLevelInterface closeWithParameters(
                 @FluentApiBackingBeanMapping("stringValue") String stringValue,
                 @FluentApiBackingBeanMapping("primitiveBooleanValue") boolean primitiveBooleanValue,
@@ -210,7 +211,7 @@ public class IntegrationTest_MissingMappingAnnotationOnParentTraversal {
                 @FluentApiBackingBeanMapping("enumValue") TestEnum enumValue
         );
 
-        @FluentApiBackingBeanMapping(value = "lowLevelBBs")
+        @FluentApiParentBackingBeanMapping(value = "lowLevelBBs")
         MyMidLevelInterface closeWithoutValues();
 
     }

@@ -5,20 +5,22 @@
 [![release_on_master](https://github.com/toolisticon/FluApiGen/actions/workflows/release.yml/badge.svg?branch=master)](https://github.com/toolisticon/FluApiGen/actions/workflows/release.yml)
 [![codecov](https://codecov.io/gh/toolisticon/FluApiGen/branch/develop/graph/badge.svg?token=FlcugFxC64)](https://codecov.io/gh/toolisticon/FluApiGen)
 
-Implementing and maintaining of fluent, immutable apis is one of a most annoying and difficult task in java developing.
+Implementing and especially maintaining of fluent and immutable apis is one of a most annoying and difficult tasks to do in java developing.
 
-This project helps you to create fluent apis just by defining some interfaces and annotating them.
+You usually have to implement a lot of boilerplate code that is only needed to handle and clone the fluent apis internal state.
+Changing of an existing fluent api can therefore be a very complex thing to do.
 
-Then this annotation processor will generate an implementation for you - by doing this it completely hides all necessary boilerplate code from you. 
+This project provides an annotation processor that will generate the fluent api implementation for you and therefore completely hiding all necessary boilerplate code from you.
+All you have to do is to define a bunch of interfaces and to configure its "plumbing" by placing a few annotations.
 
 # Features
 - fluent api is created by defining some interfaces and placing some annotations on them
 - our annotation processor then generates the fluent api implementation for you
 - implementing, extending and maintaining of an immutable, fluent api becomes a no-brainer
 
+
 # Restrictions
-- interfaces must not contain any cycles
-- there will be some extensions in the near future to allow you to do mapping by for example parameter name, reducing the amount of annotations needed to build the api
+- fluent interfaces must not contain any cycles and must be strongly hierarchically
 
 # How does it work?
 
@@ -33,7 +35,7 @@ The api lib must be bound as a dependency - for example in maven:
     <dependency>
         <groupId>io.toolisticon.fluapigen</groupId>
         <artifactId>fluapigen-api</artifactId>
-        <version>0.1.0</version>
+        <version>0.4.1</version>
     </dependency>
 
 </dependencies>
@@ -51,7 +53,7 @@ Additionally, you need to declare the annotation processor path in your compiler
             <path>
                 <groupId>io.toolisticon.fluapigen</groupId>
                 <artifactId>fluapigen-processor</artifactId>
-                <version>0.1.0</version>
+                <version>0.4.1</version>
             </path>
         </annotationProcessorPaths>
         
@@ -75,12 +77,15 @@ public class CuteFluentApi {
 This can be broke down to 3 different steps.
 
 ### Defining The Backing Bean
-The backing bean interfaces are defining the configuration to be build.
-It basically defines the getter methods for are values set by the fluent api.
-Therefor all methods must have a non void return type and must not have any parameters.
+The backing bean interfaces are defining the configuration (or in other word context) to be build.
+It basically defines the getter methods for all values used by the fluent api.
+Therefore, all methods must have a non-void return type and must not have any parameters.
 
-The backing bean interfaces must be annotated with the _FluentApiBackingBean_ anotation.
-The value getter methods must be annotated with the _FluentApiBackingBeanField_ annotation and must have an interface unique id.
+The backing bean interfaces must be annotated with the _FluentApiBackingBean_ annotation.
+The value getter methods may be annotated with the _FluentApiBackingBeanField_ annotation.
+By doing this it's possible to declare an id for the field and its initial value.
+If the id is not explicitly it will use the fields method name as a fallback.
+Field ids must be unique in the interface.
 
 ```java
 @FluentApiBackingBean
@@ -96,15 +101,14 @@ public interface CompilerTest {
 }
 ```
 
-Child backing beans can be included as single value or List or Set.
+Child backing beans can be defined as single values or as Collection types of List or Set.
 
 ### Defining Closing Commands
 Closing commands can be defined by defining static inner classes annotated with the _FluentApiCommand_ annotation.
 A command class must contain exactly one static method which takes the backing bean as the only parameter.
 
-
 It's later possible to link a fluent api method to a closing command.
-The fluent api method call will then be forwarded to the closing command.
+The fluent api method call then will be forwarded to the closing command.
 
 ```java
 @FluentApiCommand
@@ -125,7 +129,9 @@ Those interface will be bound to one specific backing bean. A backing bean can b
 Methods defined in those interfaces are only allowed to return other fluent api interfaces, except for closing commands.
 
 All method parameters and methods that close a backing bean creation must be annotated with the _FluentApiBackingBeanField_ annotation which defines which value should be written.
-Of course parameter and value type must match.
+Of course parameter and value type must match or a correct converter must be used. 
+
+Default methods will completely be ignored by the processor and can be used to transform parameters and to delegate calls to another interface method. 
 
 There must be exactly one interface annotated with the _FluentApiRoot_ annotation. 
 Those interfaces methods will be available as static starter methods for the fluent api.
@@ -135,11 +141,12 @@ Please check the following example for further information - because the code ex
 ## Example
 
 This is a small example related to the [toolisticon CUTE]() project.
-It's a compile testing framework that allows you to configure test by using a fluent api.
+CUTE a compile testing framework for testing annotation processors that allows you to configure test by using an immutable fluent api.
 In this example checks for compiler outcome and for specific compiler messages can be defined.
 
 ```java
-package io.toolisticon.fluapigen;
+package io.toolisticon.fluapigen.integrationtest;
+
 
 import io.toolisticon.fluapigen.api.FluentApi;
 import io.toolisticon.fluapigen.api.FluentApiBackingBean;
@@ -148,6 +155,7 @@ import io.toolisticon.fluapigen.api.FluentApiBackingBeanMapping;
 import io.toolisticon.fluapigen.api.FluentApiCommand;
 import io.toolisticon.fluapigen.api.FluentApiImplicitValue;
 import io.toolisticon.fluapigen.api.FluentApiInterface;
+import io.toolisticon.fluapigen.api.FluentApiParentBackingBeanMapping;
 import io.toolisticon.fluapigen.api.FluentApiRoot;
 
 import java.util.List;
@@ -158,13 +166,10 @@ public class CuteFluentApi {
     @FluentApiBackingBean
     public interface CompilerTest {
 
-        @FluentApiBackingBeanField("testType")
-        String getTestType();
+        String testType();
 
-        @FluentApiBackingBeanField("compilationSucceeded")
         Boolean compilationSucceeded();
 
-        @FluentApiBackingBeanField("compileMessageChecks")
         List<CompilerMessageCheck> compilerMessageChecks();
 
     }
@@ -172,16 +177,12 @@ public class CuteFluentApi {
     @FluentApiBackingBean
     public interface CompilerMessageCheck {
 
-        @FluentApiBackingBeanField("compilerMessageScope")
-        CompilerMessageScope getCompilerMessageScope();
+        CompilerMessageScope compilerMessageScope();
 
-        @FluentApiBackingBeanField("compilerMessageComparisonType")
-        CompilerMessageComparisonType getComparisonType();
+        CompilerMessageComparisonType compilerMessageComparisonType();
 
-        @FluentApiBackingBeanField("searchString")
-        String getSearchString();
+        String searchString();
 
-        @FluentApiBackingBeanField("atLine")
         Integer atLine();
 
     }
@@ -210,15 +211,15 @@ public class CuteFluentApi {
         @FluentApiImplicitValue(id = "testType", value = "UNIT")
         CompilerTestInterface unitTest();
 
-
         @FluentApiImplicitValue(id = "testType", value = "BLACK_BOX")
         CompilerTestInterface blackBoxTest();
-        
+
     }
 
     @FluentApiInterface(CompilerTest.class)
     public interface CompilerTestInterface {
-        
+
+
         @FluentApiImplicitValue(id = "compilationSucceeded", value = "true")
         CompilerTestInterface compilationShouldSucceed();
 
@@ -253,12 +254,11 @@ public class CuteFluentApi {
     public interface CompilerMessageCheckComparisonType {
 
         @FluentApiImplicitValue(id = "compilerMessageComparisonType", value = "CONTAINS")
-        @FluentApiBackingBeanMapping(value = "compileMessageChecks")
+        @FluentApiParentBackingBeanMapping(value = "compileMessageChecks")
         CompilerTestInterface thatContains(@FluentApiBackingBeanMapping(value = "searchString") String text);
-
-
+        
         @FluentApiImplicitValue(id = "compilerMessageComparisonType", value = "EQUALS")
-        @FluentApiBackingBeanMapping(value = "compileMessageChecks")
+        @FluentApiParentBackingBeanMapping(value = "compileMessageChecks")
         CompilerTestInterface thatEquals(@FluentApiBackingBeanMapping(value = "searchString") String text);
         
         CompilerMessageCheckComparisonType atLine(@FluentApiBackingBeanMapping(value = "atLine")Integer line);
@@ -268,8 +268,7 @@ public class CuteFluentApi {
     @FluentApiCommand
     public static class ExecuteTestCommand {
         static void myCommand(CompilerTest backingBean) {
-            // Do something by using the backing bean
-            // ...
+            /// ...
         }
     }
 
@@ -286,12 +285,233 @@ CuteFluentApiStarter.unitTest()
     .expectCompilerMessage().asError().thatContains("DEF")
     .executeTest();
 ```
+
+## Advanced Techniques
+
+### Inline Backing Bean Mappings
+Sometimes you have smaller backing beans which you might want to declare inline by using multiple parameters of the fluent api method.
+The fluent api generator provides you the possibility to do that.
+You have to add the _FluentApiInlineBackingBeanMapping_ annotation to the method and set the target of the corresponding _FluentApiBackingBeanMapping_ to INLINE.
+
+```java
+@FluentApiInterface(value = MyBackingBean.class)
+public interface MyFluentInterface {
     
+    // Converters in backing bean mappings
+    @FluentApiInlineBackingBeanMapping("nameOfTargetBackingBeanField")
+    MyFluentInterface doSomething(
+            @FluentApiBackingBeanMapping(value = "value1", target=TargetBackingBean.INLINE) Long value1,
+            @FluentApiBackingBeanMapping(value = "value2", target=TargetBackingBean.INLINE) Long value2
+    );
+
+}
+```
+In this example an inline backing bean will be set at _MyBackingBean.nameOfTargetBackingBeanField_.
+It's _value1_ and _value2_ attributes will be mapped from the corresponding method parameters.
+
+### Converters
+Converters can be used to map input parameters from either implicit value annotations or backing bean mappings to the backing bean type.
+
+An example Converter:
+```java
+public static class TargetType {
+
+    private final String value;
+
+    public TargetType (String value) {
+        this.value = value;
+    }
+
+    @Override
+    public String toString() {
+        return this.value;
+    }
+}
+
+public static class MyStringConverter implements FluentApiConverter<String,TargetType> {
+
+    @Override
+    public TargetType convert(String o) {
+        return new TargetType(o);
+    }
+
+}
+
+public static class MyLongConverter implements FluentApiConverter<String, TargetType> {
+
+    @Override
+    public TargetType convert(Long o) {
+        // not null save ;)
+        return new TargetType(o.toString());
+    }
+
+}
+
+@FluentApiInterface(value = MyBackingBean.class)
+public interface MyFluentInterface {
+    
+    // Converters in implicit value annotation
+    @FluentApiImplicitValue(id = "singleValue", value = "SINGLE", converter = MyStringConverter.class)
+    MyFluentInterface setSingleValue();
+    
+    // Converters in backing bean mappings
+    MyFluentInterface setViaLongValue(@FluentApiBackingBeanMapping(value = "singleValue", converter = MyLongConverter.class) Long longValue);
+
+}
+```
+### Using validators at fluent interface method parameters
+FluApiGen provides some basic validators that can be applied to the fluent method parameters at runtime.
+
+- _Matches_ : Regular Expression validator for Strings
+- _MinLength / MaxLength_ : Checks length of Strings or size of Arrays or Collections
+- _NotEmpty_ : Checks if String, array and Collection are not empty
+- _NotNull_ : Checks if passed argument isn't null
+
+To be able to use validators, the _fluapigen_validation_api_ library must be linked at compile and runtime.
+
+````java
+MyRootInterface setName(@Matches("Max.*") @FluentApiBackingBeanMapping("name") String name);
+````
+
+In this example the fluent api would throw a _ValidatorException_ if the name doesn't start with "Max".
+
+It's possible to use multiple validators on a parameter and even to provide custom validators:
+
+````java
+@FluentApiValidator(value = Matches.ValidatorImpl.class, parameterNames = {"value"})
+public @interface Matches {
+
+    String value();
+
+    class ValidatorImpl implements Validator<String> {
+
+        private final String regularExpression;
+
+        public ValidatorImpl(String regularExpression) {
+            this.regularExpression = regularExpression;
+        }
+
+        @Override
+        public boolean validate(String obj) {
+            return Pattern.compile(regularExpression).matcher(obj).matches();
+        }
+
+    }
+
+}
+````
+
+Validators are annotations annotated with _FluentApiValidator_ meta annotation. The _FluentApiValidator_ annotation is used to reference the validators implementation class that must implement the _Validator_ interface.
+Validation criteria can be added as annotation attribute. The _FluentApiValidator_ meta annotation defines the attribute to validator constructor mapping via the parameterNames attribute.
+The validator implementation must provide a matching constructor.
+
+*Remark : The feature is currently under development and not 100% done. There will still be improvements regarding processing time validation and error output*
+
+### Javas default methods in fluent api and backing bean in interfaces
+Default methods will be ignored during processing of fluent api and backing bean interfaces and can be used for different tasks:
+
+- They can provide alternative ways to set a parameter by providing conversions of input parameters and internally calling fluent api methods.
+- They can also be very helpful to provide methods for accessing/filtering/aggregate backing bean attributes.
+ 
+### Using parent interfaces to share method declarations and backing bean fields declarations
+It's possible to use parent interfaces to share fluent api method declarations in multiple interfaces:
+
+```java
+    @FluentApiBackingBean
+    interface MyRootLevelBackingBean {
+
+        @FluentApiBackingBeanField("1st")
+        FirstInheritedBackingBean get1st();
+
+        @FluentApiBackingBeanField("2nd")
+        SecondInheritedBackingBean get2nd();
+
+    }
+
+
+    // Parent backing bean interface must not be annotated with FluentApiBackingBean annotation
+    interface MyReusedBackingBeanFields {
+
+        @FluentApiBackingBeanField("name")
+        String getName();
+
+    }
+
+
+    @FluentApiBackingBean
+    interface FirstInheritedBackingBean extends MyReusedBackingBeanFields {
+
+        @FluentApiBackingBeanField("1st")
+        String get1st();
+
+    }
+
+    @FluentApiBackingBean
+    interface SecondInheritedBackingBean extends MyReusedBackingBeanFields {
+
+        @FluentApiBackingBeanField("2nd")
+        String get2nd();
+
+    }
+
+
+    // Fluent Api interfaces
+    @FluentApiInterface(MyRootLevelBackingBean.class)
+    @FluentApiRoot
+    public interface MyRootInterface {
+
+        My1stInterface goto1st();
+
+        My2ndInterface goto2nd();
+
+        @FluentApiCommand(MyCommand.class)
+        void myCommand();
+
+
+    }
+
+    // Parent fluent api interface must not be annotated with FluentApiInterface
+    // There must be a related backing bean interface for related attributes
+    // Type Parameters must be used to pass in the followup fluent api interfaces
+    public interface SharedInterface<FLUENT_INTERFACE> {
+
+        // Fluebt followup interface must be returned as type variable
+        FLUENT_INTERFACE setName(@FluentApiBackingBeanMapping(value = "name") String name);
+
+    }
+
+    
+    @FluentApiInterface(FirstInheritedBackingBean.class)
+    public interface My1stInterface extends SharedInterface<My1stInterface> {
+
+        @FluentApiParentBackingBeanMapping("1st")
+        MyRootInterface set1st(@FluentApiBackingBeanMapping(value = "1st") String first);
+
+    }
+
+    @FluentApiInterface(SecondInheritedBackingBean.class)
+    public interface My2ndInterface extends SharedInterface<My2ndInterface> {
+
+        @FluentApiParentBackingBeanMapping("2nd")
+        MyRootInterface set1st(@FluentApiBackingBeanMapping(value = "2nd") String second);
+
+    }
+
+    // Commands
+    @FluentApiCommand
+    static class MyCommand {
+        static void myCommand(MyRootLevelBackingBean backingBean) {
+            System.out.println("CHECK");
+        }
+    }
+```
+
+
 # Contributing
 
 We welcome any kind of suggestions and pull requests.
 
-## Building and developing the ${rootArtifactId} annotation processor
+## Building and developing the FluApiGen annotation processor
 
 This project is built using Maven.
 A simple import of the pom in your IDE should get you up and running. To build the project on the commandline, just run `./mvnw` or `./mvnw clean install`

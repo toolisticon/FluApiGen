@@ -7,8 +7,12 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
 /**
- * Add id to backing bean field.
- * Used together with {@link FluentApiBackingBeanMapping}.
+ * Optionally useed to annotate a backing bean field.
+ * Allows to customize the backing bean fields id or to configure an initial value.
+ *
+ * Must be used in class annotated with {@link FluentApiBackingBean} annotation.
+ *
+ * The id will be used as a reference by {@link FluentApiBackingBeanMapping},  {@link FluentApiParentBackingBeanMapping} or {@link FluentApiImplicitValue}.
  */
 @Retention(RetentionPolicy.RUNTIME)
 @Target(value = {ElementType.METHOD})
@@ -16,9 +20,10 @@ import java.lang.annotation.Target;
 public @interface FluentApiBackingBeanField {
     /**
      * The id of the backing bean field.
+     * Defaults to the method name if not set explicitly.
      * @return the id
      */
-    String value();
+    String value() default "";
 
     /**
      * The initial value to be set.
