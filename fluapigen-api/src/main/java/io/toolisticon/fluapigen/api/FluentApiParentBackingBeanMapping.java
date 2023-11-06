@@ -8,7 +8,7 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
 /**
- * Configures mapping of method parameter to backing bean value.
+ * Configures mapping of a fluent api method parameter to backing bean value.
  */
 @Retention(RetentionPolicy.RUNTIME)
 @Target(value = {ElementType.METHOD})
@@ -30,6 +30,11 @@ public @interface FluentApiParentBackingBeanMapping {
     TargetBackingBean target() default TargetBackingBean.THIS;
 
 
+    /**
+     * Defines how the value should be mapped.
+     * It can set the value or be added to a Collection based value.
+     * @return The action type or SET as a default
+     */
     MappingAction action() default MappingAction.SET;
 
 }

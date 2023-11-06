@@ -28,12 +28,16 @@ public class ModelInterfaceMethod implements FetchImports, Validatable {
 
     private final List<FluentApiImplicitValueWrapper> implicitValues;
 
+    private final FluentApiInlineBackingBeanMappingWrapper inlineBackingBeanMapping;
+
     ModelInterfaceMethod(ExecutableElementWrapper executableElement, ModelBackingBean backingBeanModel) {
         this.executableElement = executableElement;
         this.backingBeanModel = backingBeanModel;
         this.methodSignature = executableElement.getMethodSignature();
 
         this.implicitValues = FluentApiImplicitValueWrapper.wrap(executableElement.unwrap());
+
+        this.inlineBackingBeanMapping = FluentApiInlineBackingBeanMappingWrapper.wrap(executableElement.unwrap());
 
         for (VariableElementWrapper variableElementWrapper : executableElement.getParameters()) {
             parameters.add(new ModelInterfaceMethodParameter(variableElementWrapper, this.backingBeanModel, this));
@@ -99,12 +103,20 @@ public class ModelInterfaceMethod implements FetchImports, Validatable {
         return parameters;
     }
 
+    public List<ModelInterfaceMethodParameter> getNotInlineMappedParameters() {
+        return parameters.stream().filter(e -> e.getFluentApiBackingBeanMapping().target() != TargetBackingBean.INLINE).collect(Collectors.toList());
+    }
+
     public List<ModelInterfaceMethodParameter> getParametersBoundToCurrentBB() {
         return parameters.stream().filter(e -> e.getFluentApiBackingBeanMapping().target() == TargetBackingBean.THIS).collect(Collectors.toList());
     }
 
     public List<ModelInterfaceMethodParameter> getParametersBoundToNextBB() {
         return parameters.stream().filter(e -> e.getFluentApiBackingBeanMapping().target() == TargetBackingBean.NEXT).collect(Collectors.toList());
+    }
+
+    public List<ModelInterfaceMethodParameter> getParametersBoundToInlineBB() {
+        return parameters.stream().filter(e -> e.getFluentApiBackingBeanMapping().target() == TargetBackingBean.INLINE).collect(Collectors.toList());
     }
 
     public List<ModelInterfaceImplicitValue> getImplicitValuesBoundToCurrentBB() {
@@ -131,6 +143,20 @@ public class ModelInterfaceMethod implements FetchImports, Validatable {
                         return new ModelInterfaceImplicitValue(bbField.get(), e);
                     } else {
                         throw new BBFieldNotFoundException(e.id(), getNextBackingBean().getBackingBeanInterfaceSimpleName(), e);
+                    }
+                })
+                .collect(Collectors.toList());
+    }
+
+    public List<ModelInterfaceImplicitValue> getImplicitValuesBoundToInlineBB() {
+        return FluentApiImplicitValueWrapper.wrap(executableElement.unwrap()).stream()
+                .filter(e -> e.target() == TargetBackingBean.INLINE)
+                .map(e -> {
+                    Optional<ModelBackingBeanField> bbField = getInlineBackingBean().getFieldById(e.id());
+                    if (bbField.isPresent()) {
+                        return new ModelInterfaceImplicitValue(bbField.get(), e);
+                    } else {
+                        throw new BBFieldNotFoundException(e.id(), getInlineBackingBean().getBackingBeanInterfaceSimpleName(), e);
                     }
                 })
                 .collect(Collectors.toList());
@@ -236,9 +262,15 @@ public class ModelInterfaceMethod implements FetchImports, Validatable {
         return FluentApiParentBackingBeanMappingWrapper.wrap(this.executableElement.unwrap());
     }
 
+    public boolean hasInlineBackingBeanMapping() {
+        return this.inlineBackingBeanMapping != null;
+    }
+
+
     @DeclareCompilerMessage(code = "190", enumValueName = "ERROR_RETURN_TYPE_MUST_BE_FLUENT_INTERFACE", message = "Return type '${0}' must be a fluent interface!", processorClass = FluentApiProcessor.class)
     @DeclareCompilerMessage(code = "191", enumValueName = "ERROR_NO_PATH_TO_ROOT_BB", message = "The root BB can't be reached from this backingBean", processorClass = FluentApiProcessor.class)
     @DeclareCompilerMessage(code = "192", enumValueName = "ERROR_INVALID_NUMBER_OF_PARENT_MAPPINGS_TO_REACH_ROOT_BB", message = "There must be ${0} ${1} annotations to be able to reach root backing bean ${2}", processorClass = FluentApiProcessor.class)
+    @DeclareCompilerMessage(code = "193", enumValueName = "ERROR_INLINE_BB_MAPPING_COULDNT_BE_RESOLVED", message = "The inline backing bean mapping couldn't be resolved correctly", processorClass = FluentApiProcessor.class)
 
     public boolean validate() {
 
@@ -276,18 +308,31 @@ public class ModelInterfaceMethod implements FetchImports, Validatable {
 
         }
 
+        // check inline backing bean
+        if (this.inlineBackingBeanMapping != null) {
+
+            // validate
+            this.inlineBackingBeanMapping.validate();
+
+            if (getInlineBackingBean() == null) {
+                this.inlineBackingBeanMapping.compilerMessage().asError().write(FluentApiProcessorCompilerMessages.ERROR_INLINE_BB_MAPPING_COULDNT_BE_RESOLVED);
+            }
+
+
+        }
+
         // must check command case
         if (isCommandMethod()) {
 
             if (isParentCall()) {
                 // check number of Mapping annotations to root
-                if (RenderStateHelper.getParents(this.backingBeanModel).size() != FluentApiParentBackingBeanMappingWrapper.wrap(executableElement.unwrap()).size()){
+                if (RenderStateHelper.getParents(this.backingBeanModel).size() != FluentApiParentBackingBeanMappingWrapper.wrap(executableElement.unwrap()).size()) {
                     executableElement.compilerMessage().asError().write(FluentApiProcessorCompilerMessages.ERROR_INVALID_NUMBER_OF_PARENT_MAPPINGS_TO_REACH_ROOT_BB, RenderStateHelper.getParents(this.backingBeanModel).size(), FluentApiParentBackingBeanMapping.class.getSimpleName(), RenderStateHelper.getRootInterface().get().getBackingBeanModel().interfaceClassName());
                     outcome = false;
                 }
 
                 // check for root
-                if(!RenderStateHelper.getParents(this.backingBeanModel).contains(RenderStateHelper.getRootInterface().get().getBackingBeanModel())) {
+                if (!RenderStateHelper.getParents(this.backingBeanModel).contains(RenderStateHelper.getRootInterface().get().getBackingBeanModel())) {
                     executableElement.compilerMessage().asError().write(FluentApiProcessorCompilerMessages.ERROR_NO_PATH_TO_ROOT_BB);
                     outcome = false;
                 }
@@ -308,12 +353,41 @@ public class ModelInterfaceMethod implements FetchImports, Validatable {
         } else if (getHasSameTargetBackingBean()) {
             // 1. same BB
             nextBackingBean = this.backingBeanModel;
-        } else  {
+        } else {
             // 2. Child Or Parent
             nextBackingBean = getNextModelInterface().getBackingBeanModel();
         }
 
         return nextBackingBean;
+    }
+
+    public ModelBackingBean getInlineBackingBean() {
+
+        if (inlineBackingBeanMapping != null) {
+
+            ModelBackingBean inlineBB = this.backingBeanModel;
+
+
+            if (inlineBB != null) {
+                Optional<ModelBackingBeanField> field = inlineBB.getFieldById(inlineBackingBeanMapping.value());
+
+                if (field.isPresent()) {
+                    return field.get().getBackingBeanReferenceBackingBeanModel();
+                }
+            }
+
+        }
+
+        return null;
+    }
+
+    public ModelBackingBeanField getInlineBackingBeanField() {
+
+        if (inlineBackingBeanMapping != null) {
+             return backingBeanModel.getFieldById(inlineBackingBeanMapping.value()).get();
+        }
+
+        return null;
     }
 
     @Override

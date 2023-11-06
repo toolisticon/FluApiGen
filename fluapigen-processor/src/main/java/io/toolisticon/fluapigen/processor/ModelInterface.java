@@ -1,14 +1,21 @@
 package io.toolisticon.fluapigen.processor;
 
 import io.toolisticon.aptk.compilermessage.api.DeclareCompilerMessage;
+import io.toolisticon.aptk.tools.InterfaceUtils;
+import io.toolisticon.aptk.tools.TypeMirrorWrapper;
+import io.toolisticon.aptk.tools.TypeUtils;
 import io.toolisticon.aptk.tools.corematcher.AptkCoreMatchers;
 import io.toolisticon.aptk.tools.fluentfilter.FluentElementFilter;
 import io.toolisticon.aptk.tools.wrapper.ExecutableElementWrapper;
+import io.toolisticon.aptk.tools.wrapper.TypeElementWrapper;
 import io.toolisticon.fluapigen.api.FluentApiBackingBeanMapping;
 import io.toolisticon.fluapigen.api.FluentApiCommand;
 import io.toolisticon.fluapigen.api.FluentApiParentBackingBeanMapping;
 import io.toolisticon.fluapigen.api.FluentApiRoot;
 
+import javax.lang.model.element.Element;
+import javax.lang.model.element.Modifier;
+import javax.lang.model.element.TypeElement;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
@@ -29,8 +36,16 @@ public class ModelInterface implements FetchImports, Validatable {
         this.wrapper = wrapper;
         this.backingBeanModel = backingBeanModel;
 
+
+        for (ExecutableElementWrapper executableElement : InterfaceUtils.getMethodsToImplement(TypeElementWrapper.wrap((TypeElement) this.wrapper._annotatedElement())) ){
+
+            if (executableElement.isDefault()) {
+                // ignore default methods
+                continue;
+            }
+        //}
         // get Methods
-        for (ExecutableElementWrapper executableElement : FluentElementFilter.createFluentElementFilter(this.wrapper._annotatedElement().getEnclosedElements()).applyFilter(AptkCoreMatchers.IS_METHOD).getResult().stream().map(ExecutableElementWrapper::wrap).collect(Collectors.toList())) {
+        //for (ExecutableElementWrapper executableElement : FluentElementFilter.createFluentElementFilter(this.wrapper._annotatedElement().getEnclosedElements()).applyFilter(AptkCoreMatchers.IS_METHOD).applyFilter(AptkCoreMatchers.BY_MODIFIER).filterByNoneOf(Modifier.DEFAULT).getResult().stream().map(ExecutableElementWrapper::wrap).collect(Collectors.toList())) {
                methods.add(new ModelInterfaceMethod(executableElement, backingBeanModel));
         }
 
@@ -44,6 +59,44 @@ public class ModelInterface implements FetchImports, Validatable {
 
     public boolean isRootInterface() {
         return wrapper._annotatedElement().getAnnotation(FluentApiRoot.class) != null;
+    }
+
+    public boolean hasTypeParameter() {
+        return TypeMirrorWrapper.wrap(this.wrapper._annotatedElement().asType()).hasTypeArguments();
+    }
+
+    public String getTypeParametersString() {
+
+        TypeElementWrapper testInterface = TypeElementWrapper.wrap((TypeElement) wrapper._annotatedElement());
+
+        if (testInterface.getTypeParameters().size() > 0) {
+
+            StringBuilder stringBuilder = new StringBuilder("<");
+
+            stringBuilder.append(testInterface.getTypeParameters().stream().map(e -> e.toString() + " extends " + e.getBounds().get(0).getSimpleName() ).collect(Collectors.joining(", ")));
+
+            stringBuilder.append(">");
+
+            return stringBuilder.toString();
+        }
+        return "";
+    }
+
+    public String getTypeParameterNamesString(){
+
+        TypeElementWrapper testInterface = TypeElementWrapper.wrap((TypeElement) wrapper._annotatedElement());
+
+        if (testInterface.getTypeParameters().size() > 0) {
+
+            StringBuilder stringBuilder = new StringBuilder("<");
+
+            stringBuilder.append(testInterface.getTypeParameters().stream().map(e -> e.toString() ).collect(Collectors.joining(", ")));
+
+            stringBuilder.append(">");
+
+            return stringBuilder.toString();
+        }
+        return "";
     }
 
     public String getClassName() {

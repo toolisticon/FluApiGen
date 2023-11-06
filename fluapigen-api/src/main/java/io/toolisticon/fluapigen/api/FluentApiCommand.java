@@ -9,7 +9,9 @@ import java.lang.annotation.Target;
 /**
  * The annotation has two use cases:
  * 1. Marks a command if placed on type (value must not be set)
- * 2. Links a command if placed on method (value must link to type annotated with FluentApiCommand)
+ *    The annotated class must contain exactly one static method taking the roots backing bean instance as its only parameter.
+ * 2. Links a command if placed on method defined in a class annotated with the {@link FluentApiInterface}(value must link to type annotated with FluentApiCommand)
+ *
  */
 @Retention(RetentionPolicy.RUNTIME)
 @Target(value = {ElementType.TYPE, ElementType.METHOD})

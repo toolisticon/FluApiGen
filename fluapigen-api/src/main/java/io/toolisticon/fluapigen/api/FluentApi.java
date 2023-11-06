@@ -7,8 +7,11 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
 /**
- * Marks a class as fluent api holder.
- * Only interfaces annotated with {@link FluentApiInterface}, {@link } will be part of the Fluent API.
+ * Marks a class that contains a fluent api related interfaces and commands.
+ *
+ * This annotation will be processed by the annotation processor.
+ * The annotated class will be scanned for fluent api or backing bean interfaces and commands.
+ *
  */
 @Retention(RetentionPolicy.RUNTIME)
 @Target(value = {ElementType.TYPE})
