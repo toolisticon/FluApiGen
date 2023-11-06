@@ -359,7 +359,54 @@ public interface MyFluentInterface {
 
 }
 ```
-   
+### Using validators at fluent interface method parameters
+FluApiGen provides some basic validators that can be applied to the fluent method parameters at runtime.
+
+- _Matches_ : Regular Expression validator for Strings
+- _MinLength / MaxLength_ : Checks length of Strings or size of Arrays or Collections
+- _NotEmpty_ : Checks if String, array and Collection are not empty
+- _NotNull_ : Checks if passed argument isn't null
+
+To be able to use validators, the _fluapigen_validation_api_ library must be linked at compile and runtime.
+
+````java
+MyRootInterface setName(@Matches("Max.*") @FluentApiBackingBeanMapping("name") String name);
+````
+
+In this example the fluent api would throw a _ValidatorException_ if the name doesn't start with "Max".
+
+It's possible to use multiple validators on a parameter and even to provide custom validators:
+
+````java
+@FluentApiValidator(value = Matches.ValidatorImpl.class, parameterNames = {"value"})
+public @interface Matches {
+
+    String value();
+
+    class ValidatorImpl implements Validator<String> {
+
+        private final String regularExpression;
+
+        public ValidatorImpl(String regularExpression) {
+            this.regularExpression = regularExpression;
+        }
+
+        @Override
+        public boolean validate(String obj) {
+            return Pattern.compile(regularExpression).matcher(obj).matches();
+        }
+
+    }
+
+}
+````
+
+Validators are annotations annotated with _FluentApiValidator_ meta annotation. The _FluentApiValidator_ annotation is used to reference the validators implementation class that must implement the _Validator_ interface.
+Validation criteria can be added as annotation attribute. The _FluentApiValidator_ meta annotation defines the attribute to validator constructor mapping via the parameterNames attribute.
+The validator implementation must provide a matching constructor.
+
+*Remark : The feature is currently under development and not 100% done. There will still be improvements regarding processing time validation and error output*
+
 ### Javas default methods in fluent api and backing bean in interfaces
 Default methods will be ignored during processing of fluent api and backing bean interfaces and can be used for different tasks:
 

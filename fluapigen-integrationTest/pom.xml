@@ -9,7 +9,7 @@
     <parent>
         <groupId>io.toolisticon.fluapigen</groupId>
         <artifactId>fluapigen</artifactId>
-        <version>0.7.0</version>
+        <version>0.8.0</version>
     </parent>
 
     <name>fluapigen-integrationTest</name>
@@ -29,7 +29,11 @@
                                 <artifactId>fluapigen-processor</artifactId>
                                 <version>${project.version}</version>
                             </path>
-
+                            <path>
+                                <groupId>io.toolisticon.fluapigen</groupId>
+                                <artifactId>fluapigen-api</artifactId>
+                                <version>${project.version}</version>
+                            </path>
                         </annotationProcessorPaths>
                     </configuration>
 
@@ -95,6 +99,11 @@
         <dependency>
             <groupId>io.toolisticon.fluapigen</groupId>
             <artifactId>fluapigen-api</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>io.toolisticon.fluapigen</groupId>
+            <artifactId>fluapigen-validation-api</artifactId>
         </dependency>
 
         <dependency>

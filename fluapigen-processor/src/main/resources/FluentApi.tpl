@@ -11,6 +11,8 @@ import java.util.Deque;
 import java.util.HashSet;
 import java.util.stream.Collectors;
 
+import io.toolisticon.fluapigen.validation.api.ValidatorException;
+
 /**
  * An empty class.
  */
@@ -78,7 +80,15 @@ public class ${ model.className } {
 !{for method : interface.methods}
         @Override
         public ${method.methodSignature} {
-
+!{for parameter : method.allParameters}
+!{if parameter.hasValidators}
+!{for validator : parameter.validators}
+            if(!${validator.validatorExpression}.validate(${parameter.parameterName})) {
+                throw new ValidatorException("Parameter '${parameter.parameterName}' of method '${method.executableElement.simpleName}' failed validation: ${validator.validatorSummary}");
+            }
+!{/for}
+!{/if}
+!{/for}
 !{if method.hasInlineBackingBeanMapping}
             ${method.inlineBackingBean.className} inlineBackingBean = new ${method.inlineBackingBean.className}();
 !{for parameter : method.parametersBoundToInlineBB}

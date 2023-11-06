@@ -3,7 +3,7 @@
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
-    <artifactId>fluapigen-api</artifactId>
+    <artifactId>fluapigen-validation-api</artifactId>
     <packaging>jar</packaging>
 
     <parent>
@@ -12,7 +12,7 @@
         <version>0.8.0</version>
     </parent>
 
-    <name>fluapigen-api</name>
+    <name>fluapigen-validation-api</name>
 
 
     <build>
@@ -25,14 +25,7 @@
 
         </plugins>
 
-
-
     </build>
-    <dependencies>
-        <dependency>
-            <groupId>io.toolisticon.fluapigen</groupId>
-            <artifactId>fluapigen-validation-api</artifactId>
-        </dependency>
-    </dependencies>
+
 
 </project>

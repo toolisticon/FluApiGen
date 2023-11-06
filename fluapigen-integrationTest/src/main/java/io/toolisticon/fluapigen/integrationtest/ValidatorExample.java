@@ -1,4 +1,4 @@
-package io.toolisticon.fluapigen;
+package io.toolisticon.fluapigen.integrationtest;
 
 import io.toolisticon.fluapigen.api.FluentApi;
 import io.toolisticon.fluapigen.api.FluentApiBackingBean;
@@ -7,10 +7,12 @@ import io.toolisticon.fluapigen.api.FluentApiBackingBeanMapping;
 import io.toolisticon.fluapigen.api.FluentApiCommand;
 import io.toolisticon.fluapigen.api.FluentApiInterface;
 import io.toolisticon.fluapigen.api.FluentApiRoot;
+import io.toolisticon.fluapigen.validation.api.Matches;
+import io.toolisticon.fluapigen.validation.api.MaxLength;
+import io.toolisticon.fluapigen.validation.api.NotNull;
 
-
-@FluentApi("ExampleFluentApiStarter")
-public class ExampleFluentApi {
+@FluentApi("ValidatorExampleStarter")
+public class ValidatorExample {
 
     // Backing Bean Interface
     @FluentApiBackingBean
@@ -26,7 +28,7 @@ public class ExampleFluentApi {
     @FluentApiRoot
     public interface MyRootInterface {
 
-        MyRootInterface setName(@FluentApiBackingBeanMapping(value = "name") String name);
+        MyRootInterface setName(@NotNull @MaxLength(8) @Matches("aaa.*") @FluentApiBackingBeanMapping("name") String name);
 
         @FluentApiCommand(MyCommand.class)
         void myCommand();
@@ -35,17 +37,11 @@ public class ExampleFluentApi {
 
     // Commands
     @FluentApiCommand
-    static class MyCommand{
-        static void myCommand (MyBackingBean backingBean) {
+    static class MyCommand {
+        static void myCommand(MyBackingBean backingBean) {
             System.out.println(backingBean.getName());
         }
     }
 
-
-
-    public static void main (String[] args) {
-        MyRootInterface test;
-       //test.setName("Test").myCommand();
-    }
 
 }
