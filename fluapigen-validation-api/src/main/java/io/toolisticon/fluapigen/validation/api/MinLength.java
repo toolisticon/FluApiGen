@@ -4,7 +4,7 @@ import java.lang.reflect.Array;
 import java.util.Collection;
 
 
-@FluentApiValidator(value = MinLength.ValidatorImpl.class, parameterNames = {"value"})
+@FluentApiValidator(value = MinLength.ValidatorImpl.class, attributeNamesToConstructorParameterMapping = {"value"})
 public @interface MinLength {
 
     int value();
