@@ -3,7 +3,7 @@ package io.toolisticon.fluapigen.validation.api;
 
 import java.util.regex.Pattern;
 
-@FluentApiValidator(value = Matches.ValidatorImpl.class, parameterNames = {"value"})
+@FluentApiValidator(value = Matches.ValidatorImpl.class, attributeNamesToConstructorParameterMapping = {"value"})
 public @interface Matches {
 
     String value();

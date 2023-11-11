@@ -8,16 +8,17 @@
 Implementing and especially maintaining of fluent and immutable apis is one of a most annoying and difficult tasks to do in java developing.
 
 You usually have to implement a lot of boilerplate code that is only needed to handle and clone the fluent apis internal state.
-Changing of an existing fluent api can therefore be a very complex thing to do.
+Refactoring of an existing fluent api can therefore be a very complex thing to do.
 
-This project provides an annotation processor that will generate the fluent api implementation for you and therefore completely hiding all necessary boilerplate code from you.
-All you have to do is to define a bunch of interfaces and to configure its "plumbing" by placing a few annotations.
+This project provides an annotation processor that generates fluent api implementations and therefore completely hiding all necessary boilerplate code.
+To achieve this all that needs to be done is to define some fluent and backing bean interfaces and command classes and to configure its "plumbing" by placing a few annotations.
+.
 
 # Features
 - fluent api is created by defining some interfaces and placing some annotations on them
-- our annotation processor then generates the fluent api implementation for you
+- this projects annotation processor then generates the fluent api implementation for you
+- it's possible to use converters and validators on fluent api parameters
 - implementing, extending and maintaining of an immutable, fluent api becomes a no-brainer
-
 
 # Restrictions
 - fluent interfaces must not contain any cycles and must be strongly hierarchically
@@ -25,8 +26,6 @@ All you have to do is to define a bunch of interfaces and to configure its "plum
 # How does it work?
 
 ## Project Setup
-A release will be done in the next couple of days.
-A description about how to bind dependencies will be added afterwards
 
 The api lib must be bound as a dependency - for example in maven:
 ```xml
@@ -35,9 +34,18 @@ The api lib must be bound as a dependency - for example in maven:
     <dependency>
         <groupId>io.toolisticon.fluapigen</groupId>
         <artifactId>fluapigen-api</artifactId>
-        <version>0.4.1</version>
+        <version>0.8.0</version>
+        <scope>provided</scope>
     </dependency>
 
+    <!-- optional - add it if you want to use validators -->
+    <dependency>
+        <groupId>io.toolisticon.fluapigen</groupId>
+        <artifactId>fluapigen-validation-api</artifactId>
+        <version>0.8.0</version>
+        <scope>compile</scope>
+    </dependency>
+ 
 </dependencies>
 ```
 
@@ -53,7 +61,7 @@ Additionally, you need to declare the annotation processor path in your compiler
             <path>
                 <groupId>io.toolisticon.fluapigen</groupId>
                 <artifactId>fluapigen-processor</artifactId>
-                <version>0.4.1</version>
+                <version>0.8.0</version>
             </path>
         </annotationProcessorPaths>
         
@@ -63,18 +71,28 @@ Additionally, you need to declare the annotation processor path in your compiler
 ```
 
 ## Documentation
-Basically you have to create a class annotated with the _FluentApi_ annotation which has the fluent apis base class name as attribute.
-
-Then you are able to define your api inside this class via interfaces.
+Basically you have to create a class annotated with the _FluentApi_ annotation which takes the fluent apis base class name as attribute.
 
 ```java
 @FluentApi("CuteFluentApiStarter")
 public class CuteFluentApi {
-    // Your interfaces for backing beans and fluent api and classes for closing commands.
+    // Contains the interfaces for 
+    // backing beans 
+    // and fluent api 
+    // and classes for closing commands.
 }
 ```
 
-This can be broke down to 3 different steps.
+The fluent api can be defined inside that class by using three kinds of components:
+- the fluent api interfaces
+- the backing bean interfaces which are storing the configuration data passed in via the fluent api interfaces
+- command classes which are taking the root backing bean as a parameter and doing things with it
+
+The following diagram demonstrates how those components relate to each other:
+
+![Fluapigen Setup](/documentation/Fluapigen.png)
+
+The development of the fluent api can be broke down to 3 different steps.
 
 ### Defining The Backing Bean
 The backing bean interfaces are defining the configuration (or in other word context) to be build.
@@ -91,6 +109,7 @@ Field ids must be unique in the interface.
 @FluentApiBackingBean
 public interface CompilerTest {
 
+    // annotation is optional - ids default to method name
     @FluentApiBackingBeanField("value1")
     String getValue1();
 
@@ -124,7 +143,7 @@ Commands may have a return value.
 ### Defining The Fluent Api
 
 The fluent api must be defined in multiple interfaces annotated with the _FluentApiInterface_ annotation.
-Those interface will be bound to one specific backing bean. A backing bean can be bound by multiple fluent interfaces.
+Each interface will be bound to one specific backing bean. A backing bean can be bound by multiple fluent interfaces.
 
 Methods defined in those interfaces are only allowed to return other fluent api interfaces, except for closing commands.
 
@@ -137,6 +156,7 @@ There must be exactly one interface annotated with the _FluentApiRoot_ annotatio
 Those interfaces methods will be available as static starter methods for the fluent api.
 
 Please check the following example for further information - because the code explains itself pretty well.
+
 
 ## Example
 
@@ -402,7 +422,7 @@ public @interface Matches {
 ````
 
 Validators are annotations annotated with _FluentApiValidator_ meta annotation. The _FluentApiValidator_ annotation is used to reference the validators implementation class that must implement the _Validator_ interface.
-Validation criteria can be added as annotation attribute. The _FluentApiValidator_ meta annotation defines the attribute to validator constructor mapping via the parameterNames attribute.
+Validation criteria can be added as annotation attributes. The _FluentApiValidator_ meta annotation defines the attribute to validator constructor mapping via the parameterNames attribute.
 The validator implementation must provide a matching constructor.
 
 *Remark : The feature is currently under development and not 100% done. There will still be improvements regarding processing time validation and error output*
