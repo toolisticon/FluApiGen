@@ -4,7 +4,7 @@ import java.lang.reflect.Array;
 import java.util.Collection;
 
 
-@FluentApiValidator(value = MaxLength.ValidatorImpl.class, parameterNames = {"value"})
+@FluentApiValidator(value = MaxLength.ValidatorImpl.class, attributeNamesToConstructorParameterMapping = {"value"})
 public @interface MaxLength {
 
     int value();

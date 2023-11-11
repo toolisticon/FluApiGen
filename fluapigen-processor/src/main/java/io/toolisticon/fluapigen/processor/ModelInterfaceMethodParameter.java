@@ -78,7 +78,7 @@ public class ModelInterfaceMethodParameter {
     }
 
     public List<ModelValidator> getValidators() {
-        return this.parameterElement.getAnnotations().stream().filter(e -> e.asElement().hasAnnotation(FluentApiValidator.class)).map(ModelValidator::new).collect(Collectors.toList());
+        return this.parameterElement.getAnnotations().stream().filter(e -> e.asElement().hasAnnotation(FluentApiValidator.class)).map(e -> new ModelValidator(this.parameterElement, e)).collect(Collectors.toList());
     }
 
     public String getParameterName() {
@@ -207,7 +207,14 @@ public class ModelInterfaceMethodParameter {
     @DeclareCompilerMessage(code = "003", enumValueName = "BB_MAPPING_COULDNT_BE_RESOLVED", message = "Field ${0} doesn't exist in mapped backing bean ${1}. It must be one of: [${2}]", processorClass = FluentApiProcessor.class)
     public boolean validate() {
 
-        boolean result = true;
+        // check validators
+        for (ModelValidator validator : this.getValidators()) {
+            if (!validator.validate()) {
+                return false;
+            }
+        }
+
+
         // fluentApiBackingBeanMapping must not be null -> missing annotation
         if (fluentApiBackingBeanMapping == null) {
             parameterElement.compilerMessage().asError().write(
@@ -238,7 +245,7 @@ public class ModelInterfaceMethodParameter {
             return false;
         }
 
-        return result;
+        return true;
     }
 
 }

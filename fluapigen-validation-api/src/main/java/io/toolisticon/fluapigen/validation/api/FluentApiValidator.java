@@ -22,6 +22,6 @@ public @interface FluentApiValidator {
      * Used to map parameters to validator constructor.
      * @return the parameter names
      */
-    String[] parameterNames () default {};
+    String[] attributeNamesToConstructorParameterMapping() default {};
 
 }
