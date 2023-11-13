@@ -190,5 +190,160 @@ public class ValidatorTest {
                 .executeTest();
     }
 
+    @Target(ElementType.PARAMETER)
+    @Retention(RetentionPolicy.RUNTIME)
+    @FluentApiValidator(value = WrongAttributeNameToConstructorParameterMapping.MyValidator.class, attributeNamesToConstructorParameterMapping = {"sadas"})
+    @interface WrongAttributeNameToConstructorParameterMapping {
+
+        String attr();
+
+        public class MyValidator implements Validator<String> {
+
+            final String attr;
+
+            public MyValidator (String attr){
+                this.attr = attr;
+            }
+            @Override
+            public boolean validate(String obj) {
+
+                return false;
+            }
+        }
+
+    }
+
+
+    interface WrongAttributeNameToConstructorParameterMappingTest {
+
+        void method(@PassIn @WrongAttributeNameToConstructorParameterMapping(attr = "abc") String parameter);
+
+    }
+
+    @Test
+    public void test_validate_invalidValidatorWrong() {
+        unitTestBuilder.defineTestWithPassedInElement(WrongAttributeNameToConstructorParameterMappingTest.class, (UnitTest<VariableElement>) (processingEnvironment, element) -> {
+
+                    try {
+                        ToolingProvider.setTooling(processingEnvironment);
+
+                        AnnotationMirrorWrapper annotationMirrorWrapper = AnnotationMirrorWrapper.get(element, WrongAttributeNameToConstructorParameterMapping.class).get();
+
+                        ModelValidator unit = new ModelValidator(VariableElementWrapper.wrap(element), annotationMirrorWrapper);
+
+                        MatcherAssert.assertThat("Validation must be false", !unit.validate());
+
+                    } finally {
+                        ToolingProvider.clearTooling();
+                    }
+
+                })
+                .compilationShouldFail()
+                .expectErrorMessage().thatContains(FluentApiProcessorCompilerMessages.ERROR_BROKEN_VALIDATOR_ATTRIBUTE_NAME_MISMATCH.getCode())
+                .executeTest();
+    }
+
+    @Target(ElementType.PARAMETER)
+    @Retention(RetentionPolicy.RUNTIME)
+    @FluentApiValidator(value = MissingNoargConstructor.MyValidator.class)
+    @interface MissingNoargConstructor {
+
+        class MyValidator implements Validator<String> {
+
+            public MyValidator(String attr) {
+
+            }
+
+            @Override
+            public boolean validate(String obj) {
+
+                return false;
+            }
+        }
+
+    }
+
+
+    interface MissingNoargConstructorTest {
+
+        void method(@PassIn @MissingNoargConstructor String parameter);
+
+    }
+
+    @Test
+    public void test_validate_missingNoargConstructor() {
+        unitTestBuilder.defineTestWithPassedInElement(MissingNoargConstructorTest.class, (UnitTest<VariableElement>) (processingEnvironment, element) -> {
+
+                    try {
+                        ToolingProvider.setTooling(processingEnvironment);
+
+                        AnnotationMirrorWrapper annotationMirrorWrapper = AnnotationMirrorWrapper.get(element, MissingNoargConstructor.class).get();
+
+                        ModelValidator unit = new ModelValidator(VariableElementWrapper.wrap(element), annotationMirrorWrapper);
+
+                        MatcherAssert.assertThat("Validation must be false", !unit.validate());
+
+                    } finally {
+                        ToolingProvider.clearTooling();
+                    }
+
+                })
+                .compilationShouldFail()
+                .expectErrorMessage().thatContains(FluentApiProcessorCompilerMessages.ERROR_BROKEN_VALIDATOR_MISSING_NOARG_CONSTRUCTOR.getCode())
+                .executeTest();
+    }
+
+
+    @Target(ElementType.PARAMETER)
+    @Retention(RetentionPolicy.RUNTIME)
+    @FluentApiValidator(value = NoMatchingConstructor.MyValidator.class, attributeNamesToConstructorParameterMapping = {"attr"})
+    @interface NoMatchingConstructor {
+
+        String attr();
+
+        class MyValidator implements Validator<String> {
+
+            public MyValidator(Class<?> attr) {
+
+            }
+
+            @Override
+            public boolean validate(String obj) {
+
+                return false;
+            }
+        }
+
+    }
+
+
+    interface NonMatchingConstructorTest {
+
+        void method(@PassIn @NoMatchingConstructor(attr = "TEST") String parameter);
+
+    }
+
+    @Test
+    public void test_validate_noMatchingConstructor() {
+        unitTestBuilder.defineTestWithPassedInElement(NonMatchingConstructorTest.class, (UnitTest<VariableElement>) (processingEnvironment, element) -> {
+
+                    try {
+                        ToolingProvider.setTooling(processingEnvironment);
+
+                        AnnotationMirrorWrapper annotationMirrorWrapper = AnnotationMirrorWrapper.get(element, NoMatchingConstructor.class).get();
+
+                        ModelValidator unit = new ModelValidator(VariableElementWrapper.wrap(element), annotationMirrorWrapper);
+
+                        MatcherAssert.assertThat("Validation must be false", !unit.validate());
+
+                    } finally {
+                        ToolingProvider.clearTooling();
+                    }
+
+                })
+                .compilationShouldFail()
+                .expectErrorMessage().thatContains(FluentApiProcessorCompilerMessages.ERROR_BROKEN_VALIDATOR_CONSTRUCTOR_PARAMETER_MAPPING.getCode())
+                .executeTest();
+    }
 
 }
