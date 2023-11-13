@@ -42,9 +42,10 @@ public class ModelValidator {
         if (attributeNamesToConstructorParameterMapping.length > 0) {
 
             // First check if annotation attribute Names are correct
-            String[] invalidNames = Arrays.stream(attributeNamesToConstructorParameterMapping).filter(e -> !this.validatorAnnotation.getAttribute(e).isPresent()).toArray(String[]::new);
+            String[] invalidNames = Arrays.stream(attributeNamesToConstructorParameterMapping).filter(e -> !this.validatorAnnotation.hasAttribute(e)).toArray(String[]::new);
             if (invalidNames.length > 0) {
                 this.annotatedElement.compilerMessage(this.validatorAnnotation.unwrap()).asError().write(FluentApiProcessorCompilerMessages.ERROR_BROKEN_VALIDATOR_ATTRIBUTE_NAME_MISMATCH, this.validatorAnnotation.asElement().getSimpleName(), invalidNames);
+                return false;
             }
 
 
@@ -73,7 +74,7 @@ public class ModelValidator {
                 return true;
             }
 
-            annotatedElement.compilerMessage(validatorAnnotation.unwrap()).asError().write(FluentApiProcessorCompilerMessages.ERROR_BROKEN_VALIDATOR_MISSING_NOARG_CONSTRUCTOR, validatorImplType.getSimpleName());
+            annotatedElement.compilerMessage(validatorAnnotation.unwrap()).asError().write(FluentApiProcessorCompilerMessages.ERROR_BROKEN_VALIDATOR_CONSTRUCTOR_PARAMETER_MAPPING, validatorImplType.getSimpleName());
             return false;
         } else {
             // must have a noarg constructor or just the default
@@ -83,6 +84,7 @@ public class ModelValidator {
 
             if (!(hasNoargConstructor || hasJustDefaultConstructor)) {
                 annotatedElement.compilerMessage(validatorAnnotation.unwrap()).asError().write(FluentApiProcessorCompilerMessages.ERROR_BROKEN_VALIDATOR_MISSING_NOARG_CONSTRUCTOR, validatorImplTypeElement.getSimpleName());
+                return false;
             }
         }
 
