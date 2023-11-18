@@ -39,10 +39,6 @@
 
     <inceptionYear>2023</inceptionYear>
 
-    <prerequisites>
-        <maven>3.6.0</maven>
-    </prerequisites>
-
     <!-- TODO: Update issue management -->
     <issueManagement>
         <url>https://github.com/toolisticon/FluApiGen/issues</url>
@@ -133,19 +129,6 @@
         // -->
         <pluginManagement>
             <plugins>
-
-                <plugin>
-                    <groupId>org.codehaus.mojo</groupId>
-                    <artifactId>build-helper-maven-plugin</artifactId>
-                    <version>${maven-build-helper-plugin.version}</version>
-                </plugin>
-
-                <!-- sources -->
-                <plugin>
-                    <groupId>org.apache.maven.plugins</groupId>
-                    <artifactId>maven-source-plugin</artifactId>
-                    <version>${maven-source-plugin.version}</version>
-                </plugin>
 
                 <!-- gitflow plugin -->
                 <plugin>
@@ -292,6 +275,7 @@
                 <plugin>
                     <groupId>org.jacoco</groupId>
                     <artifactId>jacoco-maven-plugin</artifactId>
+                    <version>${maven-jacoco-plugin.version}</version>
                     <executions>
                         <execution>
                             <goals>
