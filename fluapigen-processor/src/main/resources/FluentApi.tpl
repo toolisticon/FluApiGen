@@ -90,7 +90,7 @@ public class ${ model.className } {
 !{/if}
 !{/for}
 !{if method.hasInlineBackingBeanMapping}
-            ${method.inlineBackingBean.className} inlineBackingBean = new ${method.inlineBackingBean.className}();
+            ${method.inlineBackingBean.get.className} inlineBackingBean = new ${method.inlineBackingBean.get.className}();
 !{for parameter : method.parametersBoundToInlineBB}
             inlineBackingBean.${parameter.backingBeanField.get.fieldName}${parameter.assignmentString}
 !{/for}!{for implicitValue : method.implicitValuesBoundToInlineBB}
@@ -111,10 +111,10 @@ public class ${ model.className } {
             currentBackingBean.${implicitValue.backingBeanFieldName}${implicitValue.valueAssignmentString};
 !{/for}
 !{if method.hasInlineBackingBeanMapping}
-!{if method.inlineBackingBeanField.isCollection}
-            currentBackingBean.${method.getInlineBackingBeanField.fieldName}.add(inlineBackingBean);
+!{if method.inlineBackingBeanField.get.isCollection}
+            currentBackingBean.${method.getInlineBackingBeanField.get.fieldName}.add(inlineBackingBean);
 !{else}
-            currentBackingBean.${method.getInlineBackingBeanField.fieldName} = inlineBackingBean;
+            currentBackingBean.${method.getInlineBackingBeanField.get.fieldName} = inlineBackingBean;
 !{/if}
 !{/if}
 
@@ -142,7 +142,7 @@ public class ${ model.className } {
             !{if method.command.hasReturnType}return !{/if} ${method.command.commandMethod}(${backingBeanField.nextBBVariableName});
 !{else}
             // init BB impl
-            return new ${method.nextModelInterface.className}(${backingBeanField.nextBBVariableName}, newStack);
+            return new ${method.nextModelInterface.get.className}(${backingBeanField.nextBBVariableName}, newStack);
 !{/if}
 !{/if}
 !{/for}
@@ -152,10 +152,10 @@ public class ${ model.className } {
             // clone and update values of backing bean
             ${interface.backingBeanModel.className} nextBackingBean = this.backingBean.cloneBackingBean();
 !{if method.hasInlineBackingBeanMapping}
-!{if method.inlineBackingBeanField.isCollection}
-            nextBackingBean.${method.getInlineBackingBeanField.fieldName}.add(inlineBackingBean);
+!{if method.inlineBackingBeanField.get.isCollection}
+            nextBackingBean.${method.getInlineBackingBeanField.get.fieldName}.add(inlineBackingBean);
 !{else}
-            nextBackingBean.${method.getInlineBackingBeanField.fieldName} = inlineBackingBean;
+            nextBackingBean.${method.getInlineBackingBeanField.get.fieldName} = inlineBackingBean;
 !{/if}
 !{/if}
 !{for parameter : method.getNotInlineMappedParameters}
@@ -169,7 +169,7 @@ public class ${ model.className } {
             !{if method.command.hasReturnType}return !{/if} ${method.command.commandMethod}(nextBackingBean);
 !{else}
             // init BB impl
-            return new ${method.nextModelInterface.className}(nextBackingBean, parentStack);
+            return new ${method.nextModelInterface.get.className}(nextBackingBean, parentStack);
 !{/if}
 
 !{elseif method.isCreatingChildConfigCall}
@@ -184,23 +184,23 @@ public class ${ model.className } {
             currentBackingBean.${implicitValue.backingBeanFieldName}${implicitValue.valueAssignmentString};
 !{/for}
 !{if method.hasInlineBackingBeanMapping}
-!{if method.inlineBackingBeanField.isCollection}
-            currentBackingBean.${method.getInlineBackingBeanField.fieldName}.add(inlineBackingBean);
+!{if method.inlineBackingBeanField.get.isCollection}
+            currentBackingBean.${method.getInlineBackingBeanField.get.fieldName}.add(inlineBackingBean);
 !{else}
-            currentBackingBean.${method.getInlineBackingBeanField.fieldName} = inlineBackingBean;
+            currentBackingBean.${method.getInlineBackingBeanField.get.fieldName} = inlineBackingBean;
 !{/if}
 !{/if}
             newStack.push(currentBackingBean);
 
             // create next backing bean and apply values
-            ${method.nextModelInterface.backingBeanModel.className} nextBackingBean = new ${method.nextModelInterface.backingBeanModel.className}();
+            ${method.nextModelInterface.get.backingBeanModel.className} nextBackingBean = new ${method.nextModelInterface.get.backingBeanModel.className}();
 !{for parameter : method.parametersBoundToNextBB}
             nextBackingBean.${parameter.backingBeanField.get.fieldName}${parameter.assignmentString}
 !{/for}
 !{for implicitValue : method.implicitValuesBoundToNextBB}
             nextBackingBean.${implicitValue.backingBeanFieldName}${implicitValue.valueAssignmentString};
 !{/for}
-            return new ${method.nextModelInterface.className}(nextBackingBean, newStack);
+            return new ${method.nextModelInterface.get.className}(nextBackingBean, newStack);
 !{else}
             // THIS SHOULDN'T HAPPEN
             return null;

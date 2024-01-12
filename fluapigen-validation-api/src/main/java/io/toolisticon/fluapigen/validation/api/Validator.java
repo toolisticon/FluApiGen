@@ -14,6 +14,15 @@ public interface Validator<TYPE> {
      */
     boolean validate(TYPE obj);
 
+    default boolean validate(TYPE[] obj) {
+        for (TYPE element : obj) {
+            if (!validate(element)) {
+                return false;
+            }
+        }
+        return true;
+    }
+
     class ValidatorException extends RuntimeException {
 
         ValidatorException(String message) {

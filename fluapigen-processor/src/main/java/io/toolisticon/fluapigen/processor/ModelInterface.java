@@ -148,7 +148,7 @@ public class ModelInterface implements FetchImports, Validatable {
 
             } else if (!method.getHasSameTargetBackingBean()
                     && getBackingBeanModel().hasParent()
-                    && getBackingBeanModel().getParent().equals(method.getNextBackingBean())){
+                    && (method.getNextBackingBean().isPresent() && getBackingBeanModel().getParent().equals(method.getNextBackingBean().get()))){
 
                     // check if annotation is present
                     if ( method.getParentBBMappingAnnotation().size() == 0) {
@@ -159,7 +159,7 @@ public class ModelInterface implements FetchImports, Validatable {
                         try {
                             // must check if field can be mapped
                             method.getParentsBackingBeanFields();
-                        } catch (BBFieldNotFoundException e) {
+                        } catch (BaseException e) {
                             e.writeErrorCompilerMessage();
                             outcome = false;
                         }

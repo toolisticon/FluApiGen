@@ -2,13 +2,13 @@ package io.toolisticon.fluapigen.processor;
 
 import io.toolisticon.aptk.cute.APTKUnitTestProcessor;
 import io.toolisticon.aptk.tools.MessagerUtils;
-import io.toolisticon.aptk.tools.corematcher.CoreMatcherValidationMessages;
 import io.toolisticon.cute.CompileTestBuilder;
 import io.toolisticon.cute.PassIn;
 import io.toolisticon.fluapigen.api.FluentApi;
 import io.toolisticon.fluapigen.api.FluentApiBackingBean;
 import io.toolisticon.fluapigen.api.FluentApiCommand;
 import io.toolisticon.fluapigen.api.FluentApiInterface;
+import io.toolisticon.fluapigen.api.FluentApiRoot;
 import org.hamcrest.MatcherAssert;
 import org.hamcrest.Matchers;
 import org.junit.Before;
@@ -34,7 +34,6 @@ public class CustomFluentApiCommandWrapperCodeTest {
     }
 
 
-
     @FluentApi("MyTestApi")
     static class HappyPathTestApi {
         @FluentApiBackingBean
@@ -42,11 +41,17 @@ public class CustomFluentApiCommandWrapperCodeTest {
 
         }
 
-        @FluentApiCommand(BackingBean.class)
+        @FluentApiInterface(BackingBean.class)
+        @FluentApiRoot
+        interface RootInterface {
+
+        }
+
+        @FluentApiCommand(RootInterface.class)
         @PassIn
         static class MyCommand {
 
-            static void doSomethingBeautiful(BackingBean backingBean){
+            static void doSomethingBeautiful(BackingBean backingBean) {
 
             }
 
@@ -93,7 +98,7 @@ public class CustomFluentApiCommandWrapperCodeTest {
         }
 
         @FluentApiInterface(BackingBean.class)
-        interface MyInterface{
+        interface MyInterface {
 
             @FluentApiCommand(MyCommand.class)
             @PassIn
@@ -103,12 +108,11 @@ public class CustomFluentApiCommandWrapperCodeTest {
         @FluentApiCommand(BackingBean.class)
         static class MyCommand {
 
-            static void doSomethingBeautiful(BackingBean backingBean){
+            static void doSomethingBeautiful(BackingBean backingBean) {
 
             }
 
         }
-
 
 
     }
