@@ -42,12 +42,7 @@ public class CustomFluentApiCommandWrapperCode {
 
         if (wrapper._annotatedElement().getKind() == ElementKind.METHOD) {
             // CASE 1 : REFERENCE IN FLUENT API INTERFACE
-            return FluentElementValidator.createFluentElementValidator(wrapper._annotatedElement())
-                    .is(AptkCoreMatchers.IS_METHOD)
-                    .applyValidator(AptkCoreMatchers.BY_MODIFIER).hasNoneOf(Modifier.PRIVATE)
-                    .validateAndIssueMessages()
-                    &
-                    FluentElementValidator.createFluentElementValidator(wrapper._annotatedElement().getEnclosingElement())
+            return FluentElementValidator.createFluentElementValidator(wrapper._annotatedElement().getEnclosingElement())
                             .is(AptkCoreMatchers.IS_INTERFACE)
                             .validateAndIssueMessages();
 

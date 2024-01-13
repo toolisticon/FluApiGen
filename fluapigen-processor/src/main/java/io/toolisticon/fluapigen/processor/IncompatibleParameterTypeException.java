@@ -23,17 +23,31 @@ public class IncompatibleParameterTypeException extends CompilerErrorException{
 
     final Element element;
 
-    public IncompatibleParameterTypeException(String parameterType, String bbFieldName, String bbFieldType, Element element, AnnotationMirror annotationMirror, AnnotationValue annotationValue) {
+    public IncompatibleParameterTypeException(
+            String parameterType,
+            String bbFieldName,
+            String bbFieldType,
+            Element element,
+            AnnotationMirror annotationMirror,
+            AnnotationValue annotationValue) {
+
         this.parameterType = parameterType;
         this.bbFieldName = bbFieldName;
         this.bbFieldType = bbFieldType;
         this.annotationValue = annotationValue;
         this.annotationMirror = annotationMirror;
         this.element = element;
+
     }
 
-    public IncompatibleParameterTypeException(String parameterType,String bbFieldName, String bbFieldType, FluentApiBackingBeanMappingWrapper annotation) {
+    public IncompatibleParameterTypeException(
+            String parameterType,
+            String bbFieldName,
+            String bbFieldType,
+            FluentApiBackingBeanMappingWrapper annotation) {
+
         this(parameterType, bbFieldName, bbFieldType, annotation._annotatedElement(), annotation._annotationMirror(), annotation.valueAsAnnotationValue());
+
     }
 
 
