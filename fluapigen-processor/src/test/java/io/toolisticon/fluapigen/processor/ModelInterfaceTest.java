@@ -149,7 +149,9 @@ public class ModelInterfaceTest {
                                 List.class.getCanonicalName(),
                                 MyFluentInterfaceWithMultipleExtendsBounds.class.getCanonicalName(),
                                 MyCommand.class.getCanonicalName(),
-                                InputStream.class.getCanonicalName()));
+                                InputStream.class.getCanonicalName(),
+                                Collection.class.getCanonicalName(),
+                                Serializable.class.getCanonicalName()));
 
                     }
                 })

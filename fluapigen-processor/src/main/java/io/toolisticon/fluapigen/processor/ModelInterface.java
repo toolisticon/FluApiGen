@@ -23,8 +23,6 @@ public class ModelInterface implements FetchImports, Validatable {
 
     private final List<ModelInterfaceMethod> methods = new ArrayList<>();
 
-    private final List<ModelInterfaceCommand> commands = new ArrayList<>();
-
     ModelInterface(FluentApiInterfaceWrapper wrapper, ModelBackingBean backingBeanModel) {
         this.wrapper = wrapper;
         this.backingBeanModel = backingBeanModel;
@@ -110,23 +108,23 @@ public class ModelInterface implements FetchImports, Validatable {
         return methods;
     }
 
-    public List<ModelInterfaceCommand> getCommands() {
-        return commands;
-    }
-
-
+    
     @Override
     public Set<String> fetchImports() {
         Set<String> imports = new HashSet<>();
 
         TypeElementWrapper typeElementWrapper = TypeElementWrapper.wrap((TypeElement) this.wrapper._annotatedElement());
-        //if (typeElementWrapper.getTypeParameters())
-
-        for (FetchImports modelInterfaceMethod : this.methods) {
-            imports.addAll(modelInterfaceMethod.fetchImports());
+        if (typeElementWrapper.hasTypeParameters()) {
+            imports.addAll(
+                    typeElementWrapper
+                            .getTypeParameters()
+                            .stream()
+                            .flatMap(e -> e.getBounds().stream())
+                            .flatMap(e -> e.getImports().stream())
+                            .collect(Collectors.toSet()));
         }
 
-        for (FetchImports modelInterfaceMethod : this.commands) {
+        for (FetchImports modelInterfaceMethod : this.methods) {
             imports.addAll(modelInterfaceMethod.fetchImports());
         }
 
