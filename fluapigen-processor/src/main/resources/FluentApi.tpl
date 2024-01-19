@@ -44,7 +44,18 @@ public class ${ model.className } {
             return ${backingBeanField.fieldName};
         }
 !{/for}
+
+       public String toString() {
+
+            return "{\\n"
+!{for backingBeanField : backingBean.fields}
+                + "${backingBeanField.fieldName} = " + ${backingBeanField.toStringStr}
+!{/for}
+            + "}";
+       }
     }
+
+
 
 !{/for}
 

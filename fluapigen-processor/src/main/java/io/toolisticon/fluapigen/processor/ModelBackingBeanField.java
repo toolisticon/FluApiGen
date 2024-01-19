@@ -12,6 +12,7 @@ import io.toolisticon.fluapigen.api.MappingAction;
 import javax.lang.model.element.ElementKind;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -80,6 +81,20 @@ public class ModelBackingBeanField implements FetchImports, Validatable {
 
     public String getGetterMethodSignature() {
         return this.field.getMethodSignature();
+    }
+
+    public String getToStringStr() {
+
+        if (this.getFieldType().isPrimitive()) {
+            return getFieldName() + " + \",\\n\"";
+        } else if (this.getFieldType().isArray()) {
+            return "(" + getFieldName() + " != null ? Arrays.stream(" + getFieldName() + ").map(e -> e.toString()).collect(Collectors.joining(\", \", \"[\", \"]\")) : \"null\") + \",\\n\"";
+        } else if (this.getFieldType().isCollection()) {
+            return "(" + getFieldName() + " != null ? " + getFieldName() + ".stream().map(e -> e.toString()).collect(Collectors.joining(\", \", \"[\", \"]\")) : \"null\") + \",\\n\"";
+        } else {
+            return "(" + getFieldName() + " != null ? " + getFieldName() + ".toString() : \"null\") + \",\\n\"";
+        }
+
     }
 
     /**

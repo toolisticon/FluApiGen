@@ -8,6 +8,11 @@ public @interface NotNull {
         public boolean validate(Object obj) {
             return obj != null;
         }
+
+        @Override
+        public boolean validate(Object[] obj) {
+            return obj != null && Validator.super.validate(obj);
+        }
     }
 
 }
