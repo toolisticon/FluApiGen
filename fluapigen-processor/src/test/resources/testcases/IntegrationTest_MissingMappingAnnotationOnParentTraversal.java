@@ -121,7 +121,7 @@ public class IntegrationTest_MissingMappingAnnotationOnParentTraversal {
 
         MyLowLevelInterface addConfigWithPassingStringValue(@FluentApiBackingBeanMapping(value = "stringValue", target = TargetBackingBean.NEXT) String stringValue);
 
-        @FluentApiParentBackingBeanMapping(id = "stringValue", value = "IMPLICIT_PASSED", target = TargetBackingBean.NEXT)
+        @FluentApiImplicitValue(id = "stringValue", value = "IMPLICIT_PASSED", target = TargetBackingBean.NEXT)
         MyLowLevelInterface addConfigWithImplicitStringValue();
 
         MyRootInterface gotoParent();

@@ -49,11 +49,16 @@ public class ModelInterfaceMethodParameter {
                     break;
                 }
                 case NEXT: {
-                    returnValue = modelInterfaceMethod.getNextBackingBean().getFieldById(fluentApiBackingBeanMapping.value());
+
+                    returnValue = modelInterfaceMethod.getNextBackingBean().get().getFieldById(fluentApiBackingBeanMapping.value());
                     break;
                 }
                 case INLINE: {
-                    returnValue = modelInterfaceMethod.getInlineBackingBean().getFieldById(fluentApiBackingBeanMapping.value());
+                    if (modelInterfaceMethod.getInlineBackingBean() == null) {
+                        System.out.println("BOOM");
+                    }
+
+                    returnValue = modelInterfaceMethod.getInlineBackingBean().get().getFieldById(fluentApiBackingBeanMapping.value());
                     break;
                 }
             }
@@ -195,8 +200,7 @@ public class ModelInterfaceMethodParameter {
 
         List<TypeMirrorWrapper> converterTypeArguments = InterfaceUtils.getResolvedTypeArgumentOfSuperTypeOrInterface(converter.getTypeElement().get(), TypeMirrorWrapper.wrap(FluentApiConverter.class));
 
-        if (!sourceType.isAssignableTo(converterTypeArguments.get(0))
-                || !converterTypeArguments.get(1).isAssignableTo(targetType)) {
+        if (!sourceType.isAssignableTo(converterTypeArguments.get(0)) || !converterTypeArguments.get(1).isAssignableTo(targetType)) {
             throw new IncompatibleConverterException(fluentApiBackingBeanMapping, sourceType, targetType, converter, converterTypeArguments);
         }
     }
@@ -217,21 +221,14 @@ public class ModelInterfaceMethodParameter {
 
         // fluentApiBackingBeanMapping must not be null -> missing annotation
         if (fluentApiBackingBeanMapping == null) {
-            parameterElement.compilerMessage().asError().write(
-                    FluentApiProcessorCompilerMessages.BB_MAPPING_ANNOTATION_MUST_BE_PRESENT,
-                    FluentApiBackingBeanMapping.class.getSimpleName()
-            );
+            parameterElement.compilerMessage().asError().write(FluentApiProcessorCompilerMessages.BB_MAPPING_ANNOTATION_MUST_BE_PRESENT, FluentApiBackingBeanMapping.class.getSimpleName());
             return false;
         }
 
         if (!getBackingBeanField().isPresent()) {
 
-            ModelBackingBean referencedBackingBean = fluentApiBackingBeanMapping.target() == TargetBackingBean.THIS ? backingBeanModel : modelInterfaceMethod.getNextBackingBean();
-            parameterElement.compilerMessage().asError().write(
-                    FluentApiProcessorCompilerMessages.BB_MAPPING_COULDNT_BE_RESOLVED,
-                    fluentApiBackingBeanMapping.value(),
-                    referencedBackingBean.getBackingBeanInterfaceSimpleName(),
-                    referencedBackingBean.getFields().stream().map(e -> "\"" + e.getFieldId() + "\"").collect(Collectors.joining(", "))
+            Optional<ModelBackingBean> referencedBackingBean = fluentApiBackingBeanMapping.target() == TargetBackingBean.THIS ? Optional.of(backingBeanModel) : modelInterfaceMethod.getNextBackingBean();
+            parameterElement.compilerMessage().asError().write(FluentApiProcessorCompilerMessages.BB_MAPPING_COULDNT_BE_RESOLVED, fluentApiBackingBeanMapping.value(), referencedBackingBean.isPresent() ? referencedBackingBean.get().getBackingBeanInterfaceSimpleName() : "<UNRESOLVED>", referencedBackingBean.isPresent() ? referencedBackingBean.get().getFields().stream().map(e -> "\"" + e.getFieldId() + "\"").collect(Collectors.joining(", ")) : "<UNRESOLVED>"
 
             );
             return false;

@@ -61,10 +61,10 @@ public class ModelInterfaceMethod implements FetchImports, Validatable {
     }
 
 
-    public ModelInterface getNextModelInterface() {
+    public Optional<ModelInterface> getNextModelInterface() {
         // must catch void,primitive types and arrays
         Optional<TypeElementWrapper> interfaceTypeWrapper = this.executableElement.getReturnType().getTypeElement();
-        return interfaceTypeWrapper.isPresent() ? RenderStateHelper.getInterfaceModelForInterfaceSimpleClassName(interfaceTypeWrapper.get().getSimpleName()) : null;
+        return interfaceTypeWrapper.isPresent() ? Optional.ofNullable(RenderStateHelper.getInterfaceModelForInterfaceSimpleClassName(interfaceTypeWrapper.get().getSimpleName())) : Optional.empty();
     }
 
     public boolean getHasSameTargetBackingBean() {
@@ -74,8 +74,8 @@ public class ModelInterfaceMethod implements FetchImports, Validatable {
         }
 
         // need to catch wrong configuration - like broken bb mapping
-        ModelInterface nextModelInterface = getNextModelInterface();
-        return (nextModelInterface == null && isCommandMethod()) || (nextModelInterface != null && backingBeanModel.getClassName().equals(nextModelInterface.getBackingBeanModel().getClassName()));
+        Optional<ModelInterface> nextModelInterface = getNextModelInterface();
+        return (!nextModelInterface.isPresent() && isCommandMethod()) || (nextModelInterface.isPresent() && backingBeanModel.getClassName().equals(nextModelInterface.get().getBackingBeanModel().getClassName()));
 
     }
 
@@ -84,7 +84,10 @@ public class ModelInterfaceMethod implements FetchImports, Validatable {
         boolean isCommand = executableElement.hasAnnotation(FluentApiCommand.class);
         boolean hasDirectParent = this.backingBeanModel.hasParent();
 
-        return hasDirectParent && (isCommand || RenderStateHelper.getParents(this.backingBeanModel).contains(getNextModelInterface().getBackingBeanModel()));
+        Optional<ModelInterface> nextModelInterface = getNextModelInterface();
+        return hasDirectParent && (isCommand || (nextModelInterface.isPresent() && RenderStateHelper.getParents(this.backingBeanModel).contains(nextModelInterface.get().getBackingBeanModel())));
+
+
     }
 
     public boolean isCreatingChildConfigCall() {
@@ -138,11 +141,15 @@ public class ModelInterfaceMethod implements FetchImports, Validatable {
         return FluentApiImplicitValueWrapper.wrap(executableElement.unwrap()).stream()
                 .filter(e -> e.target() == TargetBackingBean.NEXT)
                 .map(e -> {
-                    Optional<ModelBackingBeanField> bbField = getNextBackingBean().getFieldById(e.id());
+                    Optional<ModelBackingBean> backingBean = getNextBackingBean();
+                    if (!backingBean.isPresent()) {
+                        throw new BBNotFoundException(this.executableElement);
+                    }
+                    Optional<ModelBackingBeanField> bbField = backingBean.get().getFieldById(e.id());
                     if (bbField.isPresent()) {
                         return new ModelInterfaceImplicitValue(bbField.get(), e);
                     } else {
-                        throw new BBFieldNotFoundException(e.id(), getNextBackingBean().getBackingBeanInterfaceSimpleName(), e);
+                        throw new BBFieldNotFoundException(e.id(), backingBean.get().getBackingBeanInterfaceSimpleName(), e);
                     }
                 })
                 .collect(Collectors.toList());
@@ -152,11 +159,17 @@ public class ModelInterfaceMethod implements FetchImports, Validatable {
         return FluentApiImplicitValueWrapper.wrap(executableElement.unwrap()).stream()
                 .filter(e -> e.target() == TargetBackingBean.INLINE)
                 .map(e -> {
-                    Optional<ModelBackingBeanField> bbField = getInlineBackingBean().getFieldById(e.id());
+
+                    Optional<ModelBackingBean> inlineBackingBean = getInlineBackingBean();
+                    if (!inlineBackingBean.isPresent()) {
+                        throw new BBNotFoundException(this.executableElement);
+                    }
+
+                    Optional<ModelBackingBeanField> bbField = inlineBackingBean.get().getFieldById(e.id());
                     if (bbField.isPresent()) {
                         return new ModelInterfaceImplicitValue(bbField.get(), e);
                     } else {
-                        throw new BBFieldNotFoundException(e.id(), getInlineBackingBean().getBackingBeanInterfaceSimpleName(), e);
+                        throw new BBFieldNotFoundException(e.id(), inlineBackingBean.get().getBackingBeanInterfaceSimpleName(), e);
                     }
                 })
                 .collect(Collectors.toList());
@@ -169,7 +182,7 @@ public class ModelInterfaceMethod implements FetchImports, Validatable {
 
         List<FluentApiParentBackingBeanMappingWrapper> parentMappings = FluentApiParentBackingBeanMappingWrapper.wrap(executableElement.unwrap());
 
-        ModelBackingBean currentBackingBean = getNextBackingBean();
+        Optional<ModelBackingBean> currentBackingBean = getNextBackingBean();
 
 
         int bbCounter = 0;
@@ -181,21 +194,21 @@ public class ModelInterfaceMethod implements FetchImports, Validatable {
             FluentApiParentBackingBeanMappingWrapper parentMapping = parentMappings.get(i);
             String nextVariableName = "backingBean" + i;
 
-            if (currentBackingBean == null) {
+            if (!currentBackingBean.isPresent()) {
                 // TODO: throw exception
             }
 
             String bbFieldName = parentMapping.value();
 
-            Optional<ModelBackingBeanField> field = currentBackingBean.getFieldById(bbFieldName);
+            Optional<ModelBackingBeanField> field = currentBackingBean.get().getFieldById(bbFieldName);
 
             if (!field.isPresent()) {
-                throw new BBFieldNotFoundException(bbFieldName, currentBackingBean.interfaceClassName(), parentMapping);
+                throw new BBFieldNotFoundException(bbFieldName, currentBackingBean.get().interfaceClassName(), parentMapping);
             }
 
             // prepare next iteration
-            parentBBFields.add(new ParentStackProcessing(currentVariableName, nextVariableName, currentBackingBean != null ? currentBackingBean.getClassName() : null, field.get().getFieldName(), i == 0, isLast, field.get().isCollection()));
-            currentBackingBean = currentBackingBean.getParent();
+            parentBBFields.add(new ParentStackProcessing(currentVariableName, nextVariableName, currentBackingBean.isPresent() ? currentBackingBean.get().getClassName() : null, field.get().getFieldName(), i == 0, isLast, field.get().isCollection()));
+            currentBackingBean = Optional.ofNullable(currentBackingBean.get().getParent());
             currentVariableName = nextVariableName;
 
 
@@ -293,7 +306,11 @@ public class ModelInterfaceMethod implements FetchImports, Validatable {
                 outcome = outcome & implicitValue.validate();
             }
 
-        } catch (BBFieldNotFoundException e) {
+            for (ModelInterfaceImplicitValue inlineValue : getImplicitValuesBoundToInlineBB()) {
+                outcome = outcome & inlineValue.validate();
+            }
+
+        } catch (BaseException e) {
             e.writeErrorCompilerMessage();
             outcome = false;
         }
@@ -314,8 +331,9 @@ public class ModelInterfaceMethod implements FetchImports, Validatable {
             // validate
             this.inlineBackingBeanMapping.validate();
 
-            if (getInlineBackingBean() == null) {
+            if (!getInlineBackingBean().isPresent()) {
                 this.inlineBackingBeanMapping.compilerMessage().asError().write(FluentApiProcessorCompilerMessages.ERROR_INLINE_BB_MAPPING_COULDNT_BE_RESOLVED);
+                outcome = false;
             }
 
 
@@ -345,7 +363,7 @@ public class ModelInterfaceMethod implements FetchImports, Validatable {
     }
 
 
-    public ModelBackingBean getNextBackingBean() {
+    public Optional<ModelBackingBean> getNextBackingBean() {
         ModelBackingBean nextBackingBean;
         // Must handle 2 cases
         if (isParentCall()) {
@@ -355,13 +373,15 @@ public class ModelInterfaceMethod implements FetchImports, Validatable {
             nextBackingBean = this.backingBeanModel;
         } else {
             // 2. Child Or Parent
-            nextBackingBean = getNextModelInterface().getBackingBeanModel();
+            Optional<ModelInterface> nextModelInterface = getNextModelInterface();
+
+            nextBackingBean = nextModelInterface.isPresent() ? nextModelInterface.get().getBackingBeanModel() : null;
         }
 
-        return nextBackingBean;
+        return Optional.ofNullable(nextBackingBean);
     }
 
-    public ModelBackingBean getInlineBackingBean() {
+    public Optional<ModelBackingBean> getInlineBackingBean() {
 
         if (inlineBackingBeanMapping != null) {
 
@@ -372,22 +392,22 @@ public class ModelInterfaceMethod implements FetchImports, Validatable {
                 Optional<ModelBackingBeanField> field = inlineBB.getFieldById(inlineBackingBeanMapping.value());
 
                 if (field.isPresent()) {
-                    return field.get().getBackingBeanReferenceBackingBeanModel();
+                    return Optional.ofNullable(field.get().getBackingBeanReferenceBackingBeanModel());
                 }
             }
 
         }
 
-        return null;
+        return Optional.empty();
     }
 
-    public ModelBackingBeanField getInlineBackingBeanField() {
+    public Optional<ModelBackingBeanField> getInlineBackingBeanField() {
 
         if (inlineBackingBeanMapping != null) {
-             return backingBeanModel.getFieldById(inlineBackingBeanMapping.value()).get();
+            return Optional.ofNullable(backingBeanModel.getFieldById(inlineBackingBeanMapping.value()).get());
         }
 
-        return null;
+        return Optional.empty();
     }
 
     @Override

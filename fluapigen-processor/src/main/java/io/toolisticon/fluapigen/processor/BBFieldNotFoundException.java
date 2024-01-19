@@ -9,7 +9,7 @@ import javax.lang.model.element.AnnotationValue;
 import javax.lang.model.element.Element;
 
 @DeclareCompilerMessage(code = "600", enumValueName = "ERROR_CANNOT_FIND_BACKING_BEAN_FIELD", message = "Cannot find field with id '${0}' in backing bean '${1}'", processorClass = FluentApiProcessor.class)
-public class BBFieldNotFoundException extends RuntimeException {
+public class BBFieldNotFoundException extends BaseException{
     final String bbFieldName;
 
     final String bbFieldType;

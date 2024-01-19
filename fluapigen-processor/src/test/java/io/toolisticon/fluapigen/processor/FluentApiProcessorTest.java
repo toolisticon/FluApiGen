@@ -406,4 +406,12 @@ public class FluentApiProcessorTest {
 
     }
 
+
+    @Test
+    public void test_externalOrSharedBB() {
+        compileTestBuilder.addSources("/testcases/sharedBB/FirstApi.java","/testcases/sharedBB/SharedBB.java")
+                .compilationShouldSucceed()
+                .executeTest();
+    }
+
 }

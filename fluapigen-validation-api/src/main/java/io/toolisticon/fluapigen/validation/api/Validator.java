@@ -14,11 +14,14 @@ public interface Validator<TYPE> {
      */
     boolean validate(TYPE obj);
 
-    class ValidatorException extends RuntimeException {
-
-        ValidatorException(String message) {
-            super(message);
+    default boolean validate(TYPE[] obj) {
+        if (obj != null) {
+            for (TYPE element : obj) {
+                if (!validate(element)) {
+                    return false;
+                }
+            }
         }
-
+        return true;
     }
 }
