@@ -3,7 +3,7 @@ package io.toolisticon.fluapigen.processor;
 import io.toolisticon.aptk.common.ToolingProvider;
 import io.toolisticon.aptk.tools.MessagerUtils;
 import io.toolisticon.aptk.tools.wrapper.ExecutableElementWrapper;
-import io.toolisticon.cute.CompileTestBuilder;
+import io.toolisticon.cute.Cute;
 import io.toolisticon.cute.PassIn;
 import org.junit.Before;
 import org.junit.Test;
@@ -29,7 +29,10 @@ public class BBNotFoundExceptionTest {
     @Test
     public void testWriteCompilerMessage() {
 
-        CompileTestBuilder.unitTest().<ExecutableElement>defineTestWithPassedInElement(ExceptionTest.class, (processingEnvironment, element) -> {
+        Cute.unitTest()
+                .when()
+                .passInElement().<ExecutableElement>fromClass(ExceptionTest.class)
+                .intoUnitTest((processingEnvironment, element) -> {
 
 
                     try {
@@ -43,8 +46,10 @@ public class BBNotFoundExceptionTest {
                         ToolingProvider.clearTooling();
                     }
                 })
-                .compilationShouldFail()
-                .expectErrorMessageThatContains(FluentApiProcessorCompilerMessages.ERROR_CANNOT_FIND_NEXT_BACKING_BEAN.getCode(), "String method()").executeTest();
+                .thenExpectThat()
+                .compilationFails()
+                .andThat().compilerMessage().ofKindError().contains(FluentApiProcessorCompilerMessages.ERROR_CANNOT_FIND_NEXT_BACKING_BEAN.getCode(), "String method()")
+                .executeTest();
 
     }
 

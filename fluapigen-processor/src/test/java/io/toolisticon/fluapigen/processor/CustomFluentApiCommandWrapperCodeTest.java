@@ -4,7 +4,8 @@ import io.toolisticon.aptk.common.ToolingProvider;
 import io.toolisticon.aptk.cute.APTKUnitTestProcessor;
 import io.toolisticon.aptk.tools.MessagerUtils;
 import io.toolisticon.aptk.tools.corematcher.CoreMatcherValidationMessages;
-import io.toolisticon.cute.CompileTestBuilder;
+import io.toolisticon.cute.Cute;
+import io.toolisticon.cute.CuteApi;
 import io.toolisticon.cute.PassIn;
 import io.toolisticon.fluapigen.api.FluentApi;
 import io.toolisticon.fluapigen.api.FluentApiBackingBean;
@@ -25,13 +26,13 @@ import javax.lang.model.element.TypeElement;
  */
 public class CustomFluentApiCommandWrapperCodeTest {
 
-    CompileTestBuilder.UnitTestBuilder unitTestBuilder;
+    CuteApi.UnitTestRootInterface unitTestBuilder;
 
     @Before
     public void init() {
         MessagerUtils.setPrintMessageCodes(true);
 
-        unitTestBuilder = CompileTestBuilder
+        unitTestBuilder = Cute
                 .unitTest();
     }
 
@@ -65,14 +66,15 @@ public class CustomFluentApiCommandWrapperCodeTest {
     @Test
     public void validationTest_HappyPath() {
 
-        unitTestBuilder.<TypeElement>defineTestWithPassedInElement(HappyPathTestApi.class, new APTKUnitTestProcessor<TypeElement>() {
+        unitTestBuilder.when().passInElement().<TypeElement>fromClass(HappyPathTestApi.class)
+                .intoUnitTest(new APTKUnitTestProcessor<TypeElement>() {
                     @Override
                     public void aptkUnitTest(ProcessingEnvironment processingEnvironment, TypeElement typeElement) {
-
                         MatcherAssert.assertThat("should return true", CustomFluentApiCommandWrapperCode.validate(FluentApiCommandWrapper.wrap(typeElement)));
                     }
                 })
-                .compilationShouldSucceed()
+                .thenExpectThat()
+                .compilationSucceeds()
                 .executeTest();
 
 
@@ -80,14 +82,15 @@ public class CustomFluentApiCommandWrapperCodeTest {
 
     @Test
     public void test_getCommandMethodName_onCommandClass() {
-        unitTestBuilder.<TypeElement>defineTestWithPassedInElement(HappyPathTestApi.class, new APTKUnitTestProcessor<TypeElement>() {
+        unitTestBuilder.when().passInElement().<TypeElement>fromClass(HappyPathTestApi.class)
+                .intoUnitTest(new APTKUnitTestProcessor<TypeElement>() {
                     @Override
                     public void aptkUnitTest(ProcessingEnvironment processingEnvironment, TypeElement typeElement) {
 
                         MatcherAssert.assertThat(CustomFluentApiCommandWrapperCode.getCommandMethodName(FluentApiCommandWrapper.wrap(typeElement)), Matchers.is("doSomethingBeautiful"));
                     }
                 })
-                .compilationShouldSucceed()
+                .thenExpectThat().compilationSucceeds()
                 .executeTest();
     }
 
@@ -121,14 +124,17 @@ public class CustomFluentApiCommandWrapperCodeTest {
 
     @Test
     public void test_getCommandMethodName_onFluentInterfaceMethods() {
-        unitTestBuilder.<ExecutableElement>defineTestWithPassedInElement(OnFluentApiMethodTestApi.class, new APTKUnitTestProcessor<ExecutableElement>() {
+        unitTestBuilder.when()
+                .passInElement().<ExecutableElement>fromClass(OnFluentApiMethodTestApi.class)
+                .intoUnitTest(new APTKUnitTestProcessor<ExecutableElement>() {
                     @Override
                     public void aptkUnitTest(ProcessingEnvironment processingEnvironment, ExecutableElement typeElement) {
 
                         MatcherAssert.assertThat(CustomFluentApiCommandWrapperCode.getCommandMethodName(FluentApiCommandWrapper.wrap(typeElement)), Matchers.is("doSomethingBeautiful"));
                     }
                 })
-                .compilationShouldSucceed()
+                .thenExpectThat()
+                .compilationSucceeds()
                 .executeTest();
     }
 
@@ -163,7 +169,8 @@ public class CustomFluentApiCommandWrapperCodeTest {
 
     @Test
     public void test_validate_onMethodInClass() {
-        unitTestBuilder.<ExecutableElement>defineTestWithPassedInElement(OnFluentApiMethodTestApi_InClass_error.class, new APTKUnitTestProcessor<ExecutableElement>() {
+        unitTestBuilder.when().passInElement().<ExecutableElement>fromClass(OnFluentApiMethodTestApi_InClass_error.class)
+                .intoUnitTest(new APTKUnitTestProcessor<ExecutableElement>() {
                     @Override
                     public void aptkUnitTest(ProcessingEnvironment processingEnvironment, ExecutableElement element) {
 
@@ -178,8 +185,8 @@ public class CustomFluentApiCommandWrapperCodeTest {
                         }
                     }
                 })
-                .compilationShouldFail()
-                .expectErrorMessageThatContains(CoreMatcherValidationMessages.IS_INTERFACE.getCode())
+                .thenExpectThat().compilationFails()
+                .andThat().compilerMessage().ofKindError().contains(CoreMatcherValidationMessages.IS_INTERFACE.getCode())
                 .executeTest();
     }
 
@@ -217,7 +224,8 @@ public class CustomFluentApiCommandWrapperCodeTest {
 
     @Test
     public void test_validate_twoMethodsInCommandClass() {
-        unitTestBuilder.<TypeElement>defineTestWithPassedInElement(MultipleMethodsInCommandClass.class, new APTKUnitTestProcessor<TypeElement>() {
+        unitTestBuilder.when().passInElement().<TypeElement>fromClass(MultipleMethodsInCommandClass.class)
+                .intoUnitTest(new APTKUnitTestProcessor<TypeElement>() {
                     @Override
                     public void aptkUnitTest(ProcessingEnvironment processingEnvironment, TypeElement typeElement) {
 
@@ -233,8 +241,8 @@ public class CustomFluentApiCommandWrapperCodeTest {
 
                     }
                 })
-                .compilationShouldFail()
-                .expectErrorMessageThatContains(FluentApiProcessorCompilerMessages.ERROR_COMMAND_CLASS_MUST_DECLARE_EXACTLY_ONE_STATIC_METHOD.getCode())
+                .thenExpectThat().compilationFails()
+                .andThat().compilerMessage().ofKindError().contains(FluentApiProcessorCompilerMessages.ERROR_COMMAND_CLASS_MUST_DECLARE_EXACTLY_ONE_STATIC_METHOD.getCode())
                 .executeTest();
     }
 
@@ -272,7 +280,8 @@ public class CustomFluentApiCommandWrapperCodeTest {
 
     @Test
     public void test_validate_noMethodInCommandClass() {
-        unitTestBuilder.<TypeElement>defineTestWithPassedInElement(NoMethodInCommandClass.class, new APTKUnitTestProcessor<TypeElement>() {
+        unitTestBuilder.when().passInElement().<TypeElement>fromClass(NoMethodInCommandClass.class)
+                .intoUnitTest(new APTKUnitTestProcessor<TypeElement>() {
                     @Override
                     public void aptkUnitTest(ProcessingEnvironment processingEnvironment, TypeElement typeElement) {
 
@@ -288,8 +297,8 @@ public class CustomFluentApiCommandWrapperCodeTest {
 
                     }
                 })
-                .compilationShouldFail()
-                .expectErrorMessageThatContains(FluentApiProcessorCompilerMessages.ERROR_COMMAND_CLASS_MUST_DECLARE_EXACTLY_ONE_STATIC_METHOD.getCode())
+                .thenExpectThat().compilationFails()
+                .andThat().compilerMessage().ofKindError().contains(FluentApiProcessorCompilerMessages.ERROR_COMMAND_CLASS_MUST_DECLARE_EXACTLY_ONE_STATIC_METHOD.getCode())
                 .executeTest();
     }
 

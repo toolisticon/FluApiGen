@@ -2,7 +2,8 @@ package io.toolisticon.fluapigen.processor;
 
 import io.toolisticon.aptk.cute.APTKUnitTestProcessor;
 import io.toolisticon.aptk.tools.MessagerUtils;
-import io.toolisticon.cute.CompileTestBuilder;
+import io.toolisticon.cute.Cute;
+import io.toolisticon.cute.CuteApi;
 import io.toolisticon.cute.PassIn;
 import io.toolisticon.fluapigen.api.FluentApi;
 import io.toolisticon.fluapigen.api.FluentApiBackingBean;
@@ -23,13 +24,13 @@ import java.util.stream.Collectors;
  */
 public class CustomFluentApiWrapperCodeTest {
 
-    CompileTestBuilder.UnitTestBuilder unitTestBuilder;
+    CuteApi.UnitTestRootInterface unitTestBuilder;
 
     @Before
     public void init() {
         MessagerUtils.setPrintMessageCodes(true);
 
-        unitTestBuilder = CompileTestBuilder
+        unitTestBuilder = Cute
                 .unitTest();
     }
 
@@ -52,16 +53,17 @@ public class CustomFluentApiWrapperCodeTest {
     @Test
     public void validationTest_NoRoot() {
 
-        unitTestBuilder.<TypeElement>defineTestWithPassedInElement(NoRootTestApi.class, new APTKUnitTestProcessor<TypeElement>() {
-            @Override
-            public void aptkUnitTest(ProcessingEnvironment processingEnvironment, TypeElement typeElement) {
+        unitTestBuilder.when().passInElement().<TypeElement>fromClass(NoRootTestApi.class)
+                .intoUnitTest(new APTKUnitTestProcessor<TypeElement>() {
+                    @Override
+                    public void aptkUnitTest(ProcessingEnvironment processingEnvironment, TypeElement typeElement) {
 
-                MatcherAssert.assertThat("should return false",!CustomFluentApiWrapperCode.validate(FluentApiWrapper.wrap(typeElement)));
-            }
-        })
-        .compilationShouldFail()
-        .expectErrorMessage().thatContains(FluentApiProcessorCompilerMessages.ERROR_FLUENTAPI_NO_ROOT_INTERFACE.getCode())
-        .executeTest();
+                        MatcherAssert.assertThat("should return false", !CustomFluentApiWrapperCode.validate(FluentApiWrapper.wrap(typeElement)));
+                    }
+                })
+                .thenExpectThat().compilationFails()
+                .andThat().compilerMessage().ofKindError().contains(FluentApiProcessorCompilerMessages.ERROR_FLUENTAPI_NO_ROOT_INTERFACE.getCode())
+                .executeTest();
 
 
     }
@@ -92,15 +94,16 @@ public class CustomFluentApiWrapperCodeTest {
     @Test
     public void validationTest_MultipleRoot() {
 
-        unitTestBuilder.<TypeElement>defineTestWithPassedInElement(MultipleRootTestApi.class, new APTKUnitTestProcessor<TypeElement>() {
+        unitTestBuilder.when().passInElement().<TypeElement>fromClass(MultipleRootTestApi.class)
+                .intoUnitTest(new APTKUnitTestProcessor<TypeElement>() {
                     @Override
                     public void aptkUnitTest(ProcessingEnvironment processingEnvironment, TypeElement typeElement) {
 
-                        MatcherAssert.assertThat("should return false",!CustomFluentApiWrapperCode.validate(FluentApiWrapper.wrap(typeElement)));
+                        MatcherAssert.assertThat("should return false", !CustomFluentApiWrapperCode.validate(FluentApiWrapper.wrap(typeElement)));
                     }
                 })
-                .compilationShouldFail()
-                .expectErrorMessage().thatContains(FluentApiProcessorCompilerMessages.ERROR_FLUENTAPI_MULTIPLE_ROOT_INTERFACES.getCode())
+                .thenExpectThat().compilationFails()
+                .andThat().compilerMessage().ofKindError().contains(FluentApiProcessorCompilerMessages.ERROR_FLUENTAPI_MULTIPLE_ROOT_INTERFACES.getCode())
                 .executeTest();
 
 
@@ -132,15 +135,16 @@ public class CustomFluentApiWrapperCodeTest {
     @Test
     public void validationTest_EmptyStarterName() {
 
-        unitTestBuilder.<TypeElement>defineTestWithPassedInElement(EmptyStarterNameTestApi.class, new APTKUnitTestProcessor<TypeElement>() {
+        unitTestBuilder.when().passInElement().<TypeElement>fromClass(EmptyStarterNameTestApi.class)
+                .intoUnitTest(new APTKUnitTestProcessor<TypeElement>() {
                     @Override
                     public void aptkUnitTest(ProcessingEnvironment processingEnvironment, TypeElement typeElement) {
 
-                        MatcherAssert.assertThat("should return false",!CustomFluentApiWrapperCode.validate(FluentApiWrapper.wrap(typeElement)));
+                        MatcherAssert.assertThat("should return false", !CustomFluentApiWrapperCode.validate(FluentApiWrapper.wrap(typeElement)));
                     }
                 })
-                .compilationShouldFail()
-                .expectErrorMessage().thatContains(FluentApiProcessorCompilerMessages.ERROR_FLUENTAPI_CLASSNAME_MUST_NOT_BE_EMPTY.getCode())
+                .thenExpectThat().compilationFails()
+                .andThat().compilerMessage().ofKindError().contains(FluentApiProcessorCompilerMessages.ERROR_FLUENTAPI_CLASSNAME_MUST_NOT_BE_EMPTY.getCode())
                 .executeTest();
 
 
@@ -172,15 +176,16 @@ public class CustomFluentApiWrapperCodeTest {
     @Test
     public void validationTest_InvalidStarterName() {
 
-        unitTestBuilder.<TypeElement>defineTestWithPassedInElement(InvalidStarterNameTestApi.class, new APTKUnitTestProcessor<TypeElement>() {
+        unitTestBuilder.when().passInElement().<TypeElement>fromClass(InvalidStarterNameTestApi.class)
+                .intoUnitTest(new APTKUnitTestProcessor<TypeElement>() {
                     @Override
                     public void aptkUnitTest(ProcessingEnvironment processingEnvironment, TypeElement typeElement) {
 
-                        MatcherAssert.assertThat("should return false",!CustomFluentApiWrapperCode.validate(FluentApiWrapper.wrap(typeElement)));
+                        MatcherAssert.assertThat("should return false", !CustomFluentApiWrapperCode.validate(FluentApiWrapper.wrap(typeElement)));
                     }
                 })
-                .compilationShouldFail()
-                .expectErrorMessage().thatContains(FluentApiProcessorCompilerMessages.ERROR_FLUENTAPI_CLASSNAME_MUST_BE_VALID.getCode())
+                .thenExpectThat().compilationFails()
+                .andThat().compilerMessage().ofKindError().contains(FluentApiProcessorCompilerMessages.ERROR_FLUENTAPI_CLASSNAME_MUST_BE_VALID.getCode())
                 .executeTest();
 
 
@@ -189,14 +194,15 @@ public class CustomFluentApiWrapperCodeTest {
     @Test
     public void validationTest_HappyPath() {
 
-        unitTestBuilder.<TypeElement>defineTestWithPassedInElement(ValidTestApi.class, new APTKUnitTestProcessor<TypeElement>() {
+        unitTestBuilder.when().passInElement().<TypeElement>fromClass(ValidTestApi.class)
+                .intoUnitTest(new APTKUnitTestProcessor<TypeElement>() {
                     @Override
                     public void aptkUnitTest(ProcessingEnvironment processingEnvironment, TypeElement typeElement) {
 
-                        MatcherAssert.assertThat("should return true",CustomFluentApiWrapperCode.validate(FluentApiWrapper.wrap(typeElement)));
+                        MatcherAssert.assertThat("should return true", CustomFluentApiWrapperCode.validate(FluentApiWrapper.wrap(typeElement)));
                     }
                 })
-                .compilationShouldSucceed()
+                .thenExpectThat().compilationSucceeds()
                 .executeTest();
 
     }
@@ -248,31 +254,32 @@ public class CustomFluentApiWrapperCodeTest {
     }
 
     @Test
-    public void getStateTest () {
-        unitTestBuilder.<TypeElement>defineTestWithPassedInElement(ValidTestApi.class, new APTKUnitTestProcessor<TypeElement>() {
+    public void getStateTest() {
+        unitTestBuilder.when().passInElement().<TypeElement>fromClass(ValidTestApi.class)
+                .intoUnitTest(new APTKUnitTestProcessor<TypeElement>() {
                     @Override
                     public void aptkUnitTest(ProcessingEnvironment processingEnvironment, TypeElement typeElement) {
 
                         FluentApiState state = CustomFluentApiWrapperCode.getState(FluentApiWrapper.wrap(typeElement));
 
-                        MatcherAssert.assertThat(state.getFluentApiInterfaceWrappers().stream().map(e-> e._annotatedElement().asType().toString()).collect(Collectors.toList()),
+                        MatcherAssert.assertThat(state.getFluentApiInterfaceWrappers().stream().map(e -> e._annotatedElement().asType().toString()).collect(Collectors.toList()),
                                 Matchers.containsInAnyOrder(
                                         ValidTestApi.FluentInterface1.class.getCanonicalName(),
                                         ValidTestApi.FluentInterface2.class.getCanonicalName())
                         );
-                        MatcherAssert.assertThat(state.getFluentApiCommandWrappers().stream().map(e-> e._annotatedElement().asType().toString()).collect(Collectors.toList()),
+                        MatcherAssert.assertThat(state.getFluentApiCommandWrappers().stream().map(e -> e._annotatedElement().asType().toString()).collect(Collectors.toList()),
                                 Matchers.containsInAnyOrder(
                                         ValidTestApi.TestCommand1.class.getCanonicalName(),
                                         ValidTestApi.TestCommand2.class.getCanonicalName())
                         );
-                        MatcherAssert.assertThat(state.getFluentApiBackingBeanWrappers().stream().map(e-> e._annotatedElement().asType().toString()).collect(Collectors.toList()),
+                        MatcherAssert.assertThat(state.getFluentApiBackingBeanWrappers().stream().map(e -> e._annotatedElement().asType().toString()).collect(Collectors.toList()),
                                 Matchers.containsInAnyOrder(
                                         ValidTestApi.BackingBean1.class.getCanonicalName(),
                                         ValidTestApi.BackingBean2.class.getCanonicalName())
                         );
                     }
                 })
-                .compilationShouldSucceed()
+                .thenExpectThat().compilationSucceeds()
                 .executeTest();
 
     }

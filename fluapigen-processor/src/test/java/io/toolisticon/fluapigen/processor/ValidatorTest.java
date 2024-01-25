@@ -4,7 +4,8 @@ import io.toolisticon.aptk.common.ToolingProvider;
 import io.toolisticon.aptk.tools.MessagerUtils;
 import io.toolisticon.aptk.tools.wrapper.AnnotationMirrorWrapper;
 import io.toolisticon.aptk.tools.wrapper.VariableElementWrapper;
-import io.toolisticon.cute.CompileTestBuilder;
+import io.toolisticon.cute.Cute;
+import io.toolisticon.cute.CuteApi;
 import io.toolisticon.cute.PassIn;
 import io.toolisticon.cute.UnitTest;
 import io.toolisticon.fluapigen.validation.api.FluentApiValidator;
@@ -23,17 +24,17 @@ import java.lang.annotation.Target;
 
 public class ValidatorTest {
 
-    CompileTestBuilder.UnitTestBuilder unitTestBuilder;
-    CompileTestBuilder.CompilationTestBuilder compilationTestBuilder;
+    CuteApi.UnitTestRootInterface unitTestBuilder;
+    CuteApi.BlackBoxTestSourceFilesInterface compilationTestBuilder;
 
     @Before
     public void init() {
         MessagerUtils.setPrintMessageCodes(true);
 
-        unitTestBuilder = CompileTestBuilder
+        unitTestBuilder = Cute
                 .unitTest();
 
-        compilationTestBuilder = CompileTestBuilder.compilationTest().addProcessors(FluentApiProcessor.class);
+        compilationTestBuilder = Cute.blackBoxTest().given().processors(FluentApiProcessor.class);
     }
 
 
@@ -43,7 +44,8 @@ public class ValidatorTest {
 
     @Test
     public void testMatchesValidator() {
-        unitTestBuilder.defineTestWithPassedInElement(TestInterfaceWithMatchesValidator.class, (UnitTest<VariableElement>) (processingEnvironment, element) -> {
+        unitTestBuilder.when().passInElement().<VariableElement>fromClass(TestInterfaceWithMatchesValidator.class)
+                .intoUnitTest((UnitTest<VariableElement>) (processingEnvironment, element) -> {
 
                     try {
                         ToolingProvider.setTooling(processingEnvironment);
@@ -55,14 +57,16 @@ public class ValidatorTest {
                         ToolingProvider.clearTooling();
                     }
 
-                }).compilationShouldSucceed()
+                })
+                .thenExpectThat().compilationSucceeds()
                 .executeTest();
     }
 
     @Test
     public void compilationTestValidator() {
-        compilationTestBuilder.addSources("/testcases/TestcaseValidator.java")
-                .compilationShouldSucceed()
+        compilationTestBuilder.andSourceFiles("/testcases/TestcaseValidator.java")
+                .whenCompiled().thenExpectThat()
+                .compilationSucceeds()
                 .executeTest();
     }
 
@@ -141,7 +145,8 @@ public class ValidatorTest {
 
     @Test
     public void test_getValidatorExpressionAttributeValueStringRepresentation() {
-        unitTestBuilder.defineTestWithPassedInElement(TestCase.class, (UnitTest<VariableElement>) (processingEnvironment, element) -> {
+        unitTestBuilder.when().passInElement().<VariableElement>fromClass(TestCase.class)
+                .intoUnitTest((UnitTest<VariableElement>) (processingEnvironment, element) -> {
 
                     try {
                         ToolingProvider.setTooling(processingEnvironment);
@@ -165,13 +170,14 @@ public class ValidatorTest {
                         ToolingProvider.clearTooling();
                     }
 
-                }).compilationShouldSucceed()
+                }).thenExpectThat().compilationSucceeds()
                 .executeTest();
     }
 
     @Test
     public void test_validate() {
-        unitTestBuilder.defineTestWithPassedInElement(TestCase.class, (UnitTest<VariableElement>) (processingEnvironment, element) -> {
+        unitTestBuilder.when().passInElement().<VariableElement>fromClass(TestCase.class)
+                .intoUnitTest((UnitTest<VariableElement>) (processingEnvironment, element) -> {
 
                     try {
                         ToolingProvider.setTooling(processingEnvironment);
@@ -186,7 +192,8 @@ public class ValidatorTest {
                         ToolingProvider.clearTooling();
                     }
 
-                }).compilationShouldSucceed()
+                })
+                .thenExpectThat().compilationSucceeds()
                 .executeTest();
     }
 
@@ -201,9 +208,10 @@ public class ValidatorTest {
 
             final String attr;
 
-            public MyValidator (String attr){
+            public MyValidator(String attr) {
                 this.attr = attr;
             }
+
             @Override
             public boolean validate(String obj) {
 
@@ -222,7 +230,9 @@ public class ValidatorTest {
 
     @Test
     public void test_validate_invalidValidatorWrong() {
-        unitTestBuilder.defineTestWithPassedInElement(WrongAttributeNameToConstructorParameterMappingTest.class, (UnitTest<VariableElement>) (processingEnvironment, element) -> {
+        unitTestBuilder.
+                when().passInElement().<VariableElement>fromClass(WrongAttributeNameToConstructorParameterMappingTest.class)
+                .intoUnitTest((UnitTest<VariableElement>) (processingEnvironment, element) -> {
 
                     try {
                         ToolingProvider.setTooling(processingEnvironment);
@@ -238,8 +248,8 @@ public class ValidatorTest {
                     }
 
                 })
-                .compilationShouldFail()
-                .expectErrorMessage().thatContains(FluentApiProcessorCompilerMessages.ERROR_BROKEN_VALIDATOR_ATTRIBUTE_NAME_MISMATCH.getCode())
+                .thenExpectThat().compilationFails()
+                .andThat().compilerMessage().ofKindError().contains(FluentApiProcessorCompilerMessages.ERROR_BROKEN_VALIDATOR_ATTRIBUTE_NAME_MISMATCH.getCode())
                 .executeTest();
     }
 
@@ -272,7 +282,8 @@ public class ValidatorTest {
 
     @Test
     public void test_validate_missingNoargConstructor() {
-        unitTestBuilder.defineTestWithPassedInElement(MissingNoargConstructorTest.class, (UnitTest<VariableElement>) (processingEnvironment, element) -> {
+        unitTestBuilder.when().passInElement().<VariableElement>fromClass(MissingNoargConstructorTest.class)
+                .intoUnitTest((UnitTest<VariableElement>) (processingEnvironment, element) -> {
 
                     try {
                         ToolingProvider.setTooling(processingEnvironment);
@@ -288,8 +299,8 @@ public class ValidatorTest {
                     }
 
                 })
-                .compilationShouldFail()
-                .expectErrorMessage().thatContains(FluentApiProcessorCompilerMessages.ERROR_BROKEN_VALIDATOR_MISSING_NOARG_CONSTRUCTOR.getCode())
+                .thenExpectThat().compilationFails()
+                .andThat().compilerMessage().ofKindError().contains(FluentApiProcessorCompilerMessages.ERROR_BROKEN_VALIDATOR_MISSING_NOARG_CONSTRUCTOR.getCode())
                 .executeTest();
     }
 
@@ -325,7 +336,8 @@ public class ValidatorTest {
 
     @Test
     public void test_validate_noMatchingConstructor() {
-        unitTestBuilder.defineTestWithPassedInElement(NonMatchingConstructorTest.class, (UnitTest<VariableElement>) (processingEnvironment, element) -> {
+        unitTestBuilder.when().passInElement().<VariableElement>fromClass(NonMatchingConstructorTest.class)
+                .intoUnitTest((UnitTest<VariableElement>) (processingEnvironment, element) -> {
 
                     try {
                         ToolingProvider.setTooling(processingEnvironment);
@@ -341,8 +353,8 @@ public class ValidatorTest {
                     }
 
                 })
-                .compilationShouldFail()
-                .expectErrorMessage().thatContains(FluentApiProcessorCompilerMessages.ERROR_BROKEN_VALIDATOR_CONSTRUCTOR_PARAMETER_MAPPING.getCode())
+                .thenExpectThat().compilationFails()
+                .andThat().compilerMessage().ofKindError().contains(FluentApiProcessorCompilerMessages.ERROR_BROKEN_VALIDATOR_CONSTRUCTOR_PARAMETER_MAPPING.getCode())
                 .executeTest();
     }
 
