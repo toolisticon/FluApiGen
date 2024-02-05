@@ -3,12 +3,16 @@ package io.toolisticon.fluapigen.processor;
 import io.toolisticon.aptk.compilermessage.api.DeclareCompilerMessage;
 import io.toolisticon.aptk.tools.InterfaceUtils;
 import io.toolisticon.aptk.tools.TypeMirrorWrapper;
+import io.toolisticon.aptk.tools.wrapper.ElementWrapper;
 import io.toolisticon.aptk.tools.wrapper.VariableElementWrapper;
 import io.toolisticon.fluapigen.api.FluentApiBackingBeanMapping;
 import io.toolisticon.fluapigen.api.FluentApiConverter;
 import io.toolisticon.fluapigen.api.TargetBackingBean;
 import io.toolisticon.fluapigen.validation.api.FluentApiValidator;
 
+import javax.lang.model.element.Element;
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -83,7 +87,29 @@ public class ModelInterfaceMethodParameter {
     }
 
     public List<ModelValidator> getValidators() {
-        return this.parameterElement.getAnnotations().stream().filter(e -> e.asElement().hasAnnotation(FluentApiValidator.class)).map(e -> new ModelValidator(this.parameterElement, e)).collect(Collectors.toList());
+
+        // First get all enclosing elements - order is from element to top level parent
+        List<ElementWrapper<Element>> enclosingElements = this.parameterElement.getAllEnclosingElements(true);
+
+        // now map it to ModelValidators
+        List<ModelValidator> allValidatorsWithoutOverwrites = enclosingElements.stream()
+                .flatMap(
+                        e -> e.getAnnotations().stream()
+                                .filter(f -> f.asElement().hasAnnotation(FluentApiValidator.class))
+                                .map(f -> new ModelValidator(this.parameterElement, f))
+                ).collect(Collectors.toList());
+
+        // Must remove overwritten validators - add them one by one from lowest to highest level and check if the element to add is already overruled by thos in list.
+        List<ModelValidator> result = new ArrayList();
+
+        for (ModelValidator nextValidator : allValidatorsWithoutOverwrites) {
+            if (!nextValidator.isOverruledBy(result)) {
+                result.add(nextValidator);
+            }
+        }
+
+        return result;
+
     }
 
     public String getParameterName() {

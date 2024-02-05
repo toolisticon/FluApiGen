@@ -10,6 +10,7 @@ import io.toolisticon.fluapigen.api.FluentApiRoot;
 import io.toolisticon.fluapigen.validation.api.Matches;
 import io.toolisticon.fluapigen.validation.api.MaxLength;
 import io.toolisticon.fluapigen.validation.api.NotNull;
+import io.toolisticon.fluapigen.validation.api.Nullable;
 
 @FluentApi("ValidatorExampleStarter")
 public class ValidatorExample {
@@ -26,9 +27,17 @@ public class ValidatorExample {
     // Fluent Api interfaces
     @FluentApiInterface(MyBackingBean.class)
     @FluentApiRoot
+    @Nullable
     public interface MyRootInterface {
 
         MyRootInterface setName(@NotNull @MaxLength(8) @Matches("aaa.*") @FluentApiBackingBeanMapping("name") String name);
+
+        @NotNull
+        MyRootInterface setNameWithNullableOnParameter(@Nullable @MaxLength(8) @Matches("aaa.*") @FluentApiBackingBeanMapping("name") String name);
+
+        @Nullable
+        MyRootInterface setNameWithNullableOnMethod(@NotNull @MaxLength(8) @Matches("aaa.*") @FluentApiBackingBeanMapping("name") String name);
+
 
         @FluentApiCommand(MyCommand.class)
         void myCommand();
