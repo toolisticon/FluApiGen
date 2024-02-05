@@ -4,7 +4,7 @@
 [![default](https://github.com/toolisticon/FluApiGen/actions/workflows/default.yml/badge.svg)](https://github.com/toolisticon/FluApiGen/actions/workflows/default.yml)
 [![release_on_master](https://github.com/toolisticon/FluApiGen/actions/workflows/release.yml/badge.svg?branch=master)](https://github.com/toolisticon/FluApiGen/actions/workflows/release.yml)
 [![codecov](https://codecov.io/gh/toolisticon/FluApiGen/branch/develop/graph/badge.svg?token=FlcugFxC64)](https://codecov.io/gh/toolisticon/FluApiGen)
-[![javadoc](https://javadoc.io/badge2/io.toolisticon.fluapigen/fluapigen/javadoc.svg)](https://javadoc.io/doc/io.toolisticon.fluapigen/fluapigen)
+[![javadoc](https://javadoc.io/badge2/io.toolisticon.fluapigen/fluapigen-api/javadoc.svg)](https://javadoc.io/doc/io.toolisticon.fluapigen/fluapigen-api)
 
 Implementing and especially maintaining of fluent and immutable apis is one of a most annoying and difficult tasks to do in java developing.
 
