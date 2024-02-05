@@ -2,7 +2,7 @@ package io.toolisticon.fluapigen.processor;
 
 import io.toolisticon.aptk.common.ToolingProvider;
 import io.toolisticon.aptk.tools.MessagerUtils;
-import io.toolisticon.cute.CompileTestBuilder;
+import io.toolisticon.cute.Cute;
 import io.toolisticon.cute.PassIn;
 import io.toolisticon.fluapigen.api.FluentApiBackingBeanMapping;
 import org.junit.Before;
@@ -29,7 +29,8 @@ public class IncompatibleParameterTypeExceptionTest {
         final String parameterType = "PT";
         final String bbFieldName = "FN";
         final String bbFieldType = "FT";
-        CompileTestBuilder.unitTest().defineTestWithPassedInElement(ExceptionTest.class, (processingEnvironment, element) -> {
+        Cute.unitTest().when().passInElement().fromClass(ExceptionTest.class)
+                .intoUnitTest((processingEnvironment, element) -> {
 
 
                     try {
@@ -43,8 +44,9 @@ public class IncompatibleParameterTypeExceptionTest {
                         ToolingProvider.clearTooling();
                     }
                 })
-                .compilationShouldFail()
-                .expectErrorMessageThatContains(FluentApiProcessorCompilerMessages.ERROR_INCOMPATIBLE_BACKING_BEAN_MAPPING_TYPES.getCode(), parameterType, bbFieldName, bbFieldType).executeTest();
+                .thenExpectThat().compilationFails()
+                .andThat().compilerMessage().ofKindError().contains(FluentApiProcessorCompilerMessages.ERROR_INCOMPATIBLE_BACKING_BEAN_MAPPING_TYPES.getCode(), parameterType, bbFieldName, bbFieldType)
+                .executeTest();
 
     }
 

@@ -20,8 +20,16 @@ public @interface FluentApiValidator {
 
     /**
      * Used to map parameters to validator constructor.
+     * Defaults to empty array for no-arg constructor.
      * @return the parameter names
      */
     String[] attributeNamesToConstructorParameterMapping() default {};
+
+    /**
+     * Must reference annotation types annotated with this meta annotation.
+     * Defaults to empty array.
+     * @return the annotations overwritten with this annotation
+     */
+    Class<?>[] overwrites() default {};
 
 }

@@ -1,5 +1,6 @@
 package io.toolisticon.fluapigen.integrationtest;
 
+import io.toolisticon.fluapigen.validation.api.ValidatorException;
 import org.junit.Test;
 
 public class ValidatorExampleTest {
@@ -15,7 +16,14 @@ public class ValidatorExampleTest {
     public void testValidator() {
 
         ValidatorExampleStarter.setName("aaaBDSXS").myCommand();
+        ValidatorExampleStarter.setNameWithNullableOnParameter(null).myCommand();
+        ValidatorExampleStarter.setNameWithNullableOnMethod("aaaBDSXS").myCommand();
 
+    }
+
+    @Test(expected = ValidatorException.class)
+    public void testOverruledNotNullAtParameter() {
+        ValidatorExampleStarter.setNameWithNullableOnMethod(null).myCommand();
     }
 
 }

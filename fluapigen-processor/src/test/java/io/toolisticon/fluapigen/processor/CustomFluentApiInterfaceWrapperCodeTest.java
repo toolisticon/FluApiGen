@@ -3,7 +3,8 @@ package io.toolisticon.fluapigen.processor;
 import io.toolisticon.aptk.cute.APTKUnitTestProcessor;
 import io.toolisticon.aptk.tools.MessagerUtils;
 import io.toolisticon.aptk.tools.corematcher.CoreMatcherValidationMessages;
-import io.toolisticon.cute.CompileTestBuilder;
+import io.toolisticon.cute.Cute;
+import io.toolisticon.cute.CuteApi;
 import io.toolisticon.cute.PassIn;
 import io.toolisticon.fluapigen.api.FluentApi;
 import io.toolisticon.fluapigen.api.FluentApiBackingBean;
@@ -20,13 +21,13 @@ import javax.lang.model.element.TypeElement;
  */
 public class CustomFluentApiInterfaceWrapperCodeTest {
 
-    CompileTestBuilder.UnitTestBuilder unitTestBuilder;
+    CuteApi.UnitTestRootInterface unitTestBuilder;
 
     @Before
     public void init() {
         MessagerUtils.setPrintMessageCodes(true);
 
-        unitTestBuilder = CompileTestBuilder
+        unitTestBuilder = Cute
                 .unitTest();
     }
 
@@ -49,15 +50,16 @@ public class CustomFluentApiInterfaceWrapperCodeTest {
     @Test
     public void validationTest_NoRoot() {
 
-        unitTestBuilder.<TypeElement>defineTestWithPassedInElement(NotAccessibleTestApi.class, new APTKUnitTestProcessor<TypeElement>() {
+        unitTestBuilder.when().passInElement().<TypeElement>fromClass(NotAccessibleTestApi.class)
+                .intoUnitTest(new APTKUnitTestProcessor<TypeElement>() {
                     @Override
                     public void aptkUnitTest(ProcessingEnvironment processingEnvironment, TypeElement typeElement) {
 
                         MatcherAssert.assertThat("should return false", !CustomFluentApiInterfaceWrapperCode.validate(FluentApiInterfaceWrapper.wrap(typeElement)));
                     }
                 })
-                .compilationShouldFail()
-                .expectErrorMessage().thatContains(CoreMatcherValidationMessages.BY_MODIFIER.getCode())
+                .thenExpectThat().compilationFails()
+                .andThat().compilerMessage().ofKindError().contains(CoreMatcherValidationMessages.BY_MODIFIER.getCode())
                 .executeTest();
 
 
@@ -82,21 +84,19 @@ public class CustomFluentApiInterfaceWrapperCodeTest {
     @Test
     public void validationTest_PlacedOnClass() {
 
-        unitTestBuilder.<TypeElement>defineTestWithPassedInElement(PlacedOnClassTestApi.class, new APTKUnitTestProcessor<TypeElement>() {
+        unitTestBuilder.when().passInElement().<TypeElement>fromClass(PlacedOnClassTestApi.class)
+                .intoUnitTest(new APTKUnitTestProcessor<TypeElement>() {
                     @Override
                     public void aptkUnitTest(ProcessingEnvironment processingEnvironment, TypeElement typeElement) {
 
                         MatcherAssert.assertThat("should return false", !CustomFluentApiInterfaceWrapperCode.validate(FluentApiInterfaceWrapper.wrap(typeElement)));
                     }
                 })
-                .compilationShouldFail()
-                .expectErrorMessage().thatContains(CoreMatcherValidationMessages.IS_INTERFACE.getCode())
+                .thenExpectThat().compilationFails()
+                .andThat().compilerMessage().ofKindError().contains(CoreMatcherValidationMessages.IS_INTERFACE.getCode())
                 .executeTest();
 
-
     }
-
-
 
 
 }

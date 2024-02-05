@@ -11,6 +11,7 @@ import io.toolisticon.aptk.tools.wrapper.VariableElementWrapper;
 
 import javax.lang.model.element.Modifier;
 import java.util.Arrays;
+import java.util.List;
 import java.util.stream.Collectors;
 
 public class ModelValidator {
@@ -28,6 +29,23 @@ public class ModelValidator {
         return FluentApiValidatorWrapper.wrap(this.validatorAnnotation.asElement().unwrap());
     }
 
+    // visible for testing
+    AnnotationMirrorWrapper getAnnotationMirrorWrapper() {
+        return validatorAnnotation;
+    }
+
+    public boolean isOverruledBy (List<ModelValidator> existingLowestLevelValidators) {
+        for (ModelValidator existinModelValidator : existingLowestLevelValidators) {
+
+            for (String overruledAnnotation : existinModelValidator.getValidatorAnnotation().overwritesAsFqn()) {
+                if (overruledAnnotation.equals(validatorAnnotation.asTypeMirror().getQualifiedName())) {
+                    return true;
+                }
+            }
+
+        }
+        return false;
+    }
 
     @DeclareCompilerMessage(code = "752", enumValueName = "ERROR_BROKEN_VALIDATOR_ATTRIBUTE_NAME_MISMATCH", message = "The configured validator ${0} seems to have a broken annotation attribute to validator constructor parameter mapping. Attributes names ${1} doesn't exist. Please fix validator implementation or don't use it.", processorClass = FluentApiProcessor.class)
     @DeclareCompilerMessage(code = "753", enumValueName = "ERROR_BROKEN_VALIDATOR_CONSTRUCTOR_PARAMETER_MAPPING", message = "The configured validator ${0} seems to have a broken annotation attribute to validator constructor parameter mapping. Please fix validator implementation or don't use it.", processorClass = FluentApiProcessor.class)

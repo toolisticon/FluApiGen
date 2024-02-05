@@ -5,6 +5,7 @@
 [![release_on_master](https://github.com/toolisticon/FluApiGen/actions/workflows/release.yml/badge.svg?branch=master)](https://github.com/toolisticon/FluApiGen/actions/workflows/release.yml)
 [![codecov](https://codecov.io/gh/toolisticon/FluApiGen/branch/develop/graph/badge.svg?token=FlcugFxC64)](https://codecov.io/gh/toolisticon/FluApiGen)
 
+
 Implementing and especially maintaining of fluent and immutable apis is one of a most annoying and difficult tasks to do in java developing.
 
 You usually have to implement a lot of boilerplate code that is only needed to handle and clone the fluent apis internal state.

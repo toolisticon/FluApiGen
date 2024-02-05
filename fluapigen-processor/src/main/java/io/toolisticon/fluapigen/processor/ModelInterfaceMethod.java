@@ -6,6 +6,7 @@ import io.toolisticon.aptk.tools.wrapper.TypeElementWrapper;
 import io.toolisticon.aptk.tools.wrapper.VariableElementWrapper;
 import io.toolisticon.fluapigen.api.FluentApiBackingBeanMapping;
 import io.toolisticon.fluapigen.api.FluentApiCommand;
+import io.toolisticon.fluapigen.api.FluentApiInlineBackingBeanMapping;
 import io.toolisticon.fluapigen.api.FluentApiParentBackingBeanMapping;
 import io.toolisticon.fluapigen.api.TargetBackingBean;
 
@@ -288,6 +289,21 @@ public class ModelInterfaceMethod implements FetchImports, Validatable {
     public boolean validate() {
 
         boolean outcome = true;
+
+        // check inline backing bean
+        if (this.inlineBackingBeanMapping != null) {
+
+            // validate
+            this.inlineBackingBeanMapping.validate();
+
+            if (!getInlineBackingBean().isPresent()) {
+                this.inlineBackingBeanMapping.compilerMessage().asError().write(FluentApiProcessorCompilerMessages.ERROR_INLINE_BB_MAPPING_COULDNT_BE_RESOLVED);
+                return false;
+            }
+
+
+        }
+
         // check parameters
         // -> names must match an existing target field
 
@@ -322,20 +338,6 @@ public class ModelInterfaceMethod implements FetchImports, Validatable {
                 executableElement.compilerMessage().asError().write(FluentApiProcessorCompilerMessages.ERROR_RETURN_TYPE_MUST_BE_FLUENT_INTERFACE, executableElement.getReturnType().isVoidType() ? "void" : executableElement.getReturnType().getSimpleName());
                 outcome = false;
             }
-
-        }
-
-        // check inline backing bean
-        if (this.inlineBackingBeanMapping != null) {
-
-            // validate
-            this.inlineBackingBeanMapping.validate();
-
-            if (!getInlineBackingBean().isPresent()) {
-                this.inlineBackingBeanMapping.compilerMessage().asError().write(FluentApiProcessorCompilerMessages.ERROR_INLINE_BB_MAPPING_COULDNT_BE_RESOLVED);
-                outcome = false;
-            }
-
 
         }
 

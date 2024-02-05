@@ -5,19 +5,19 @@ import io.toolisticon.aptk.tools.InterfaceUtils;
 import io.toolisticon.aptk.tools.MessagerUtils;
 import io.toolisticon.aptk.tools.TypeMirrorWrapper;
 import io.toolisticon.aptk.tools.wrapper.TypeElementWrapper;
-import io.toolisticon.cute.CompileTestBuilder;
-import io.toolisticon.cute.UnitTest;
+import io.toolisticon.cute.Cute;
+import io.toolisticon.cute.CuteApi;
+import io.toolisticon.cute.UnitTestWithoutPassIn;
 import io.toolisticon.fluapigen.api.FluentApiConverter;
 import org.junit.Before;
 import org.junit.Test;
 
 import javax.annotation.processing.ProcessingEnvironment;
-import javax.lang.model.element.Element;
 import java.util.List;
 
 public class ImplicitValueConverterTest {
 
-    CompileTestBuilder.UnitTestBuilder unitTestBuilder;
+    CuteApi.UnitTestRootInterface unitTestBuilder;
 
 
     public static class TargetType {
@@ -47,15 +47,15 @@ public class ImplicitValueConverterTest {
     public void init() {
         MessagerUtils.setPrintMessageCodes(true);
 
-        unitTestBuilder = CompileTestBuilder
+        unitTestBuilder = Cute
                 .unitTest();
     }
 
     @Test
     public void test() {
-        unitTestBuilder.defineTest(new UnitTest<Element>() {
+        unitTestBuilder.when(new UnitTestWithoutPassIn() {
             @Override
-            public void unitTest(ProcessingEnvironment processingEnvironment, Element element) {
+            public void unitTest(ProcessingEnvironment processingEnvironment) {
                 try {
                     ToolingProvider.setTooling(processingEnvironment);
 
