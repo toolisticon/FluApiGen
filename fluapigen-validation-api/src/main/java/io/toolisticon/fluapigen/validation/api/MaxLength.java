@@ -1,34 +1,36 @@
 package io.toolisticon.fluapigen.validation.api;
 
-import java.lang.reflect.Array;
-import java.util.Collection;
+import java.lang.annotation.ElementType;
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
+import java.lang.annotation.Target;
 
-
+/**
+ * Checks if string has maximal length.
+ */
+@Retention(RetentionPolicy.RUNTIME)
+@Target(ElementType.PARAMETER)
 @FluentApiValidator(value = MaxLength.ValidatorImpl.class, attributeNamesToConstructorParameterMapping = {"value"})
 public @interface MaxLength {
 
     int value();
 
-    class ValidatorImpl implements Validator<Object> {
+    class ValidatorImpl implements Validator<String> {
 
         private final int maxLength;
 
+
         public ValidatorImpl(int maxLength) {
+
             this.maxLength = maxLength;
+
         }
 
         @Override
-        public boolean validate(Object obj) {
-
-            if (obj.getClass().isArray()) {
-                return Array.getLength(obj) <= maxLength;
-            } else if (obj instanceof Collection) {
-                return ((Collection) obj).size() <= maxLength;
-            } else if (obj instanceof String) {
-                return ((String) obj).length() <= maxLength;
-            }
-            return obj != null;
+        public boolean validate(String obj) {
+            return obj == null || obj.length() <= maxLength;
         }
+
     }
 
 }

@@ -3,11 +3,14 @@ package io.toolisticon.fluapigen.validation.api;
 /**
  * The Validator interface.
  *
+ * One hint validators should always return true for null values!
+ * To prevent null values you should use {@link NotNull} validator in combination.
+ *
  * @param <TYPE> The type which can be validated
  */
 public interface Validator<TYPE> {
     /**
-     * Validates passed in instance
+     * Validates passed in instance.
      *
      * @param obj the object to validate
      * @return true if obj is valid otherwise false
@@ -21,6 +24,7 @@ public interface Validator<TYPE> {
                     return false;
                 }
             }
+
         }
         return true;
     }

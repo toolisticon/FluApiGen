@@ -1,12 +1,18 @@
 package io.toolisticon.fluapigen.validation.api;
 
 
+import java.lang.annotation.ElementType;
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
+import java.lang.annotation.Target;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Modifier;
 
 /**
  * Meta annotation to declare validators via annotation.
  */
+@Retention(RetentionPolicy.RUNTIME)
+@Target(ElementType.PARAMETER)
 @FluentApiValidator(value = HasNoArgConstructor.ValidatorImpl.class, attributeNamesToConstructorParameterMapping = {"modifier"})
 public @interface HasNoArgConstructor {
 
@@ -27,7 +33,7 @@ public @interface HasNoArgConstructor {
 
                 try {
                     // need to get constructor method
-                    Constructor<?> constructor = obj.getConstructor();
+                    Constructor<?> constructor = obj.getDeclaredConstructor();
 
                     for (int modifier : modifiers) {
                         if ((modifier & obj.getModifiers()) == 0) {
@@ -36,11 +42,23 @@ public @interface HasNoArgConstructor {
                     }
 
                 } catch (NoSuchMethodException e) {
-                    return false;
+
+                    // must check if there are any explicit constructors, if not then there is just the default public one.
+                    return obj.getDeclaredConstructors().length == 0 && hasPublicModifier();
+
                 }
             }
 
             return true;
+        }
+
+        boolean hasPublicModifier () {
+            for (int modifier : modifiers){
+                if (modifier == Modifier.PUBLIC) {
+                    return true;
+                }
+            }
+            return false;
         }
     }
 

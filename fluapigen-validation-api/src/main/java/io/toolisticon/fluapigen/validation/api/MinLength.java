@@ -1,15 +1,23 @@
 package io.toolisticon.fluapigen.validation.api;
 
+import java.lang.annotation.ElementType;
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
+import java.lang.annotation.Target;
 import java.lang.reflect.Array;
 import java.util.Collection;
 
-
+/**
+ * Checks if string has mininmal length.
+ */
+@Retention(RetentionPolicy.RUNTIME)
+@Target(ElementType.PARAMETER)
 @FluentApiValidator(value = MinLength.ValidatorImpl.class, attributeNamesToConstructorParameterMapping = {"value"})
 public @interface MinLength {
 
     int value();
 
-    class ValidatorImpl implements Validator<Object> {
+    class ValidatorImpl implements Validator<String> {
 
         private final int minLength;
 
@@ -18,16 +26,10 @@ public @interface MinLength {
         }
 
         @Override
-        public boolean validate(Object obj) {
+        public boolean validate(String obj) {
 
-            if (obj.getClass().isArray()) {
-                return Array.getLength(obj) >= minLength;
-            } else if (obj instanceof Collection) {
-                return ((Collection) obj).size() >= minLength;
-            } else if (obj instanceof String) {
-                return ((String) obj).length() >= minLength;
-            }
-            return obj != null;
+            return obj == null || obj.length() >= minLength;
+
         }
     }
 

@@ -6,22 +6,23 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
 /**
- * Validates if values isn't null.
+ * Needed to overrule {@link NotNull} annotations on method or enclosing interfaces/types.
+ * All parameters are by default nullable.
  */
 @Retention(RetentionPolicy.RUNTIME)
 @Target({ElementType.PARAMETER, ElementType.METHOD, ElementType.TYPE})
-@FluentApiValidator(value = NotNull.ValidatorImpl.class, overwrites = {Nullable.class})
-public @interface NotNull {
+@FluentApiValidator(value = Nullable.ValidatorImpl.class, overwrites = NotNull.class)
+public @interface Nullable {
 
     class ValidatorImpl implements Validator<Object> {
         @Override
         public boolean validate(Object obj) {
-            return obj != null;
+            return true;
         }
 
         @Override
         public boolean validate(Object[] obj) {
-            return obj != null && Validator.super.validate(obj);
+            return true;
         }
     }
 
