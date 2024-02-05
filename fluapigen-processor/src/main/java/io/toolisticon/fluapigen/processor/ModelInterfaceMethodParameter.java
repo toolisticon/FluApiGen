@@ -7,12 +7,12 @@ import io.toolisticon.aptk.tools.wrapper.ElementWrapper;
 import io.toolisticon.aptk.tools.wrapper.VariableElementWrapper;
 import io.toolisticon.fluapigen.api.FluentApiBackingBeanMapping;
 import io.toolisticon.fluapigen.api.FluentApiConverter;
+import io.toolisticon.fluapigen.api.FluentApiInlineBackingBeanMapping;
 import io.toolisticon.fluapigen.api.TargetBackingBean;
 import io.toolisticon.fluapigen.validation.api.FluentApiValidator;
 
 import javax.lang.model.element.Element;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -235,6 +235,7 @@ public class ModelInterfaceMethodParameter {
     @DeclareCompilerMessage(code = "001", enumValueName = "BB_MAPPING_ANNOTATION_MUST_BE_PRESENT", message = "${0} annotation must be present on parameter", processorClass = FluentApiProcessor.class)
     @DeclareCompilerMessage(code = "002", enumValueName = "PARAMETER_AND_MAPPED_BB_FIELD_MUST_HAVE_SAME_TYPE", message = "Parameter type (${0}) must match backing bean field type (${1})", processorClass = FluentApiProcessor.class)
     @DeclareCompilerMessage(code = "003", enumValueName = "BB_MAPPING_COULDNT_BE_RESOLVED", message = "Field ${0} doesn't exist in mapped backing bean ${1}. It must be one of: [${2}]", processorClass = FluentApiProcessor.class)
+    @DeclareCompilerMessage(code = "004", enumValueName = "INLINE_BB_MAPPING_ANNOTATION_IS_MISSING_ON_METHOD", message = "Parameter ${0} has target INLINE but no ${1} annotation is present on method", processorClass = FluentApiProcessor.class)
     public boolean validate() {
 
         // check validators
@@ -248,6 +249,12 @@ public class ModelInterfaceMethodParameter {
         // fluentApiBackingBeanMapping must not be null -> missing annotation
         if (fluentApiBackingBeanMapping == null) {
             parameterElement.compilerMessage().asError().write(FluentApiProcessorCompilerMessages.BB_MAPPING_ANNOTATION_MUST_BE_PRESENT, FluentApiBackingBeanMapping.class.getSimpleName());
+            return false;
+        }
+
+        // must check if Inline annotation is placed on method for INLINE target
+        if (fluentApiBackingBeanMapping.target() == TargetBackingBean.INLINE && !modelInterfaceMethod.getExecutableElement().hasAnnotation(FluentApiInlineBackingBeanMapping.class)) {
+            parameterElement.compilerMessage().asError().write(FluentApiProcessorCompilerMessages.INLINE_BB_MAPPING_ANNOTATION_IS_MISSING_ON_METHOD, parameterElement.getSimpleName(), FluentApiInlineBackingBeanMapping.class.getSimpleName());
             return false;
         }
 
