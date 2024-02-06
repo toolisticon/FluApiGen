@@ -32,6 +32,12 @@ public @interface HasNoArgConstructor {
             if (obj != null) {
 
                 try {
+
+                    // check if class is abstract
+                    if ((obj.getModifiers() & Modifier.ABSTRACT) != 0){
+                        return false;
+                    }
+
                     // need to get constructor method
                     Constructor<?> constructor = obj.getDeclaredConstructor();
 

@@ -26,6 +26,12 @@ public class HasNoArgConstructorTest {
         }
     }
 
+    public static abstract class TestHasNoargButIsAbstract {
+        TestHasNoargButIsAbstract(String arg) {
+
+        }
+    }
+
 
     @Test
     public void doValidationTest_singleValue() {
@@ -69,6 +75,24 @@ public class HasNoArgConstructorTest {
 
         final Class<?>[] matchingArray = {TestHasDefaultNoarg.class, TestHasExplicitNoarg.class};
         final Class<?>[] nonMatchingArray = {TestHasDefaultNoarg.class, TestHasNoNoarg.class, TestHasExplicitNoarg.class};
+        final Class<?>[] matchingArrayWithNullValue = {TestHasDefaultNoarg.class, null};
+
+        MatcherAssert.assertThat("Expect to match", unit.validate(matchingArray));
+        MatcherAssert.assertThat("Expect not to match", !unit.validate(nonMatchingArray));
+        MatcherAssert.assertThat("Expect to return true in case of null value", unit.validate((Class<?>[]) null));
+        MatcherAssert.assertThat("Expect to return true in case of null element value", unit.validate(matchingArrayWithNullValue));
+
+
+    }
+
+    @Test
+    public void doValidationTest_abstractClass() {
+        int[] modifiers = {Modifier.PUBLIC};
+
+        HasNoArgConstructor.ValidatorImpl unit = new HasNoArgConstructor.ValidatorImpl(modifiers);
+
+        final Class<?>[] matchingArray = {TestHasDefaultNoarg.class, TestHasExplicitNoarg.class};
+        final Class<?>[] nonMatchingArray = {TestHasDefaultNoarg.class, TestHasNoargButIsAbstract.class, TestHasExplicitNoarg.class};
         final Class<?>[] matchingArrayWithNullValue = {TestHasDefaultNoarg.class, null};
 
         MatcherAssert.assertThat("Expect to match", unit.validate(matchingArray));
