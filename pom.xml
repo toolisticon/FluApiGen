@@ -67,7 +67,7 @@
 
 
         <!-- project dependency versions -->
-        <cute.version>1.0.0_RC1</cute.version>
+        <cute.version>1.0.1</cute.version>
         <spiap.version>0.11.0</spiap.version>
         <aptk.version>0.22.11</aptk.version>
 
