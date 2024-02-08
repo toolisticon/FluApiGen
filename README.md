@@ -35,7 +35,7 @@ The api lib must be bound as a dependency - for example in maven:
     <dependency>
         <groupId>io.toolisticon.fluapigen</groupId>
         <artifactId>fluapigen-api</artifactId>
-        <version>0.8.0</version>
+        <version>1.0.0</version>
         <scope>provided</scope>
     </dependency>
 
@@ -43,7 +43,7 @@ The api lib must be bound as a dependency - for example in maven:
     <dependency>
         <groupId>io.toolisticon.fluapigen</groupId>
         <artifactId>fluapigen-validation-api</artifactId>
-        <version>0.8.0</version>
+        <version>1.0.0</version>
         <scope>compile</scope>
     </dependency>
  
@@ -62,7 +62,7 @@ Additionally, you need to declare the annotation processor path in your compiler
             <path>
                 <groupId>io.toolisticon.fluapigen</groupId>
                 <artifactId>fluapigen-processor</artifactId>
-                <version>0.8.0</version>
+                <version>1.0.0</version>
             </path>
         </annotationProcessorPaths>
         
