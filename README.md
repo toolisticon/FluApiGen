@@ -13,7 +13,7 @@ Refactoring of an existing fluent api can therefore be a very complex thing to d
 
 This project provides an annotation processor that generates fluent api implementations and therefore completely hiding all necessary boilerplate code.
 To achieve this all that needs to be done is to define some fluent and backing bean interfaces and command classes and to configure its "plumbing" by placing a few annotations.
-.
+
 
 # Features
 - fluent api is created by defining some interfaces and placing some annotations on them
@@ -22,7 +22,7 @@ To achieve this all that needs to be done is to define some fluent and backing b
 - implementing, extending and maintaining of an immutable, fluent api becomes a no-brainer
 
 # Restrictions
-- fluent interfaces must not contain any cycles and must be strongly hierarchically
+- backing bean interfaces must not contain any cycles and must be strongly hierarchical
 
 # How does it work?
 
