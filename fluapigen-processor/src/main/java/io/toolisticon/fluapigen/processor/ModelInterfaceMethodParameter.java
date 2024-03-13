@@ -225,7 +225,7 @@ public class ModelInterfaceMethodParameter {
     }
 
     private String generateSourceForIterableToList(String parameterName){
-        return "StreamSupport.stream(((Iterable<Class<? extends Processor>>)" + parameterName + ").spliterator(), false).collect(Collectors.toList())";
+        return "StreamSupport.stream((" + parameterName + ").spliterator(), false).collect(Collectors.toList())";
     }
 
     private void validateConverter(ModelBackingBeanField backBeanField) {

@@ -82,7 +82,6 @@ public class FluentApiProcessorTest {
 
         compileTestBuilder
                 .andSourceFiles(JavaFileObjectUtils.readFromResource("testcases/IntegrationTest.java"))
-                //.whenCompiled().thenExpectThat().compilationFails()
                 .whenCompiled()
                 .thenExpectThat().compilationSucceeds()
                 .andThat().generatedSourceFile("io.toolisticon.fluapigen.testcases.IntegrationTestStarter").exists()

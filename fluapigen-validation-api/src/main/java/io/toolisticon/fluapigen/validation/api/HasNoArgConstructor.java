@@ -27,7 +27,7 @@ public @interface HasNoArgConstructor {
         }
 
         @Override
-        public boolean validate(Class<?> obj) {
+        public boolean validate(Class<?> object) {
 
 
             if (object != null) {
