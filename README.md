@@ -426,8 +426,6 @@ Validators are annotations annotated with _FluentApiValidator_ meta annotation. 
 Validation criteria can be added as annotation attributes. The _FluentApiValidator_ meta annotation defines the attribute to validator constructor mapping via the parameterNames attribute.
 The validator implementation must provide a matching constructor.
 
-*Remark : The feature is currently under development and not 100% done. There will still be improvements regarding processing time validation and error output*
-
 ### Javas default methods in fluent api and backing bean in interfaces
 Default methods will be ignored during processing of fluent api and backing bean interfaces and can be used for different tasks:
 
