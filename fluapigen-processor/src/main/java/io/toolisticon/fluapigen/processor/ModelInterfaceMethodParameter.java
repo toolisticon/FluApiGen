@@ -140,7 +140,7 @@ public class ModelInterfaceMethodParameter {
 
                         // validate types
                         TypeMirrorWrapper typeMirrorWrapper = type;
-                        if (typeMirrorWrapper.isCollection() || typeMirrorWrapper.isArray()) {
+                        if (typeMirrorWrapper.isIterable() || typeMirrorWrapper.isCollection() || typeMirrorWrapper.isArray()) {
                             typeMirrorWrapper = typeMirrorWrapper.getWrappedComponentType();
                         }
                         if (!hasConverter()) {
@@ -152,32 +152,38 @@ public class ModelInterfaceMethodParameter {
                             validateConverter(backBeanField.get());
                         }
 
-                        // must handle 3 scenarios depending on parameter type:
+                        // must handle 4 scenarios depending on parameter type:
 
                         // 1. varargs / array
                         // 2. Collection
-                        // 3. single value
+                        // 3. Iterable
+                        // 4. single value
 
                         if (type.isArray()) {
                             return " = new " + backBeanField.get().getCollectionImplType() + "(Arrays.asList(" + addConverterIfNeeded(getParameterName()) + "));";
                         } else if (type.isCollection()) {
                             return " = new " + backBeanField.get().getCollectionImplType() + "(" + addConverterIfNeeded(getParameterName()) + ");";
+                        } else if(type.isIterable()){
+                            return " = " + generateSourceForIterableToList(addConverterIfNeeded(getParameterName())) + ";";
                         } else {
                             return " = new " + backBeanField.get().getCollectionImplType() + "(Collections.singletonList( " + addConverterIfNeeded(getParameterName()) + " ));";
                         }
 
                     }
                     case ADD: {
-                        // must handle 3 scenarios depending on parameter type:
+                        // must handle 4 scenarios depending on parameter type:
 
                         // 1. varargs / array
                         // 2. Collection
-                        // 3. single value
+                        // 3. Iterable
+                        // 4. single value
 
                         if (type.isArray()) {
                             return ".addAll(Arrays.asList(" + addConverterIfNeeded(getParameterName()) + "));";
                         } else if (type.isCollection()) {
                             return ".addAll(" + addConverterIfNeeded(getParameterName()) + ");";
+                        } else if (type.isIterable()) {
+                            return ".addAll(" + generateSourceForIterableToList(addConverterIfNeeded(getParameterName())) + ");";
                         } else {
                             return ".add(" + addConverterIfNeeded(getParameterName()) + ");";
                         }
@@ -216,6 +222,10 @@ public class ModelInterfaceMethodParameter {
         }
 
         return "";
+    }
+
+    private String generateSourceForIterableToList(String parameterName){
+        return "StreamSupport.stream(((Iterable<Class<? extends Processor>>)" + parameterName + ").spliterator(), false).collect(Collectors.toList())";
     }
 
     private void validateConverter(ModelBackingBeanField backBeanField) {
