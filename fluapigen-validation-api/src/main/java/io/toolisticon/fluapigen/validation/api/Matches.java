@@ -23,8 +23,8 @@ public @interface Matches {
         }
 
         @Override
-        public boolean validate(String obj) {
-            return obj == null || Pattern.compile(regularExpression).matcher(obj).matches();
+        public boolean validate(String object) {
+            return object == null || Pattern.compile(regularExpression).matcher(object).matches();
         }
 
     }

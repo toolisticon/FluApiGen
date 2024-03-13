@@ -16,12 +16,12 @@ public @interface Nullable {
 
     class ValidatorImpl implements Validator<Object> {
         @Override
-        public boolean validate(Object obj) {
+        public boolean validate(Object object) {
             return true;
         }
 
         @Override
-        public boolean validate(Object[] obj) {
+        public boolean validate(Object[] array) {
             return true;
         }
     }

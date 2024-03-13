@@ -27,8 +27,8 @@ public @interface MaxLength {
         }
 
         @Override
-        public boolean validate(String obj) {
-            return obj == null || obj.length() <= maxLength;
+        public boolean validate(String object) {
+            return object == null || object.length() <= maxLength;
         }
 
     }

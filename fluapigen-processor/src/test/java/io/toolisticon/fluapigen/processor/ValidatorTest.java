@@ -123,7 +123,7 @@ public class ValidatorTest {
             }
 
             @Override
-            public boolean validate(String obj) {
+            public boolean validate(String object) {
                 return false;
             }
         }
@@ -213,7 +213,7 @@ public class ValidatorTest {
             }
 
             @Override
-            public boolean validate(String obj) {
+            public boolean validate(String object) {
 
                 return false;
             }
@@ -265,7 +265,7 @@ public class ValidatorTest {
             }
 
             @Override
-            public boolean validate(String obj) {
+            public boolean validate(String object) {
 
                 return false;
             }
@@ -319,7 +319,7 @@ public class ValidatorTest {
             }
 
             @Override
-            public boolean validate(String obj) {
+            public boolean validate(String object) {
 
                 return false;
             }
