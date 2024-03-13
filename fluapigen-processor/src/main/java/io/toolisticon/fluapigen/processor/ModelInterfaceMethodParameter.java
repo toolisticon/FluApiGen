@@ -13,6 +13,7 @@ import io.toolisticon.fluapigen.validation.api.FluentApiValidator;
 
 import javax.lang.model.element.Element;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -164,7 +165,7 @@ public class ModelInterfaceMethodParameter {
                         } else if (type.isCollection()) {
                             return " = new " + backBeanField.get().getCollectionImplType() + "(" + addConverterIfNeeded(getParameterName()) + ");";
                         } else if(type.isIterable()){
-                            return " = " + generateSourceForIterableToList(addConverterIfNeeded(getParameterName())) + ";";
+                            return " = new " + backBeanField.get().getCollectionImplType() + "(" + generateSourceForIterableToList(addConverterIfNeeded(getParameterName())) + ");";
                         } else {
                             return " = new " + backBeanField.get().getCollectionImplType() + "(Collections.singletonList( " + addConverterIfNeeded(getParameterName()) + " ));";
                         }
