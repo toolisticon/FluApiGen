@@ -18,7 +18,7 @@ public @interface HasNoArgConstructor {
 
     int[] modifier() default Modifier.PUBLIC;
 
-    class ValidatorImpl implements Validator<Class> {
+    class ValidatorImpl implements Validator<Class<?>> {
 
         private final int[] modifiers;
 
@@ -27,7 +27,8 @@ public @interface HasNoArgConstructor {
         }
 
         @Override
-        public boolean validate(Class object) {
+        public boolean validate(Class<?> obj) {
+
 
             if (object != null) {
 
