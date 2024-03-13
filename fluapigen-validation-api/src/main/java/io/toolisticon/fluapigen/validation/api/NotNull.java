@@ -4,6 +4,7 @@ import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
+import java.util.Collection;
 
 /**
  * Validates if values isn't null.
@@ -15,13 +16,18 @@ public @interface NotNull {
 
     class ValidatorImpl implements Validator<Object> {
         @Override
-        public boolean validate(Object obj) {
-            return obj != null;
+        public boolean validate(Object object) {
+            return object != null;
         }
 
         @Override
-        public boolean validate(Object[] obj) {
-            return obj != null && Validator.super.validate(obj);
+        public boolean validate(Object[] array) {
+            return array != null && Validator.super.validate(array);
+        }
+
+        @Override
+        public boolean validate(Iterable<Object> iterable){
+            return iterable != null && Validator.super.validate(iterable);
         }
     }
 
