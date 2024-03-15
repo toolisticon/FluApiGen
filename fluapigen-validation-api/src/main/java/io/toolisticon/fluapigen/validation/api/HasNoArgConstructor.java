@@ -27,22 +27,23 @@ public @interface HasNoArgConstructor {
         }
 
         @Override
-        public boolean validate(Class<?> obj) {
+        public boolean validate(Class<?> object) {
 
-            if (obj != null) {
+
+            if (object != null) {
 
                 try {
 
                     // check if class is abstract
-                    if ((obj.getModifiers() & Modifier.ABSTRACT) != 0){
+                    if ((object.getModifiers() & Modifier.ABSTRACT) != 0){
                         return false;
                     }
 
                     // need to get constructor method
-                    Constructor<?> constructor = obj.getDeclaredConstructor();
+                    Constructor<?> constructor = object.getDeclaredConstructor();
 
                     for (int modifier : modifiers) {
-                        if ((modifier & obj.getModifiers()) == 0) {
+                        if ((modifier & object.getModifiers()) == 0) {
                             return false;
                         }
                     }
@@ -50,7 +51,7 @@ public @interface HasNoArgConstructor {
                 } catch (NoSuchMethodException e) {
 
                     // must check if there are any explicit constructors, if not then there is just the default public one.
-                    return obj.getDeclaredConstructors().length == 0 && hasPublicModifier();
+                    return object.getDeclaredConstructors().length == 0 && hasPublicModifier();
 
                 }
             }

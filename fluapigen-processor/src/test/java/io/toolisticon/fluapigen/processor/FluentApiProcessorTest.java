@@ -82,7 +82,6 @@ public class FluentApiProcessorTest {
 
         compileTestBuilder
                 .andSourceFiles(JavaFileObjectUtils.readFromResource("testcases/IntegrationTest.java"))
-                //.whenCompiled().thenExpectThat().compilationFails()
                 .whenCompiled()
                 .thenExpectThat().compilationSucceeds()
                 .andThat().generatedSourceFile("io.toolisticon.fluapigen.testcases.IntegrationTestStarter").exists()
@@ -206,7 +205,7 @@ public class FluentApiProcessorTest {
         compileTestBuilder
                 .andSourceFiles(JavaFileObjectUtils.readFromResource("testcases/IntegrationTest_NonUniqueBBFieldId.java"))
                 .whenCompiled().thenExpectThat().compilationFails()
-                .andThat().compilerMessage().ofKindError().contains(FluentApiProcessorCompilerMessages.ERROR_BACKING_BEAN_FIELD_ID_MUST_NOT_UNIQUE_IN_BB.getCode())
+                .andThat().compilerMessage().ofKindError().contains(FluentApiProcessorCompilerMessages.ERROR_BACKING_BEAN_FIELD_ID_MUST_BE_UNIQUE_IN_BB.getCode())
                 .executeTest();
 
     }
@@ -217,7 +216,7 @@ public class FluentApiProcessorTest {
         compileTestBuilder
                 .andSourceFiles(JavaFileObjectUtils.readFromResource("testcases/IntegrationTest_NonUniqueBBFieldId_ImplicitlySet.java"))
                 .whenCompiled().thenExpectThat().compilationFails()
-                .andThat().compilerMessage().ofKindError().contains(FluentApiProcessorCompilerMessages.ERROR_BACKING_BEAN_FIELD_ID_MUST_NOT_UNIQUE_IN_BB.getCode())
+                .andThat().compilerMessage().ofKindError().contains(FluentApiProcessorCompilerMessages.ERROR_BACKING_BEAN_FIELD_ID_MUST_BE_UNIQUE_IN_BB.getCode())
                 .executeTest();
 
     }

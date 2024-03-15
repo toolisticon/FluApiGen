@@ -24,7 +24,7 @@ public class MaxLengthTest {
     }
 
     @Test
-    public void doValidationTest_multipleValues () {
+    public void doValidationTest_multipleValuesInArray () {
 
         MaxLength.ValidatorImpl unit = new MaxLength.ValidatorImpl(5);
 
@@ -36,6 +36,24 @@ public class MaxLengthTest {
         MatcherAssert.assertThat("Expect not to match", !unit.validate(nonMatchingArray));
         MatcherAssert.assertThat("Expect to return true in case of null value", unit.validate((String[])null));
         MatcherAssert.assertThat("Expect to return true in case of null element value", unit.validate(matchingArrayWithNullValue));
+
+
+    }
+
+
+    @Test
+    public void doValidationTest_multipleValuesInIterable () {
+
+        MaxLength.ValidatorImpl unit = new MaxLength.ValidatorImpl(5);
+
+        final Iterable<String> matchingIterable = Arrays.asList("", "abc","abcde");
+        final Iterable<String> nonMatchingIterable = Arrays.asList("", "abc", "adsada","abcde");
+        final Iterable<String> matchingIterableWithNullValue = Arrays.asList("abc", null);
+
+        MatcherAssert.assertThat("Expect to match", unit.validate(matchingIterable));
+        MatcherAssert.assertThat("Expect not to match", !unit.validate(nonMatchingIterable));
+        MatcherAssert.assertThat("Expect to return true in case of null value", unit.validate((Iterable<String>)null));
+        MatcherAssert.assertThat("Expect to return true in case of null element value", unit.validate(matchingIterableWithNullValue));
 
 
     }

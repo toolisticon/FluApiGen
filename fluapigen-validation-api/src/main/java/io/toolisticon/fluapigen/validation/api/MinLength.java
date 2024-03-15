@@ -26,9 +26,9 @@ public @interface MinLength {
         }
 
         @Override
-        public boolean validate(String obj) {
+        public boolean validate(String object) {
 
-            return obj == null || obj.length() >= minLength;
+            return object == null || object.length() >= minLength;
 
         }
     }

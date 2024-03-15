@@ -17,8 +17,8 @@ public @interface NotEmpty {
 
     class ValidatorImpl implements Validator<String> {
         @Override
-        public boolean validate(String obj) {
-            return obj == null || !obj.isEmpty();
+        public boolean validate(String object) {
+            return object == null || !object.isEmpty();
         }
     }
 

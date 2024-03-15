@@ -112,7 +112,20 @@ public class ModelValidator {
 
     public String validatorExpression() {
         StringBuilder stringBuilder = new StringBuilder();
-        stringBuilder.append("new ").append(getValidatorAnnotation().valueAsFqn()).append("(");
+
+        String genericTypeString = "";
+        // Need to handle generic validator separately
+        if (getValidatorAnnotation().valueAsTypeMirrorWrapper().getTypeElement().get().hasTypeParameters()) {
+            TypeMirrorWrapper annotatedElementsTypeMirror = annotatedElement.asType();
+            if (annotatedElementsTypeMirror.isCollection() || annotatedElementsTypeMirror.isIterable() || annotatedElementsTypeMirror.isArray()) {
+                genericTypeString = "<" +annotatedElementsTypeMirror.getWrappedComponentType().getTypeDeclaration() + ">";
+            } else {
+                genericTypeString = "<" + annotatedElementsTypeMirror.getTypeDeclaration() + ">";
+            }
+
+        }
+
+        stringBuilder.append("new ").append(getValidatorAnnotation().valueAsFqn()).append(genericTypeString).append("(");
 
         boolean isFirst = true;
         for (String attributeName : getValidatorAnnotation().attributeNamesToConstructorParameterMapping()) {

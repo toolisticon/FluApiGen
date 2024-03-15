@@ -13,15 +13,20 @@ import java.lang.annotation.Target;
 @FluentApiValidator(value = NotNull.ValidatorImpl.class, overwrites = {Nullable.class})
 public @interface NotNull {
 
-    class ValidatorImpl implements Validator<Object> {
+    class ValidatorImpl<T> implements Validator<T> {
         @Override
-        public boolean validate(Object obj) {
-            return obj != null;
+        public boolean validate(T object) {
+            return object != null;
         }
 
         @Override
-        public boolean validate(Object[] obj) {
-            return obj != null && Validator.super.validate(obj);
+        public boolean validate(T[] array) {
+            return array != null && Validator.super.validate(array);
+        }
+
+        @Override
+        public boolean validate(Iterable<T> iterable) {
+            return iterable != null && Validator.super.validate(iterable);
         }
     }
 

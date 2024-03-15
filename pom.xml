@@ -69,7 +69,7 @@
         <!-- project dependency versions -->
         <cute.version>1.0.1</cute.version>
         <spiap.version>0.11.0</spiap.version>
-        <aptk.version>0.22.11</aptk.version>
+        <aptk.version>0.23.0</aptk.version>
 
         <!-- versions of test dependencies -->
         <junit.version>4.13.2</junit.version>

@@ -7,10 +7,14 @@ import io.toolisticon.fluapigen.api.FluentApiBackingBeanMapping;
 import io.toolisticon.fluapigen.api.FluentApiCommand;
 import io.toolisticon.fluapigen.api.FluentApiInterface;
 import io.toolisticon.fluapigen.api.FluentApiRoot;
+import io.toolisticon.fluapigen.api.MappingAction;
+import io.toolisticon.fluapigen.validation.api.HasNoArgConstructor;
 import io.toolisticon.fluapigen.validation.api.Matches;
 import io.toolisticon.fluapigen.validation.api.MaxLength;
 import io.toolisticon.fluapigen.validation.api.NotNull;
 import io.toolisticon.fluapigen.validation.api.Nullable;
+
+import java.util.List;
 
 @FluentApi("ValidatorExampleStarter")
 public class ValidatorExample {
@@ -21,6 +25,12 @@ public class ValidatorExample {
 
         @FluentApiBackingBeanField("name")
         String getName();
+
+        @FluentApiBackingBeanField("variousNames")
+        List<String> getVariousNames();
+
+        @FluentApiBackingBeanField("classes")
+        List<Class<?>> getClasses();
 
     }
 
@@ -38,6 +48,17 @@ public class ValidatorExample {
         @Nullable
         MyRootInterface setNameWithNullableOnMethod(@NotNull @MaxLength(8) @Matches("aaa.*") @FluentApiBackingBeanMapping("name") String name);
 
+        @Nullable
+        MyRootInterface setVariousNamesWithNullableOnMethod(@NotNull @MaxLength(8) @Matches("aaa.*") @FluentApiBackingBeanMapping("variousNames") String... names);
+
+        @Nullable
+        MyRootInterface setVariousNamesWithNullableOnMethod(@NotNull @MaxLength(8) @Matches("aaa.*") @FluentApiBackingBeanMapping("variousNames") List<String> names);
+
+        MyRootInterface addClass(@NotNull @HasNoArgConstructor @FluentApiBackingBeanMapping(value = "classes", action = MappingAction.ADD) Class<?> clazz);
+
+        MyRootInterface addClasses(@NotNull @HasNoArgConstructor @FluentApiBackingBeanMapping(value = "classes", action = MappingAction.ADD) Class<?>... clazz);
+
+        MyRootInterface addClasses(@NotNull @HasNoArgConstructor @FluentApiBackingBeanMapping(value = "classes", action = MappingAction.ADD) Iterable<Class<?>> clazz);
 
         @FluentApiCommand(MyCommand.class)
         void myCommand();
@@ -49,6 +70,7 @@ public class ValidatorExample {
     static class MyCommand {
         static void myCommand(MyBackingBean backingBean) {
             System.out.println(backingBean.getName());
+            System.out.println(backingBean.getVariousNames());
         }
     }
 

@@ -12,6 +12,7 @@ import io.toolisticon.fluapigen.api.FluentApiRoot;
 import io.toolisticon.fluapigen.api.TargetBackingBean;
 
 import java.util.List;
+import java.util.Set;
 
 @FluentApi("IntegrationTestStarter")
 public class IntegrationTest {
@@ -38,7 +39,7 @@ public class IntegrationTest {
         List<String> stringList();
 
         @FluentApiBackingBeanField(value = "stringSet", initValue = {"abc", "DEF", "abc"})
-        List<String> stringSet();
+        Set<String> stringSet();
     }
 
     @FluentApiBackingBean

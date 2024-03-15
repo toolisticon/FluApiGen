@@ -3,6 +3,8 @@ package io.toolisticon.fluapigen.validation.api;
 import org.hamcrest.MatcherAssert;
 import org.junit.Test;
 
+import java.util.Arrays;
+
 /**
  * Unit test for {@link MinLength}.
  */
@@ -21,7 +23,7 @@ public class NotEmptyTest {
     }
 
     @Test
-    public void doValidationTest_multipleValues() {
+    public void doValidationTest_multipleValuesInArray() {
 
         NotEmpty.ValidatorImpl unit = new NotEmpty.ValidatorImpl();
 
@@ -33,6 +35,23 @@ public class NotEmptyTest {
         MatcherAssert.assertThat("Expect not to match", !unit.validate(nonMatchingArray));
         MatcherAssert.assertThat("Expect to return true in case of null value", unit.validate((String[]) null));
         MatcherAssert.assertThat("Expect to return true in case of null element value", unit.validate(matchingArrayWithNullValue));
+
+
+    }
+
+    @Test
+    public void doValidationTest_multipleValuesInIterable() {
+
+        NotEmpty.ValidatorImpl unit = new NotEmpty.ValidatorImpl();
+
+        final Iterable<String> nonMatchingIterable = Arrays.asList("", "abc", "abcde");
+        final Iterable<String> matchingIterable = Arrays.asList("adsada", "gdgugjvhkbhkjbh");
+        final Iterable<String> matchingIterableWithNullValue = Arrays.asList("abcde", null);
+
+        MatcherAssert.assertThat("Expect to match", unit.validate(matchingIterable));
+        MatcherAssert.assertThat("Expect not to match", !unit.validate(nonMatchingIterable));
+        MatcherAssert.assertThat("Expect to return true in case of null value", unit.validate((Iterable<String>) null));
+        MatcherAssert.assertThat("Expect to return true in case of null element value", unit.validate(matchingIterableWithNullValue));
 
 
     }
