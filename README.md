@@ -13,7 +13,7 @@ Refactoring of an existing fluent api can therefore be a very complex thing to d
 
 This project provides an annotation processor that generates fluent api implementations and therefore completely hiding all necessary boilerplate code.
 To achieve this all that needs to be done is to define some fluent and backing bean interfaces and command classes and to configure its "plumbing" by placing a few annotations.
-.
+
 
 # Features
 - fluent api is created by defining some interfaces and placing some annotations on them
@@ -22,7 +22,7 @@ To achieve this all that needs to be done is to define some fluent and backing b
 - implementing, extending and maintaining of an immutable, fluent api becomes a no-brainer
 
 # Restrictions
-- fluent interfaces must not contain any cycles and must be strongly hierarchically
+- backing bean interfaces must not contain any cycles and must be strongly hierarchical
 
 # How does it work?
 
@@ -35,7 +35,7 @@ The api lib must be bound as a dependency - for example in maven:
     <dependency>
         <groupId>io.toolisticon.fluapigen</groupId>
         <artifactId>fluapigen-api</artifactId>
-        <version>0.8.0</version>
+        <version>1.0.0</version>
         <scope>provided</scope>
     </dependency>
 
@@ -43,7 +43,7 @@ The api lib must be bound as a dependency - for example in maven:
     <dependency>
         <groupId>io.toolisticon.fluapigen</groupId>
         <artifactId>fluapigen-validation-api</artifactId>
-        <version>0.8.0</version>
+        <version>1.0.0</version>
         <scope>compile</scope>
     </dependency>
  
@@ -62,7 +62,7 @@ Additionally, you need to declare the annotation processor path in your compiler
             <path>
                 <groupId>io.toolisticon.fluapigen</groupId>
                 <artifactId>fluapigen-processor</artifactId>
-                <version>0.8.0</version>
+                <version>1.0.0</version>
             </path>
         </annotationProcessorPaths>
         
@@ -425,8 +425,6 @@ public @interface Matches {
 Validators are annotations annotated with _FluentApiValidator_ meta annotation. The _FluentApiValidator_ annotation is used to reference the validators implementation class that must implement the _Validator_ interface.
 Validation criteria can be added as annotation attributes. The _FluentApiValidator_ meta annotation defines the attribute to validator constructor mapping via the parameterNames attribute.
 The validator implementation must provide a matching constructor.
-
-*Remark : The feature is currently under development and not 100% done. There will still be improvements regarding processing time validation and error output*
 
 ### Javas default methods in fluent api and backing bean in interfaces
 Default methods will be ignored during processing of fluent api and backing bean interfaces and can be used for different tasks:

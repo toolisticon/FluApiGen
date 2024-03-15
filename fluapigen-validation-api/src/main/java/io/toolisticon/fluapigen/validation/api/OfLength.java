@@ -27,8 +27,8 @@ public @interface OfLength {
         }
 
         @Override
-        public boolean validate(String obj) {
-            return obj == null || obj.length() == ofLength;
+        public boolean validate(String object) {
+            return object == null || object.length() == ofLength;
         }
 
     }

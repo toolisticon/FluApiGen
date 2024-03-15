@@ -6,7 +6,6 @@ import io.toolisticon.fluapigen.api.FluentApiBackingBeanField;
 import io.toolisticon.fluapigen.api.FluentApiBackingBeanMapping;
 import io.toolisticon.fluapigen.api.FluentApiCommand;
 import io.toolisticon.fluapigen.api.FluentApiImplicitValue;
-import io.toolisticon.fluapigen.api.FluentApiInlineBackingBeanMapping;
 import io.toolisticon.fluapigen.api.FluentApiInterface;
 import io.toolisticon.fluapigen.api.FluentApiParentBackingBeanMapping;
 import io.toolisticon.fluapigen.api.FluentApiRoot;
@@ -28,7 +27,6 @@ public class IntegrationTest {
 
         @FluentApiBackingBeanField("midLevelBB")
         List<MyMidLevelBackingBean> midLevelBB();
-
 
 
     }
@@ -143,21 +141,34 @@ public class IntegrationTest {
         @FluentApiParentBackingBeanMapping(value = "midLevelBB")
         MyRootInterface gotoParent();
 
-        MyMidLevelInterface setStringArray(@FluentApiBackingBeanMapping(value = "stringArray") String ... strings);
+        MyMidLevelInterface setStringArray(@FluentApiBackingBeanMapping(value = "stringArray") String... strings);
 
-        @FluentApiImplicitValue(id = "stringArray", value = {"XYZ","123"})
+        @FluentApiImplicitValue(id = "stringArray", value = {"XYZ", "123"})
         MyMidLevelInterface setStringArrayImplicitly();
 
 
-        MyMidLevelInterface setStringList(@FluentApiBackingBeanMapping(value = "stringList") String ... strings);
+        MyMidLevelInterface setStringList(@FluentApiBackingBeanMapping(value = "stringList") String... strings);
 
         MyMidLevelInterface addStringListValue(@FluentApiBackingBeanMapping(value = "stringList", action = MappingAction.ADD) String singleString);
 
-        MyMidLevelInterface addStringListValues(@FluentApiBackingBeanMapping(value = "stringList", action = MappingAction.ADD) String ... singleString);
+        MyMidLevelInterface addStringListValues(@FluentApiBackingBeanMapping(value = "stringList", action = MappingAction.ADD) String... singleString);
 
+        MyMidLevelInterface addStringListValues(@FluentApiBackingBeanMapping(value = "stringList", action = MappingAction.ADD) Iterable<String> iterable);
 
-        @FluentApiImplicitValue(id = "stringList", value = {"XYZ","123"})
+        @FluentApiImplicitValue(id = "stringList", value = {"XYZ", "123"})
         MyMidLevelInterface setStringListImplicitly();
+
+        MyMidLevelInterface setStringSet(@FluentApiBackingBeanMapping(value = "stringSet") String... strings);
+
+        MyMidLevelInterface addStringSetValue(@FluentApiBackingBeanMapping(value = "stringSet", action = MappingAction.ADD) String singleString);
+
+        MyMidLevelInterface addStringSetValues(@FluentApiBackingBeanMapping(value = "stringSet", action = MappingAction.ADD) String... singleString);
+
+        MyMidLevelInterface addStringSetValues(@FluentApiBackingBeanMapping(value = "stringSet", action = MappingAction.ADD) Iterable<String> iterable);
+
+
+        @FluentApiImplicitValue(id = "stringSet", value = {"XYZ", "123"})
+        MyMidLevelInterface setStringSetImplicitly();
 
     }
 

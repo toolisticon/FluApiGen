@@ -2,21 +2,10 @@ package io.toolisticon.fluapigen.processor;
 
 import io.toolisticon.aptk.compilermessage.api.DeclareCompilerMessage;
 import io.toolisticon.aptk.tools.InterfaceUtils;
-import io.toolisticon.aptk.tools.corematcher.AptkCoreMatchers;
-import io.toolisticon.aptk.tools.wrapper.ElementWrapper;
-import io.toolisticon.aptk.tools.wrapper.ExecutableElementWrapper;
 import io.toolisticon.aptk.tools.wrapper.TypeElementWrapper;
 
-import javax.lang.model.element.Modifier;
 import javax.lang.model.element.TypeElement;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
-import java.util.Optional;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Collectors;
 
 public class ModelBackingBean implements FetchImports, Validatable{
@@ -32,17 +21,6 @@ public class ModelBackingBean implements FetchImports, Validatable{
                 .stream().filter(e -> !e.isDefault())
                 .map(ModelBackingBeanField::new)
                 .collect(Collectors.toList());
-
-        /*-
-        fields = ElementWrapper.wrap(wrapper._annotatedElement())
-                .filterEnclosedElements().applyFilter(AptkCoreMatchers.IS_METHOD)
-                .applyFilter(AptkCoreMatchers.BY_MODIFIER).filterByNoneOf(Modifier.DEFAULT).getResult()
-                .stream()
-                .map(ExecutableElementWrapper::wrap)
-                .map(ModelBackingBeanField::new)
-                .collect(Collectors.toList());
-
-         */
 
         // init render state helper
         RenderStateHelper.addBackingBeanModel(this);
@@ -120,8 +98,8 @@ public class ModelBackingBean implements FetchImports, Validatable{
 
     @Override
     public Set<String> fetchImports() {
-        Set<String> result = new HashSet<>();
-        getFields().stream().map(ModelBackingBeanField::fetchImports).forEach(result::addAll);
+        Set<String> result = getFields().stream().flatMap(field ->field.fetchImports().stream()).collect(Collectors.toSet());
+        result.add("java.util.stream.StreamSupport");
         return result;
     }
 
@@ -142,7 +120,7 @@ public class ModelBackingBean implements FetchImports, Validatable{
 
 
     @Override
-    @DeclareCompilerMessage(code = "22", enumValueName = "ERROR_BACKING_BEAN_FIELD_ID_MUST_NOT_UNIQUE_IN_BB", message = "Backing bean field id '${0}' must be unique in backing bean ${1}", processorClass = FluentApiProcessor.class)
+    @DeclareCompilerMessage(code = "22", enumValueName = "ERROR_BACKING_BEAN_FIELD_ID_MUST_BE_UNIQUE_IN_BB", message = "Backing bean field id '${0}' must be unique in backing bean ${1}", processorClass = FluentApiProcessor.class)
     public boolean validate() {
         boolean outcome = true;
 
@@ -157,10 +135,10 @@ public class ModelBackingBean implements FetchImports, Validatable{
 
         // Must check if field ids are unique
         Set<Map.Entry<String, List<ModelBackingBeanField>>> idDoublets = existingBBFieldIds.entrySet().stream().filter(e -> e.getValue().size() != 1).collect(Collectors.toSet());
-        if (idDoublets.size() > 0) {
+        if (!idDoublets.isEmpty()) {
             idDoublets.forEach(
-                    e -> e.getValue().stream().forEach(
-                            f -> f.getCompilerMessageWriter().asError().write(FluentApiProcessorCompilerMessages.ERROR_BACKING_BEAN_FIELD_ID_MUST_NOT_UNIQUE_IN_BB, e.getKey(), interfaceClassName())
+                    e -> e.getValue().forEach(
+                            f -> f.getCompilerMessageWriter().asError().write(FluentApiProcessorCompilerMessages.ERROR_BACKING_BEAN_FIELD_ID_MUST_BE_UNIQUE_IN_BB, e.getKey(), interfaceClassName())
                     )
             );
             outcome = false;
