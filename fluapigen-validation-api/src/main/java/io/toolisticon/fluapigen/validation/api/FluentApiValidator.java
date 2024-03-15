@@ -16,7 +16,7 @@ public @interface FluentApiValidator {
      * The validator to be applied.
      * @return
      */
-    Class<? extends Validator<?>> value();
+    Class<? extends Validator> value();
 
     /**
      * Used to map parameters to validator constructor.

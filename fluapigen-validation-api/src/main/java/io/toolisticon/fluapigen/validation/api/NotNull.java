@@ -4,7 +4,6 @@ import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
-import java.util.Collection;
 
 /**
  * Validates if values isn't null.
@@ -14,19 +13,19 @@ import java.util.Collection;
 @FluentApiValidator(value = NotNull.ValidatorImpl.class, overwrites = {Nullable.class})
 public @interface NotNull {
 
-    class ValidatorImpl implements Validator<Object> {
+    class ValidatorImpl<T> implements Validator<T> {
         @Override
-        public boolean validate(Object object) {
+        public boolean validate(T object) {
             return object != null;
         }
 
         @Override
-        public boolean validate(Object[] array) {
+        public boolean validate(T[] array) {
             return array != null && Validator.super.validate(array);
         }
 
         @Override
-        public boolean validate(Iterable<Object> iterable){
+        public boolean validate(Iterable<T> iterable) {
             return iterable != null && Validator.super.validate(iterable);
         }
     }

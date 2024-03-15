@@ -24,6 +24,11 @@ public @interface Nullable {
         public boolean validate(Object[] array) {
             return true;
         }
+
+        @Override
+        public boolean validate(Iterable<Object> iterable) {
+            return true;
+        }
     }
 
 }

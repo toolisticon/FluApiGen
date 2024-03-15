@@ -4,6 +4,7 @@ import org.hamcrest.MatcherAssert;
 import org.junit.Test;
 
 import java.lang.reflect.Modifier;
+import java.util.Arrays;
 
 /**
  * Unit test for {@link MaxLength}.
@@ -49,6 +50,46 @@ public class HasNoArgConstructorTest {
         int[] expectedModifiers = {Modifier.PUBLIC};
         HasNoArgConstructor.ValidatorImpl unitWithModifiers = new HasNoArgConstructor.ValidatorImpl(expectedModifiers);
         MatcherAssert.assertThat("Expect to match", unitWithModifiers.validate(TestHasDefaultNoarg.class));
+
+
+    }
+
+    @Test
+    public void doValidationTest_iterableValue() {
+
+        int[] modifiers = {};
+
+        HasNoArgConstructor.ValidatorImpl unit = new HasNoArgConstructor.ValidatorImpl(modifiers);
+
+        Iterable<Class<?>> classes = Arrays.asList(TestHasDefaultNoarg.class, TestHasExplicitNoarg.class);
+        Iterable<Class<?>> nonMatchingClasses = Arrays.asList(TestHasDefaultNoarg.class, TestHasExplicitNoarg.class,TestHasNoNoarg.class);
+        Iterable<Class<?>> nullValuedClasses = null;
+        Iterable<Class<?>> nullValuedElementClasses = Arrays.asList(TestHasDefaultNoarg.class, TestHasExplicitNoarg.class,null);
+
+        MatcherAssert.assertThat("Expect to match", unit.validate(classes));
+        MatcherAssert.assertThat("Expect not to match", !unit.validate(nonMatchingClasses));
+        MatcherAssert.assertThat("Expect to return true in case of null ", unit.validate(nullValuedClasses));
+        MatcherAssert.assertThat("Expect to return true in case of null ", unit.validate(nullValuedElementClasses));
+
+
+    }
+
+    @Test
+    public void doValidationTest_arrayValue() {
+
+        int[] modifiers = {};
+
+        HasNoArgConstructor.ValidatorImpl unit = new HasNoArgConstructor.ValidatorImpl(modifiers);
+
+        Class<?>[] classes = {TestHasDefaultNoarg.class, TestHasExplicitNoarg.class};
+        Class<?>[] nonMatchingClasses = {TestHasDefaultNoarg.class, TestHasExplicitNoarg.class,TestHasNoNoarg.class};
+        Class<?>[] nullValuedClasses = null;
+        Class<?>[] nullValuedElementClasses = {TestHasDefaultNoarg.class, TestHasExplicitNoarg.class,null};
+
+        MatcherAssert.assertThat("Expect to match", unit.validate(classes));
+        MatcherAssert.assertThat("Expect not to match", !unit.validate(nonMatchingClasses));
+        MatcherAssert.assertThat("Expect to return true in case of null ", unit.validate(nullValuedClasses));
+        MatcherAssert.assertThat("Expect to return true in case of null ", unit.validate(nullValuedElementClasses));
 
 
     }
