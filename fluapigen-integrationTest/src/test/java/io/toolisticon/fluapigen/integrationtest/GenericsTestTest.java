@@ -1,8 +1,11 @@
 package io.toolisticon.fluapigen.integrationtest;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
+
+import io.toolisticon.cute.GenericsTest;
 import io.toolisticon.cute.InheritenceTestBuilder;
 import org.hamcrest.MatcherAssert;
 import org.hamcrest.Matchers;
@@ -17,4 +20,5 @@ public class GenericsTestTest {
         MatcherAssert.assertThat(InheritenceTestBuilder.valuesToFilter(Arrays.asList("abc",1,3,5,"def")).isString().close(), Matchers.contains("abc", "def"));
 
     }
+
 }

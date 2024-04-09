@@ -5,6 +5,8 @@ import io.toolisticon.aptk.tools.corematcher.CoreMatcherValidationMessages;
 import io.toolisticon.cute.Cute;
 import io.toolisticon.cute.CuteApi;
 import io.toolisticon.cute.JavaFileObjectUtils;
+import org.hamcrest.MatcherAssert;
+import org.hamcrest.Matchers;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -85,7 +87,10 @@ public class FluentApiProcessorTest {
                 .whenCompiled()
                 .thenExpectThat().compilationSucceeds()
                 .andThat().generatedSourceFile("io.toolisticon.fluapigen.testcases.IntegrationTestStarter").exists()
-                .executeTest();
+                .executeTest().executeCustomAssertions(e -> {
+                    Class<?> testClass = e.getClassLoader().getClass("io.toolisticon.fluapigen.testcases.IntegrationTestStarter");
+                    MatcherAssert.assertThat(testClass, Matchers.notNullValue());
+                });
     }
 
     @Test
@@ -423,6 +428,15 @@ public class FluentApiProcessorTest {
                 .whenCompiled()
                 .thenExpectThat().compilationSucceeds()
                 .executeTest();
+
     }
 
+    @Test
+    public void test_externalOrSharedBB_() {
+        compileTestBuilder.andSourceFilesFromFolders("/testcases/sharedBB")
+                .whenCompiled()
+                .thenExpectThat().compilationSucceeds()
+                .executeTest();
+
+    }
 }

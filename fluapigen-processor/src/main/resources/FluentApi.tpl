@@ -23,7 +23,7 @@ public class ${ model.className } {
     // ----------------------------------------------------------------------
 !{for backingBean : model.backingBeans}
 
-    private static class ${backingBean.className} implements ${backingBean.interfaceClassName} {
+     static class ${backingBean.className} implements ${backingBean.interfaceClassName} {
 
         // fields
 !{for backingBeanField : backingBean.fields}
@@ -47,7 +47,7 @@ public class ${ model.className } {
 
        public String toString() {
 
-            return "{\\n"
+            return "{\n"
 !{for backingBeanField : backingBean.fields}
                 + "${backingBeanField.fieldName} = " + ${backingBeanField.toStringStr}
 !{/for}
@@ -64,7 +64,7 @@ public class ${ model.className } {
     // ----------------------------------------------------------------------
 
 !{for interface : model.fluentInterfaces}
-    private static class ${interface.className} ${interface.typeParametersString} implements ${interface.interfaceClassName}${interface.typeParameterNamesString} {
+     static class ${interface.className} ${interface.typeParametersString} implements ${interface.interfaceClassName}${interface.typeParameterNamesString} {
 
         final ${interface.backingBeanModel.className} backingBean;
 
