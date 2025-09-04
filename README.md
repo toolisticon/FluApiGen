@@ -1,6 +1,7 @@
 # FLUAPIGEN - The Fluent API Generator
 
 [![Maven Central](https://maven-badges.herokuapp.com/maven-central/io.toolisticon.fluapigen/fluapigen/badge.svg)](https://maven-badges.herokuapp.com/maven-central/io.toolisticon.fluapigen/fluapigen)
+[![Sonatype Central](https://maven-badges.sml.io/sonatype-central/io.toolisticon.fluapigen/fluapigen/badge.svg)](https://maven-badges.sml.io/sonatype-central/io.toolisticon.fluapigen/fluapigen)
 [![default](https://github.com/toolisticon/FluApiGen/actions/workflows/default.yml/badge.svg)](https://github.com/toolisticon/FluApiGen/actions/workflows/default.yml)
 [![release_on_master](https://github.com/toolisticon/FluApiGen/actions/workflows/release.yml/badge.svg?branch=master)](https://github.com/toolisticon/FluApiGen/actions/workflows/release.yml)
 [![codecov](https://codecov.io/gh/toolisticon/FluApiGen/branch/develop/graph/badge.svg?token=FlcugFxC64)](https://codecov.io/gh/toolisticon/FluApiGen)
